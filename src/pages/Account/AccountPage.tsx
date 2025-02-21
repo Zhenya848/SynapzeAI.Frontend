@@ -21,7 +21,7 @@ export function AccountPage() {
 
     return (
         <div>
-            <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: 'left', margin: "60px", paddingLeft: "320px" }}>
+            <div style={{ alignItems: "center", display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <div style={{display: "grid", gap: "10px"}}>
                     <Avatar
                         alt="Remy Sharp"

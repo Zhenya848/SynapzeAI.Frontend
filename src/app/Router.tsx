@@ -5,7 +5,10 @@ import { LoginPage } from "../pages/Login/LoginPage";
 import { MainPage } from "../pages/Main/MainPage";
 import { AccountPage } from "../pages/Account/AccountPage";
 import { AccountManagementPage } from "../pages/AccountManagement/AccountManagementPage";
-import { PetsPage } from "../pages/Pets/petsPage";
+import { PetsPage } from "../pages/Pets/PetsPage";
+import { UpdatePage } from "../pages/Pets/UpdatePage";
+import { CreatePage } from "../pages/Pets/CreatePage";
+import { GetPage } from "../pages/Pets/GetPage";
 
 export const router = createBrowserRouter([
     {
@@ -19,6 +22,18 @@ export const router = createBrowserRouter([
         {
           path: "/pets",
           element: <PetsPage />
+        },
+        {
+          path: "/pets/update",
+          element: <UpdatePage />
+        },
+        {
+          path: "/pets/create",
+          element: <CreatePage />
+        },
+        {
+          path: "/pets/get",
+          element: <GetPage />
         },
         {
           path: "/registration",

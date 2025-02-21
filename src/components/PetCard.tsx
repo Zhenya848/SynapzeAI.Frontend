@@ -1,9 +1,5 @@
-import { Box, Button, Card, CardMedia, Typography } from "@mui/material";
-
-interface ICardInfo {
-    title: string,
-    value: string
-}
+import { Box, Button, Card, CardMedia } from "@mui/material";
+import { CardInfo } from "./CardInfo";
 
 interface IPetCardInfo {
     imageUrl: string;
@@ -14,16 +10,6 @@ interface IPetCardInfo {
     attitudeTowardsAnimals: string,
     isVactinated: boolean,
     telephoneNumber: string
-}
-
-function CardInfo({title, value}: ICardInfo)
-{
-    return (
-        <div>
-            <Typography style={{color: "lightgrey"}}>{title + ":"}</Typography>
-            <Typography variant="h6">{value}</Typography>
-        </div>
-    );
 }
 
 export function PetCard({imageUrl, nameCardInfo, attitudeTowardsPeople, ageInfo, attitudeTowardsAnimals, isVactinated, telephoneNumber}: IPetCardInfo) {
