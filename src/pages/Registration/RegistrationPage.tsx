@@ -55,7 +55,7 @@ export function RegistrationPage() {
                 await Accounts.register(userName, email, password);
                 const loginResult = await login(email, password);
 
-                if (loginResult == null)
+                if (loginResult != null)
                     navigate("/accountInfo");
             }
             catch (error) {
