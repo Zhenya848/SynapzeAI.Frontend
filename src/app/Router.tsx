@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import { RootLayout } from "../components/RootLayout";
-import '../index.css';
 import { LoginPage } from "../pages/Login/LoginPage";
 import { MainPage } from "../pages/Main/MainPage";
 import { AccountPage } from "../pages/Account/AccountPage";

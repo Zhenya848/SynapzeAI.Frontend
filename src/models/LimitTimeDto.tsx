@@ -1,4 +1,4 @@
-export type LimitTime = {
+export type LimitTimeDto = {
     seconds: number,
     minutes: number
 }
