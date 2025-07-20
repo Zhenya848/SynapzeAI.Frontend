@@ -4,8 +4,13 @@ import EmailIcon from '@mui/icons-material/Email';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import { ImageWithTextCard } from "../../components/ImageWithTextCard";
+import { useAuth } from "../../components/context/auth/useAuth";
+import { useEffect, useState } from "react";
 
 export function AccountPage() {
+    const { user, refresh } = useAuth();
+    const [isLoading, setIsLoading] = useState(true);
+
     const fullName = "Аккакий Аккакиев Драздрапермович";
     const description = "ААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААА";
 
@@ -18,6 +23,41 @@ export function AccountPage() {
     const telegram = "zheka4.tg"
 
     const cards = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setIsLoading(true);
+
+                if (!user) {
+                    const refreshResult = await refresh();
+
+                    if (refreshResult == null) {
+                        setIsLoading(false);
+                        return;
+                    }
+                }
+            } 
+            catch (error: any) {
+                error.response.data.responseErrors.forEach((e: { message: string }) => {
+                    toast.error(e.message);
+                });
+            } 
+            finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (!user) {
+        return <Typography>401 unauthorized</Typography>;
+    }
+
+    if (isLoading) {
+        return <Typography>Загрузка...</Typography>;
+    }
 
     return (
         <div>
@@ -36,11 +76,7 @@ export function AccountPage() {
                 
                 <div style={{ justifyContent: 'left', marginLeft: '50px', marginTop: "20px" }}>
                     <Typography variant="h4">
-                        {fullName}
-                    </Typography>
-
-                    <Typography variant="h6" style={{ maxWidth: '600px', wordWrap: 'break-word', marginTop: "20px" }}>
-                        {description}
+                        {user?.userName ?? "<undefined>"}
                     </Typography>
 
                     <Typography variant="h5" style={{ maxWidth: '600px', marginTop: "32px" }}>
@@ -65,7 +101,7 @@ export function AccountPage() {
                                 <EmailIcon style={{marginRight: "10px"}}/>
 
                                 <Typography variant="h6"> 
-                                    {email}
+                                    {user?.email ?? "<undefined>"}
                                 </Typography>
                             </div>
                         </div>

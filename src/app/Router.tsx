@@ -5,10 +5,14 @@ import { LoginPage } from "../pages/Login/LoginPage";
 import { MainPage } from "../pages/Main/MainPage";
 import { AccountPage } from "../pages/Account/AccountPage";
 import { AccountManagementPage } from "../pages/AccountManagement/AccountManagementPage";
-import { PetsPage } from "../pages/Pets/PetsPage";
-import { UpdatePage } from "../pages/Pets/UpdatePage";
-import { CreatePage } from "../pages/Pets/CreatePage";
-import { GetPage } from "../pages/Pets/GetPage";
+import { GetTests } from "../pages/Tests/TestsPage";
+import { UpdateTest } from "../pages/Tests/UpdatePage";
+import { CreateTest } from "../pages/Tests/CreatePage";
+import { CreateTask } from "../pages/Tasks/CreatePage";
+import { UpdateTask } from "../pages/Tasks/UpdatePage";
+import { RegistrationPage } from "../pages/Registration/RegistrationPage";
+import { CreateTestWithAI } from "../pages/Tests/CreateWithAIPage";
+import { CreateIntervalTest } from "../pages/Tests/CreateTypeIntervalPage";
 
 export const router = createBrowserRouter([
     {
@@ -16,24 +20,36 @@ export const router = createBrowserRouter([
       element: <RootLayout />,
       children: [
         {
-          path: "/main",
+          path: "/",
           element: <MainPage />
         },
         {
-          path: "/pets",
-          element: <PetsPage />
+          path: "/tests",
+          element: <GetTests />
         },
         {
-          path: "/pets/update",
-          element: <UpdatePage />
+          path: "/tests/update",
+          element: <UpdateTest />
         },
         {
-          path: "/pets/create",
-          element: <CreatePage />
+          path: "/tests/create",
+          element: <CreateTest />
         },
         {
-          path: "/pets/get",
-          element: <GetPage />
+          path: "/tests/createWithAI",
+          element: <CreateTestWithAI />
+        },
+        {
+          path: "/tests/createInterval",
+          element: <CreateIntervalTest />
+        },
+        {
+          path: "/tasks/update",
+          element: <UpdateTask />
+        },
+        {
+          path: "/tasks/create",
+          element: <CreateTask />
         },
         {
           path: "/registration",
@@ -42,6 +58,10 @@ export const router = createBrowserRouter([
         {
           path: "/login",
           element: <LoginPage />
+        },
+        {
+          path: "/register",
+          element: <RegistrationPage />
         },
         {
           path: "/accountInfo",

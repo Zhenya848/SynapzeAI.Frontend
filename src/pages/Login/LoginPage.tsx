@@ -1,25 +1,41 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import { Button, TextField } from "@mui/material";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Button, TextField, Typography } from "@mui/material";
 import { toast } from "react-toastify";
-
+import { useAuth } from "../../components/context/auth/useAuth";
 export function LoginPage() {
+    const { login, isLoading } = useAuth();
+
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState(false);
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        let isValid = true;
 
         if (email.includes("@") == false) {
             setEmailError(true);
             toast.error("Некорректная почта");
+
+            isValid = false;
         }
 
-        if (password.length < 8) {
+        if (password.length < 1) {
             setPasswordError(true);
-            toast.error("Некорректный пароль");
+            toast.error("Пароль не может быть пустым");
+
+            isValid = false;
+        }
+        
+        if (isValid) {
+            const loginResult = await login(email, password);
+
+            if (loginResult)
+                navigate("/accountInfo");
         }
     }
 
@@ -47,7 +63,13 @@ export function LoginPage() {
                         fullWidth 
                     />
 
-                    <Button type="submit">Войти</Button>
+                    <div style={{display: "flex", flexDirection: "column"}}>
+                        <Button type="submit" disabled = {isLoading}>Войти</Button>
+
+                        <Link to="/register" style={{ textDecoration: 'underline', color: "grey" }}>
+                            Нет аккаунта? Зарегистрироваться
+                        </Link>
+                    </div>
                 </form>
             </div>
         </div>
