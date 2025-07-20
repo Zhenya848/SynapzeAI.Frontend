@@ -2,14 +2,14 @@ import { LimitTimeDto } from "../LimitTimeDto"
 import { TaskDto } from "./TaskDto"
 
 export type TestDto = {
-    Id: string
-    UserId: string
+    id: string
+    userId: string
     
-    TestName: string
-    Theme: string
-    IsPublished: boolean
+    testName: string
+    theme: string
+    isPublished: boolean
 
-    LimitTime?: LimitTimeDto
+    limitTime?: LimitTimeDto
     
-    Tasks: TaskDto[]
+    tasks: TaskDto[]
 }
