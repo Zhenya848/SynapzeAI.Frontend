@@ -76,8 +76,6 @@ export const AuthProvider = ({ children }: Props) => {
             setAccessToken(response.data.result!.accessToken);
             setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as User)
 
-            console.log(response.data.result!.userName);
-
             setIsLoading(false);
 
             return response.data.result!;

@@ -3,4 +3,5 @@ export type LoginResponse = {
     refreshToken: string;
     userId: string;
     email: string;
+    userName: string;
 }
