@@ -11,7 +11,13 @@ interface IFilterBlockInfo {
 export function FilterBlock({ onSort, onPublishedFilter, onTimeLimitFilter, onSearch }: IFilterBlockInfo) 
 {
     return (
-        <Box component="section" sx={{ p: 1, pr: 4, borderRadius: 3, bgcolor: "#616161", margin: '20px'} }> 
+        <Box component="section" sx={{ p: 1, pr: 4, borderRadius: 3, bgcolor: "#616161",
+            margin: '20px',
+            width: 'calc(100% - 40px)',
+            height: 'calc(100% - 40px)',
+            boxSizing: 'border-box',
+            position: 'relative',
+        }}> 
             <div className="text-3xl pr-5">Поиск и сортировка</div>
 
             <div className="py-5">
@@ -40,7 +46,7 @@ export function FilterBlock({ onSort, onPublishedFilter, onTimeLimitFilter, onSe
                     <Autocomplete
                         disablePortal
                         options={["Есть", "Нет"]}
-                        sx={{ width: 300, mb: 2 }}
+                        sx={{mb: 2, wight: '450p'}}
                         renderInput={(params) => <TextField {...params} label="Ограничение по времени" />}
                         onChange={(event, value) => onTimeLimitFilter(value || "")}
                     />
@@ -48,7 +54,7 @@ export function FilterBlock({ onSort, onPublishedFilter, onTimeLimitFilter, onSe
                     <Autocomplete
                         disablePortal
                         options={["Да", "Нет"]}
-                        sx={{ width: 300 }}
+                        sx={{mb: 2, wight: '450p'}}
                         renderInput={(params) => <TextField {...params} label="Опубликовано" />}
                         onChange={(event, value) => onPublishedFilter(value || "")}
                     />
@@ -60,7 +66,7 @@ export function FilterBlock({ onSort, onPublishedFilter, onTimeLimitFilter, onSe
             <Autocomplete
                 disablePortal
                 options={["Название", "Время прохождения", "Тема"]}
-                sx={{ width: 300 }}
+                sx={{ width: '450p' }}
                 renderInput={(params) => <TextField {...params} label="Свойство" />}
                 onChange={(event, value) => onSort(value || "")}
             />

@@ -1,17 +1,17 @@
 import { createBrowserRouter } from "react-router-dom";
-import { RootLayout } from "../components/RootLayout";
+import { RootLayout } from "../components/Root/RootLayout";
 import { LoginPage } from "../pages/Login/LoginPage";
 import { MainPage } from "../pages/Main/MainPage";
 import { AccountPage } from "../pages/Account/AccountPage";
 import { AccountManagementPage } from "../pages/AccountManagement/AccountManagementPage";
-import { GetTests } from "../pages/Tests/TestsPage";
-import { UpdateTest } from "../pages/Tests/UpdatePage";
-import { CreateTest } from "../pages/Tests/CreatePage";
-import { CreateTask } from "../pages/Tasks/CreatePage";
-import { UpdateTask } from "../pages/Tasks/UpdatePage";
+import { GetTests } from "../pages/Tests/Get/TestsPage";
 import { RegistrationPage } from "../pages/Registration/RegistrationPage";
-import { CreateTestWithAI } from "../pages/Tests/CreateWithAIPage";
-import { CreateIntervalTest } from "../pages/Tests/CreateTypeIntervalPage";
+import { CreateTestWithAI } from "../pages/Tests/Create/CreateWithAIPage";
+import { UpdateTest } from "../pages/Tests/Update/UpdatePage";
+import { CreateTest } from "../pages/Tests/Create/CreatePage";
+import { UpdateTask } from "../pages/Tasks/Update/UpdatePage";
+import { CreateTask } from "../pages/Tasks/Create/CreatePage";
+import { DecidePage } from "../pages/Tests/Get/DecidePage";
 
 export const router = createBrowserRouter([
     {
@@ -35,12 +35,12 @@ export const router = createBrowserRouter([
           element: <CreateTest />
         },
         {
-          path: "/tests/createWithAI",
-          element: <CreateTestWithAI />
+          path: "/tests/decide",
+          element: <DecidePage />
         },
         {
-          path: "/tests/createInterval",
-          element: <CreateIntervalTest />
+          path: "/tests/createWithAI",
+          element: <CreateTestWithAI />
         },
         {
           path: "/tasks/update",

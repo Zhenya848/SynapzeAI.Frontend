@@ -1,4 +1,4 @@
-import { Props } from "./RootLayout";
+import { Props } from "./Root/RootLayout";
 
 
 export function ContentBolck(props: Props) {

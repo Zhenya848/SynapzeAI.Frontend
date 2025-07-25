@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Button, TextField, Typography } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { toast } from "react-toastify";
 import { useAuth } from "../../components/context/auth/useAuth";
 export function LoginPage() {
