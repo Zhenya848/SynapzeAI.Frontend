@@ -1,9 +1,9 @@
 import { createContext, useEffect, useLayoutEffect, useState } from "react";
-import { User } from "../../../models/User";
+import { User } from "../../../models/Accounts/User";
 import { api } from "../../../api/api";
-import { Accounts } from "../../../api/accounts";
+import { Accounts } from "../../../api/Endpoints/accounts";
 import { toast } from "react-toastify";
-import { LoginResponse } from "../../../models/LoginResponse";
+import { LoginResponse } from "../../../models/Accounts/LoginResponse";
 
 type AuthContextType = {
     user: User | undefined;

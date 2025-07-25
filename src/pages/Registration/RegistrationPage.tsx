@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { toast } from "react-toastify";
 import { useAuth } from "../../components/context/auth/useAuth";
-import { Accounts } from "../../api/accounts";
+import { Accounts } from "../../api/Endpoints/accounts";
 
 export function RegistrationPage() {
     const { login, isLoading } = useAuth();
