@@ -22,7 +22,6 @@ export function CreateTest() {
 
     const [testSeconds, setTestSeconds] = useState<string>("");
     const [testMinutes, setTestMinutes] = useState<string>("");
-    const [testIsPublished, setTestIsPublished] = useState<boolean>(true);
     const [testTasks, setTestTasks] = useState<TaskDto[]>([]);
 
     const navigate = useNavigate();
@@ -40,7 +39,6 @@ export function CreateTest() {
             setTestTheme(test.theme);
             setTestSeconds((test.limitTime ? test.limitTime.seconds.toString() : ""))
             setTestMinutes((test.limitTime ? test.limitTime.minutes.toString() : ""))
-            setTestIsPublished(test.isPublished);
             setTestTasks(test.tasks);
         }
     }, []);
@@ -57,7 +55,7 @@ export function CreateTest() {
             testName: testName, 
             theme: testTheme, 
             limitTime: (testSeconds && testMinutes ? { seconds: Number.parseInt(testSeconds), minutes: Number.parseInt(testMinutes) } as LimitTimeDto : null), 
-            isPublished: testIsPublished,
+            withAI: false,
             tasks: testTasks
         } as TestDto
 
@@ -117,7 +115,7 @@ export function CreateTest() {
         if (user) {
             try {
                 setIsLoading(true);
-                await Tests.create(user.id, testName, testTheme, testIsPublished, tasks, seconds, minutes);
+                await Tests.create(user.id, testName, testTheme, false, tasks, seconds, minutes);
                 
                 navigate("/tests");
             } 
@@ -181,8 +179,6 @@ export function CreateTest() {
                             style={{ width: "100%", marginLeft: "10px" }} 
                         />
                     </div>
-
-                    <FormControlLabel control={<Checkbox checked={testIsPublished} onChange={(e) => setTestIsPublished(e.target.checked)}/>} label="Опубликовать" style={{marginTop: "10px"}}/>
                 </div>
             </div>
             

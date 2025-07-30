@@ -12,7 +12,6 @@ export type TaskDto = {
     audioPath?: string
     
     taskStatistic?: TaskStatisticDto
-    nextReview?: string
     
     answers?: string[]
 }

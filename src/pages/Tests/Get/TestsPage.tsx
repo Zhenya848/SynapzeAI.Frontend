@@ -15,7 +15,6 @@ import { TestDto } from "../../../models/Dtos/Tests/TestDto";
 import { toast } from "react-toastify";
 import AddTestSelectionPanel from "../../../components/SelectionPanel/AddTestSelectionPanel";
 import StartDecideSelectionPanel from "../../../components/SelectionPanel/StartDecideSelectionPanel";
-import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
 
 export function GetTests() {
     const navigate = useNavigate();
@@ -115,19 +114,17 @@ export function GetTests() {
     const handleOptionStartDecideTestDialogSelect = (option: string) => {
         handleStartDecideTestDialogClose();
 
-        const tasksData = tests.find(t => t.id === testId)?.tasks;
+        const testData = tests.find(t => t.id === testId);
 
-        console.log(testId)
-
-        if (!tasksData)
+        if (!testData)
             return;
 
         switch (option) {
             case "intervalMode":
-                navigate("/tests/decide")
+                navigate("/tests/decideWithInterval", { state: { testData } })
                 break;
             case "ordinaryMode":
-                navigate("/tests/decide", { state: { tasksData } });
+                navigate("/tests/decide", { state: { testData } });
                 break;
         }
     };
@@ -155,6 +152,11 @@ export function GetTests() {
 
     const handleChangeSelect = (testData: TestDto) => {
         navigate("/tests/update", { state: { testData: testData } });
+    }
+
+    const handleShowSolvingHistoriesSelect = (testId: string) => {
+        const testIdData = testId;
+        navigate("/tests/solvingHistories", { state: { testIdData } });
     }
 
     return (
@@ -190,7 +192,8 @@ export function GetTests() {
                         test={card}
                         onDelete={handleDeleteDialogOpen}
                         onUpdate={handleChangeSelect}
-                        onStartDecide={handleStartDecideTestDialogOpen}>
+                        onStartDecide={handleStartDecideTestDialogOpen}
+                        onShowSolvingHistories={handleShowSolvingHistoriesSelect}>
                     </TestCard>
                 ))}
             </Box>

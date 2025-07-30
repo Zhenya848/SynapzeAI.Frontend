@@ -1,8 +1,8 @@
 import { Box, Typography } from "@mui/material";
 
 interface ICardInfo {
-    title: string,
-    value: string
+    title: string;
+    value: string;
 }
 
 export function CardInfo({title, value}: ICardInfo)
@@ -12,7 +12,7 @@ export function CardInfo({title, value}: ICardInfo)
             <Box sx={{
                     maxWidth: '97%'
                 }}>
-                    <Typography component="div" sx={{ color: "lightgrey" }}>
+                    <Typography component="div" sx={{ color: "lightgrey", whiteSpace: 'nowrap' }}>
                         {title}
                     </Typography>
                     <Typography 

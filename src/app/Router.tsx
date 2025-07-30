@@ -12,6 +12,10 @@ import { CreateTest } from "../pages/Tests/Create/CreatePage";
 import { UpdateTask } from "../pages/Tasks/Update/UpdatePage";
 import { CreateTask } from "../pages/Tasks/Create/CreatePage";
 import { DecidePage } from "../pages/Tests/Get/DecidePage";
+import { DecideWithIntervalPage } from "../pages/Tests/Get/DecideWithIntervalPage";
+import { VerdictPage } from "../pages/VerdictPage";
+import { VerdictIntervalPage } from "../pages/VerdictIntervalPage";
+import { GetSolvingHistories } from "../pages/SolvingHistories/SolvingHistoriesPage";
 
 export const router = createBrowserRouter([
     {
@@ -39,6 +43,10 @@ export const router = createBrowserRouter([
           element: <DecidePage />
         },
         {
+          path: "/tests/decideWithInterval",
+          element: <DecideWithIntervalPage />
+        },
+        {
           path: "/tests/createWithAI",
           element: <CreateTestWithAI />
         },
@@ -49,6 +57,18 @@ export const router = createBrowserRouter([
         {
           path: "/tasks/create",
           element: <CreateTask />
+        },
+        {
+          path: "/tests/verdict",
+          element: <VerdictPage />
+        },
+        {
+          path: '/tests/verdictInterval',
+          element: <VerdictIntervalPage />
+        },
+        {
+          path: '/tests/solvingHistories',
+          element: <GetSolvingHistories />
         },
         {
           path: "/registration",

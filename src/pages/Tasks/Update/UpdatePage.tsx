@@ -67,7 +67,7 @@ export function UpdateTask() {
                 testName: test.testName, 
                 theme: test.theme, 
                 limitTime: test.limitTime, 
-                isPublished: test.isPublished,
+                withAI: test.withAI,
                 tasks: test.tasks
             } as TestDto
 

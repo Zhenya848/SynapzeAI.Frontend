@@ -7,7 +7,7 @@ export type TestDto = {
     
     testName: string
     theme: string
-    isPublished: boolean
+    withAI: boolean
 
     limitTime?: LimitTimeDto
     

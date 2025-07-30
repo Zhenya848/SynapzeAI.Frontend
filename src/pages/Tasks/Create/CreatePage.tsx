@@ -53,7 +53,7 @@ export function CreateTask() {
                 testName: test.testName, 
                 theme: test.theme, 
                 limitTime: test.limitTime, 
-                isPublished: test.isPublished,
+                withAI: test.withAI,
                 tasks: [...test.tasks, task]
             } as TestDto
 

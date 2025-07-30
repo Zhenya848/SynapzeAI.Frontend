@@ -13,6 +13,7 @@ import { UpdateTaskDto } from "../../../models/Api/Tasks/UpdateTaskDto";
 import { Tests } from "../../../api/Endpoints/tests";
 import { TaskCard } from "../../../components/Tasks/TaskCard";
 import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
+import { LimitTimeDto } from "../../../models/Dtos/Tests/LimitTimeDto";
 
 export function UpdateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -23,7 +24,6 @@ export function UpdateTest() {
 
     const [testSeconds, setTestSeconds] = useState<string>("");
     const [testMinutes, setTestMinutes] = useState<string>("");
-    const [testIsPublished, setTestIsPublished] = useState<boolean>(true);
     const [testTasks, setTestTasks] = useState<TaskDto[]>([]);
 
     const [changedTasks, setChangedTasks] = useState<ChangedTask[]>([]);
@@ -42,7 +42,6 @@ export function UpdateTest() {
             setTestTheme(test.theme);
             setTestSeconds((test.limitTime ? test.limitTime.seconds.toString() : ""))
             setTestMinutes((test.limitTime ? test.limitTime.minutes.toString() : ""))
-            setTestIsPublished(test.isPublished);
             setTestTasks(test.tasks);
         }
 
@@ -63,7 +62,7 @@ export function UpdateTest() {
             testName: testName, 
             theme: testTheme, 
             limitTime: (testSeconds && testMinutes ? { seconds: Number.parseInt(testSeconds), minutes: Number.parseInt(testMinutes) } as LimitTimeDto : null), 
-            isPublished: testIsPublished,
+            withAI: false,
             tasks: testTasks
         } as TestDto
 
@@ -137,7 +136,7 @@ export function UpdateTest() {
         if (test) {
             try {
                 setIsLoading(true);
-                await Tests.update(test.id, testName, testTheme, testIsPublished, seconds, minutes, createdTasks, updatedTasks, deletedTasks);
+                await Tests.update(test.id, testName, testTheme, false, seconds, minutes, createdTasks, updatedTasks, deletedTasks);
                 
                 navigate("/tests");
             } 
@@ -203,8 +202,6 @@ export function UpdateTest() {
                             style={{ width: "100%", marginLeft: "10px" }} 
                         />
                     </div>
-
-                    <FormControlLabel control={<Checkbox checked={testIsPublished} onChange={(e) => setTestIsPublished(e.target.checked)}/>} label="Опубликовать" style={{marginTop: "10px"}}/>
                 </div>
             </div>
             

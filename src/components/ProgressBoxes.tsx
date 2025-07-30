@@ -1,28 +1,19 @@
-import { Box, Button, colors } from "@mui/material";
-import { useState } from "react";
+import { Box, colors } from "@mui/material";
+import { textStyle } from "../models/FilledBoxStyles/TextStyle";
+import { fillStyle } from "../models/FilledBoxStyles/FillStyle";
 
 interface IProgressBoxesInfo {
     totalQuestions: number, 
     errorBoxes?: number[]
     onChoose?: any,
+    progressValues?: number[]
 }
 
-const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose}: IProgressBoxesInfo) => {
-    const [progress, setProgress] = useState<number[]>(Array(totalQuestions).fill(0));
-
-    const updateProgress = (index: number, value: number) => {
-        const newProgress = [...progress];
-        newProgress[index] = Math.min(1, Math.max(0, value));
-        setProgress(newProgress);
-    };
-
-    const getColor = (value: number) => {
-        const hue = value * 120;
-        return `hsl(${hue}, 70%, 50%)`;
-    };
+const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose, progressValues}: IProgressBoxesInfo) => {
+    const progress = (progressValues ?? Array(totalQuestions).fill(0));
 
     const isErrorBox = (index: number) => {
-        return errorBoxes?.includes(index + 1);
+        return errorBoxes?.includes(index);
     };
 
     const boxStyle = (index: number) => ({
@@ -40,27 +31,9 @@ const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose}: IProgressBoxe
         margin: "10px"
     });
 
-    const fillStyle = (value: number) => ({
-        position: 'absolute' as const,
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: `${value * 100}%`,
-        backgroundColor: getColor(value),
-        opacity: value > 0 ? 0.7 : 0.3,
-        transition: 'all 0.3s ease',
-        zIndex: 1
-    });
-
     const buttonStyle = {
         padding: '5px 10px',
         cursor: 'pointer',
-    };
-
-    const numberStyle: React.CSSProperties = {
-        position: 'relative',
-        zIndex: 10,
-        textShadow: '0 0 3px black',
     };
 
     return (
@@ -85,8 +58,8 @@ const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose}: IProgressBoxe
             },
         }}>
             {progress.map((value, index) => (
-                <button onClick={() => onChoose(index)} key={index} style={{...boxStyle(index), flexShrink: 0}}>
-                    <span style={numberStyle}>{index + 1}</span>
+                <button onClick={() => {if (onChoose) onChoose(index)}} key={index} style={{...boxStyle(index), flexShrink: 0}}>
+                    <span style={textStyle}>{index + 1}</span>
                     <div style={fillStyle(value)} />
                 </button>
             ))}
