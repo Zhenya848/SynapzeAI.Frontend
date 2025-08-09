@@ -1,26 +1,57 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
-import ReplayIcon from '@mui/icons-material/Replay';
 import { StatisticTask } from "../models/Tasks/StatisticTask";
 import { VerdictIntervalTaskCard } from "../components/Tasks/VerdictIntervalTaskCard";
 import { TestDto } from "../models/Dtos/Tests/TestDto";
+import { useEffect, useState } from "react";
+import { UpdateTaskStatisticDto } from "../models/Api/Tasks/UpdateTaskStatisticDto";
+import { Tests } from "../api/Endpoints/tests";
+import { toast } from "react-toastify";
 
 export function VerdictIntervalPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const [isLoading, setIsLoading] = useState(true);
+
     const test: TestDto = location.state?.testData;
     const statisticTasks: StatisticTask[] = location.state?.statisticTasksData;
 
-    const handleCancel = () => {
-        navigate("/tests");
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setIsLoading(true);
+                
+                if (!test || test.tasks.length < 1)
+                    return;
+
+                const tasks: UpdateTaskStatisticDto[] = statisticTasks.map((task, index) => ({
+                    taskId: test.tasks[index].id,
+                    statistic: task.taskStatistic
+                }))
+
+                await Tests.updateTasksStatistic(test.id, tasks);
+            } 
+            catch (error: any) {
+                error.response.data.responseErrors.forEach((e: { message: string }) => {
+                    toast.error(e.message);
+                });
+            } 
+            finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (isLoading) {
+        return <Typography>Загрузка...</Typography>;
     }
 
-    const handleRetry = () => {
-        const testData = test;
-
-        navigate("/tests/decideWithInterval", { state: { testData } });
+    const handleCancel = () => {
+        navigate("/tests");
     }
 
     return (
@@ -34,18 +65,15 @@ export function VerdictIntervalPage() {
                         audioUrl={task.audioPath}
                         nameCardInfo={task.taskName}
                         message={task.taskMessage}
-                        taskStatistic={statisticTasks.find(i => i.taskIndex === index)?.taskStatistic!}
-                        progressValue={1 - statisticTasks.find(i => i.taskIndex === index)?.priorityNumber!}
+                        taskStatistic={statisticTasks.find(i => i.taskIndex === index)?.taskStatistic}
+                        progressValue={1 - (statisticTasks.find(i => i.taskIndex === index)?.priorityNumber ?? 1)}
                         rightAnswer={task.rightAnswer ?? ""}
                         answers={task.answers}>
                     </VerdictIntervalTaskCard>
                 ))}
             </div>
 
-            <div style={{display: 'flex', width: "100%", marginTop: "10px"}}>
-                <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-                <Button variant="contained" color="primary" onClick={handleRetry} sx={{ width: "100%", color: 'white', marginLeft: "20px"}} startIcon={<ReplayIcon />}>Заново</Button>
-            </div>
+            <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
         </div>
     )
 }

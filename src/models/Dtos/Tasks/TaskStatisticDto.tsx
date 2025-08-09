@@ -1,6 +1,6 @@
 export type TaskStatisticDto = {
     errorsCount: number
     rightAnswersCount: number
-    lastReviewTime: string
+    lastReviewTime: Date
     avgTimeSolvingSec: number
 }

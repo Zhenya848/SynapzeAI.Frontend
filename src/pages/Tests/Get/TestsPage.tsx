@@ -155,8 +155,12 @@ export function GetTests() {
     }
 
     const handleShowSolvingHistoriesSelect = (testId: string) => {
-        const testIdData = testId;
-        navigate("/tests/solvingHistories", { state: { testIdData } });
+        const testData = tests.find(i => i.id === testId);
+
+        if (!testData)
+            return;
+
+        navigate("/tests/solvingHistories", { state: { testData } });
     }
 
     return (

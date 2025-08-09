@@ -43,22 +43,17 @@ export function VerdictTaskCard({imageUrl, nameCardInfo, message, userAnswer, ri
                 <CardMedia component="img" height="140" image={imageUrl} alt="Без фото" />
             </Card>
 
-            <Box sx={{ display: 'flex' }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', margin: "15px", gap: 2 }}>
-                    <CardInfo title="Название" value={nameCardInfo} />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px', margin: '20px' }}>
+                <CardInfo title="Название" value={nameCardInfo} />
                 
-                    <CardInfo title="Сообщение" value={message} />
+                <CardInfo title="Сообщение" value={message} />
 
-                    {answers && answers.length > 0 && <CardInfo title="Варианты ответов" value={answers.join(", ")} />}
-                </Box>
+                {answers && answers.length > 0 && <CardInfo title="Варианты ответов" value={answers.join(", ")} />}
+                {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', margin: "15px", gap: 2 }}>
-                    {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
+                <CardInfo title="Ваш ответ" value={userAnswer} />
 
-                    <CardInfo title="Ваш ответ" value={userAnswer} />
-
-                    {comment && <CardInfo title="Комментарий к задаче" value={comment} />}
-                </Box>
+                {comment && <CardInfo title="Комментарий к задаче" value={comment} />}
             </Box>
         </Box>
     )

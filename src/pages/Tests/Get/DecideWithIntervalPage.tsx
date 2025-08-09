@@ -1,37 +1,21 @@
 import { Box, Button, Card, CardMedia, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import BuildIcon from '@mui/icons-material/Build';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import ProgressBoxes from "../../../components/ProgressBoxes";
 import ClearIcon from '@mui/icons-material/Clear';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TaskStatisticDto } from "../../../models/Dtos/Tasks/TaskStatisticDto";
 import { StatisticTask } from "../../../models/Tasks/StatisticTask";
 import { TestDto } from "../../../models/Dtos/Tests/TestDto";
 import { motion } from "framer-motion";
-
-function calculatePriorityNumber(taskStatistic?: TaskStatisticDto): number {
-    if (!taskStatistic) {
-        return 1000;
-    }
-
-    const now = new Date();
-
-    const errorAvr = taskStatistic.errorsCount / (taskStatistic.errorsCount + taskStatistic.rightAnswersCount + 0.01)
-    const tryFactor = 1 / (Math.sqrt(taskStatistic.errorsCount + taskStatistic.rightAnswersCount) + 0.01)
-    const lastReviewFactor = Math.log10((now.getTime() - taskStatistic.lastReviewTime.getTime()) / 84400 + 1)
-
-    const priority = (
-        0.5 * errorAvr +
-        0.7 * tryFactor +
-        0.6 * lastReviewFactor
-    );
-
-    return Math.max(0, Math.min(1, priority));
-}
+import { PauseDialog } from "../../../components/Tasks/Timer/PauseDialog";
+import PauseIcon from '@mui/icons-material/Pause';
+import { calculatePriorityNumber } from "../../../models/Tasks/CalculatePriorityNumber";
+import { Stopwatch } from "../../../components/Tasks/Stopwatch/Stopwatch";
+import { StopwatchHandle } from "../../../components/Tasks/Stopwatch/StopwatchHandle";
 
 export function DecideWithIntervalPage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -43,8 +27,14 @@ export function DecideWithIntervalPage() {
   const [isWrongAnswerAnimation, setIsWrongAnswerAnimation] = useState<boolean>(false);
   const [isWrongAnswerAnimationActive, setIsWrongAnswerAnimationActive] = useState<boolean>(true);
 
+  const [isPauseDialogOpen, setIsPauseDialogOpen] = useState<boolean>(false);
+
+  const [isHideSolvingTime, setIsHideSolvingTime] = useState<boolean>(true);
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  const stopwatchRef = useRef<StopwatchHandle>(null);
 
   const test: TestDto = location.state?.testData;
 
@@ -66,6 +56,7 @@ export function DecideWithIntervalPage() {
     }
 
     setSelectedAnswer("");
+    stopwatchRef.current?.reset();
 
     const taskStatistic: TaskStatisticDto = priorityTasks[currentTaskIndex].taskStatistic;
 
@@ -73,7 +64,7 @@ export function DecideWithIntervalPage() {
     { 
         rightAnswersCount: taskStatistic.rightAnswersCount + (isRightAnswer ? 1 : 0),
         errorsCount: taskStatistic.errorsCount + (isRightAnswer ? 0 : 1),
-        avgTimeSolvingSec: 0,
+        avgTimeSolvingSec: (taskStatistic.avgTimeSolvingSec + (stopwatchRef.current?.getExpiredTime() ?? 0)) / (taskStatistic.avgTimeSolvingSec === 0 ? 1 : 2),
         lastReviewTime: new Date()
     } as TaskStatisticDto
 
@@ -119,13 +110,14 @@ export function DecideWithIntervalPage() {
     navigate("/tests/update", { state: { testData } })
   }
 
-  const handleShowSolvingHistories = () => {
-    const testIdData = test.id;
-    navigate("/tests/solvingHistories", { state: { testIdData } })
-  }
-
   const handleReset = () => {
-    setPriorityTasks([]);
+    const cleanedPriorityTasks: StatisticTask[] = test.tasks.map((task, index) => ({
+        taskIndex: index,
+        priorityNumber: 1,
+        taskStatistic: {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatisticDto,
+    }));
+
+    setPriorityTasks(cleanedPriorityTasks);
     setCurrentTaskIndex(0);
     setSelectedAnswer("");
   }
@@ -134,6 +126,14 @@ export function DecideWithIntervalPage() {
       const testData = test;
       navigate("/tests/decide", { state: { testData } })
   };
+
+  const handlePause = () => {
+    setIsPauseDialogOpen(true);
+  }
+
+  const handlePauseDialogClose = () => {
+    setIsPauseDialogOpen(false);
+  }
 
   function getAnswerButtonColor(answer: string) {
     if (isWrongAnswerAnimation) {
@@ -150,20 +150,19 @@ export function DecideWithIntervalPage() {
   }
 
   useEffect(() => {
-    if (priorityTasks.length < 1) {
-        const initialPriorityTasks: StatisticTask[] = test.tasks.map((task, index) => ({
-            taskIndex: index,
-            priorityNumber: calculatePriorityNumber(task.taskStatistic),
-            taskStatistic: task.taskStatistic ?? {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatisticDto,
-        }));
+      const initialPriorityTasks: StatisticTask[] = test.tasks.map((task, index) => ({
+          taskIndex: index,
+          priorityNumber: calculatePriorityNumber(task.taskStatistic),
+          taskStatistic: task.taskStatistic ?? {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatisticDto,
+      }));
 
-        setPriorityTasks(initialPriorityTasks);
-    }
-    else {
-        setCurrentTaskIndex(getHighestPriorityTaskIndex(priorityTasks) ?? 0)
-    }
+      setPriorityTasks(initialPriorityTasks);
+  }, []);
 
+  useEffect(() => {
+    setCurrentTaskIndex(getHighestPriorityTaskIndex(priorityTasks) ?? 0)
   }, [priorityTasks]);
+
 
   return (
     <Box sx={{
@@ -312,7 +311,7 @@ export function DecideWithIntervalPage() {
 
             <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
               <Button variant="contained" color="error" onClick={handleCancel} sx={{width: "145px", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-              <Button variant="contained" onClick={handleShowSolvingHistories} color="warning" sx={{width: "145px", marginTop: "20px", color: "white"}} startIcon={<AnalyticsIcon />}>История</Button>
+              <Button variant="contained" onClick={handlePause} color="warning"sx={{width: "145px", marginTop: "20px", color: "white"}} startIcon={<PauseIcon />}>Пауза</Button>
               <Button  variant="outlined" onClick={handleUpdateTest} startIcon={<BuildIcon />} sx={{width: "145px", marginTop: "20px"}}>Изменить задачи</Button>
             </div>
           </div>
@@ -320,7 +319,21 @@ export function DecideWithIntervalPage() {
           <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: "20px"}}>
             <FormControlLabel control={<Checkbox checked={isWrongAnswerAnimationActive} onChange={(e) => setIsWrongAnswerAnimationActive(e.target.checked)} />} label="Показывать ответ после решения"/>
             <FormControlLabel control={<Checkbox checked={isHideAnswers} onChange={(e) => setIsHideAnswers(e.target.checked)} />} label="Скрывать варианты ответа"/>
+            <FormControlLabel control={<Checkbox checked={isHideSolvingTime} onChange={(e) => setIsHideSolvingTime(e.target.checked)} />} label="Скрывать время решения"/>
+          </div>
+
+          <div style={{
+            width: "100%", 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            height: '100vh', 
+            justifyContent: 'flex-end', 
+            visibility: isHideSolvingTime ? 'hidden' : 'visible'}}>
+              <Stopwatch ref={stopwatchRef} />
           </div>
         </Box>
+
+        <PauseDialog open={isPauseDialogOpen} onClose={handlePauseDialogClose}></PauseDialog>
     </Box>)
 }

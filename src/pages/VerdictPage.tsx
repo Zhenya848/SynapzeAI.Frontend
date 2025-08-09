@@ -16,9 +16,11 @@ export function VerdictPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [taskHistories, setTaskHistories] = useState<TaskHistoryDto[]>([]);
+    const [solvingHistoryId, setSolvingHistoryId] = useState<string>("");
 
     const test: TestDto = location.state?.testData;
     const answerHistory: AnswersHistory[] = location.state?.answerHistoryData;
+    const expiredTime: number = location.state?.expiredTimeData;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -29,6 +31,7 @@ export function VerdictPage() {
                     return;
 
                 const taskHistories: TaskHistoryDto[] = test.tasks.map((task, index) => ({
+                    serialNumber: task.serialNumber,
                     taskName: task.taskName,
                     taskMessage: task.taskMessage,
                     rightAnswer: task.rightAnswer,
@@ -38,7 +41,11 @@ export function VerdictPage() {
                     messageAI: ""
                 }))
 
-                await SolvingHistories.create(test.tasks[0].testId, taskHistories, new Date(), 5);
+                if (!expiredTime)
+                    return;
+
+                const response = await SolvingHistories.create(test.tasks[0].testId, taskHistories, new Date(), expiredTime);
+                setSolvingHistoryId(response.data.result!);
 
                 setTaskHistories(taskHistories);
             } 
@@ -69,6 +76,32 @@ export function VerdictPage() {
         navigate("/tests/decide", { state: { testData } });
     }
 
+    const handleExplain = async () => {
+        try {
+            setIsLoading(true);
+                
+            if (!test)
+                return;
+
+            console.log(solvingHistoryId);
+
+            const response = await SolvingHistories.explainSolvingTest(test.id, solvingHistoryId);
+            const aiMessagesForTasks = response.data.result!;
+
+            setTaskHistories(prev => {
+                return prev.map((item, idx) => ({ ...item, messageAI: aiMessagesForTasks.find(v => v.taskSerialNumber === item.serialNumber)?.aiMessage ?? ""}));
+            });
+        }
+        catch (error: any) {
+            error.response.data.responseErrors.forEach((e: { message: string }) => {
+                toast.error(e.message);
+            });
+        } 
+        finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <div style={{margin: "10px", alignItems: "center", display: "flex", flexDirection: "column"}}>
             <Typography variant="h4">Викотрина пройдена!</Typography>
@@ -88,9 +121,10 @@ export function VerdictPage() {
                 ))}
             </div>
 
-            <div style={{display: 'flex', width: "100%", marginTop: "10px"}}>
+            <div style={{display: 'flex', width: "100%", marginTop: "10px", gap: 10}}>
                 <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-                <Button variant="contained" color="primary" onClick={handleRetry} sx={{ width: "100%", color: 'white', marginLeft: "20px"}} startIcon={<ReplayIcon />}>Заново</Button>
+                <Button variant="contained" color="secondary" onClick={handleExplain} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Анализ с AI</Button>
+                <Button variant="contained" color="primary" onClick={handleRetry} sx={{ width: "100%", color: 'white'}} startIcon={<ReplayIcon />}>Заново</Button>
             </div>
         </div>
     )

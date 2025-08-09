@@ -1,4 +1,5 @@
 export type TaskHistoryDto = {
+    serialNumber: number
     taskName: string
     taskMessage: string
     rightAnswer?: string

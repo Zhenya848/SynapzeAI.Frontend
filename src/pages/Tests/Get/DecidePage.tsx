@@ -4,13 +4,16 @@ import BuildIcon from '@mui/icons-material/Build';
 import ProgressBoxes from "../../../components/ProgressBoxes";
 import ClearIcon from '@mui/icons-material/Clear';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import { useState } from "react";
+import PauseIcon from '@mui/icons-material/Pause';
+import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AnswersHistory } from "../../../models/Tasks/AswerHistory";
-import HistoryIcon from '@mui/icons-material/History';
 import { TestDto } from "../../../models/Dtos/Tests/TestDto";
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { CountdownTimer } from "../../../components/Tasks/Timer/CountdownTimer";
+import { CountdownTimerHandle } from "../../../components/Tasks/Timer/CountdownTimerHandle";
+import { PauseDialog } from "../../../components/Tasks/Timer/PauseDialog";
 
 export function DecidePage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -18,7 +21,11 @@ export function DecidePage() {
   const [answersHistory, setAnswersHistory] = useState<AnswersHistory[]>([]);
   const [notFixedAnswersIndexes, setNotFixedAnswersIndexes] = useState<number[]>([]);
 
-  const [hideAnswers, setHideAnswers] = useState<boolean>(false);
+  const [isHideAnswers, setIsHideAnswers] = useState<boolean>(false);
+
+  const [isPauseDialogOpen, setIsPauseDialogOpen] = useState<boolean>(false);
+
+  const timerRef = useRef<CountdownTimerHandle>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,6 +61,9 @@ export function DecidePage() {
   const handleNext = () => {
     if (currentTaskIndex < test.tasks.length - 1)
       setCurrentTaskIndex(currentTaskIndex + 1);
+
+    const savedAnswer = answersHistory.find(a => a.taskIndex === currentTaskIndex + 1);
+    setSelectedAnswer(savedAnswer ? savedAnswer.answer : "");
   }
 
   const handleFixingTheAnswer = () => {
@@ -64,10 +74,20 @@ export function DecidePage() {
     );
   }
 
+  const navigateToVerdictPage = () => {
+    const testData = test;
+    const answerHistoryData = answersHistory;
+    const expiredTimeData = timerRef.current?.getExpiredTime() ?? 0;
+
+    navigate("/tests/verdict", { state: { answerHistoryData, testData, expiredTimeData } })
+  }
+
   const handleFinish = () => {
     const notFixedAnswersIndexes = answersHistory
-      .map((a, index) => a.isFixed == false ? index : null)
+      .map((a, index) => a.isFixed == false ? a.taskIndex : null)
       .filter(index => index !== null)
+
+    console.log(notFixedAnswersIndexes)
 
     setNotFixedAnswersIndexes(notFixedAnswersIndexes);
 
@@ -77,10 +97,7 @@ export function DecidePage() {
       return;
     }
 
-    const testData = test;
-    const answerHistoryData = answersHistory;
-
-    navigate("/tests/verdict", { state: { answerHistoryData, testData } })
+    navigateToVerdictPage();
   }
 
   const handleCancel = () => {
@@ -92,9 +109,9 @@ export function DecidePage() {
     navigate("/tests/update", { state: { testData } })
   }
 
-  const handleShowSolvingHistories = () => {
-    const testIdData = test.id;
-    navigate("/tests/solvingHistories", { state: { testIdData } })
+  const handlePause = () => {
+    timerRef.current?.pause();
+    setIsPauseDialogOpen(true);
   }
 
   const handleStartAgain = () => {
@@ -102,12 +119,20 @@ export function DecidePage() {
     setNotFixedAnswersIndexes([]);
     setCurrentTaskIndex(0);
     setSelectedAnswer("");
+
+    timerRef.current?.reset();
+    timerRef.current?.start();
   }
 
   const handleChangeMode = () => {
       const testData = test;
       navigate("/tests/decideWithInterval", { state: { testData } })
   };
+
+  const handlePauseDialogClose = () => {
+    setIsPauseDialogOpen(false);
+    timerRef.current?.start();
+  }
 
   function getNextButtonVisibility() {
     return currentTaskIndex < test.tasks.length - 1 ? "visible" : "hidden";
@@ -165,7 +190,7 @@ export function DecidePage() {
               {test.tasks[currentTaskIndex].taskMessage}
             </Typography>
           
-            {test.tasks[currentTaskIndex].answers && test.tasks[currentTaskIndex].answers.length > 0 && hideAnswers === false
+            {test.tasks[currentTaskIndex].answers && test.tasks[currentTaskIndex].answers.length > 0 && isHideAnswers === false
               ? 
               <Box
                 sx={{
@@ -272,14 +297,20 @@ export function DecidePage() {
 
             <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
               <Button variant="contained" color="error" onClick={handleCancel} sx={{width: "145px", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-              <Button variant="contained" onClick={handleShowSolvingHistories} color="warning"sx={{width: "145px", marginTop: "20px", color: "white"}} startIcon={<HistoryIcon />}>История</Button>
+              <Button variant="contained" onClick={handlePause} color="warning"sx={{width: "145px", marginTop: "20px", color: "white"}} startIcon={<PauseIcon />}>Пауза</Button>
               <Button  variant="outlined" onClick={handleUpdateTest} startIcon={<BuildIcon />} sx={{width: "145px", marginTop: "20px"}}>Изменить задачи</Button>
             </div>
           </div>
 
           <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: "20px"}}>
-            <FormControlLabel control={<Checkbox checked={hideAnswers} onChange={(e) => setHideAnswers(e.target.checked)} />} label="Скрывать варианты ответа"/>
+            <FormControlLabel control={<Checkbox checked={isHideAnswers} onChange={(e) => setIsHideAnswers(e.target.checked)} />} label="Скрывать варианты ответа"/>
+          </div>
+
+          <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', justifyContent: 'flex-end'}}>
+            <CountdownTimer seconds={test.limitTime?.seconds ?? 0} minutes={test.limitTime?.minutes ?? 999} ref={timerRef} onTimeOut={navigateToVerdictPage}></CountdownTimer>
           </div>
         </Box>
+
+        <PauseDialog open={isPauseDialogOpen} onClose={handlePauseDialogClose}></PauseDialog>
     </Box>)
 }

@@ -41,7 +41,7 @@ export function TaskCard({taskId, imageUrl, nameCardInfo, message, rightAnswer, 
             
                 <CardInfo title="Сообщение" value={message} />
 
-                {answers && <CardInfo title="Варианты ответов" value={answers.join(", ")} />}
+                {answers && answers.length > 0 && <CardInfo title="Варианты ответов" value={answers.join(", ")} />}
                 
                 {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
             </Box>

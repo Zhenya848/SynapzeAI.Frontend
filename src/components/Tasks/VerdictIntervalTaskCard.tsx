@@ -3,6 +3,7 @@ import { CardInfo } from "../CardInfo";
 import { TaskStatisticDto } from "../../models/Dtos/Tasks/TaskStatisticDto";
 import { textStyle } from "../../models/FilledBoxStyles/TextStyle";
 import { fillStyle } from "../../models/FilledBoxStyles/FillStyle";
+import { useEffect } from "react";
 
 interface IVerdictTaskCardInfo {
     imageUrl?: string;
@@ -11,7 +12,7 @@ interface IVerdictTaskCardInfo {
     nameCardInfo: string;
     message: string;
 
-    taskStatistic: TaskStatisticDto;
+    taskStatistic?: TaskStatisticDto;
 
     progressValue: number;
 
@@ -38,9 +39,7 @@ export function VerdictIntervalTaskCard({imageUrl, nameCardInfo, message, taskSt
             }}>
                 <CardMedia component="img" height="140" image={imageUrl} alt="image" />
             </Card>
-
             
-
             <Box sx={{ ...textStyle, display: 'flex', flexDirection: 'column', gap: '15px', margin: '15px' }}>
                 <CardInfo title="Название" value={nameCardInfo} />
             
@@ -50,10 +49,10 @@ export function VerdictIntervalTaskCard({imageUrl, nameCardInfo, message, taskSt
                 
                 {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
 
-                <CardInfo title="Последнее время решения" value={taskStatistic.lastReviewTime.toTimeString()} />
-                <CardInfo title="Верных ответов: " value={taskStatistic.rightAnswersCount.toString()} />
-                <CardInfo title="Неверных ответов: " value={taskStatistic.errorsCount.toString()} />
-                <CardInfo title="Среднее время решения" value={taskStatistic.avgTimeSolvingSec.toString()}/>
+                <CardInfo title="Последнее время решения" value={taskStatistic?.lastReviewTime.toString() ?? 'none'} />
+                <CardInfo title="Верных ответов: " value={taskStatistic?.rightAnswersCount.toString() ?? '0'} />
+                <CardInfo title="Неверных ответов: " value={taskStatistic?.errorsCount.toString() ?? '0'} />
+                <CardInfo title="Среднее время решения" value={taskStatistic?.avgTimeSolvingSec.toString() ?? '0'}/>
             </Box>
 
             <div style={fillStyle(progressValue)} />

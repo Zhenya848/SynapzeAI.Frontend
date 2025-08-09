@@ -134,7 +134,7 @@ export function UpdateTask() {
 
                     <Typography variant="h6" style={{ marginTop: "20px" }}>Варианты ответа для пользователя</Typography>
 
-                    <TagInput label="Варианты ответа" placeholderText="Введите варианты ответа, которые может выбрать пользователь" onChange={handleTagsChange}></TagInput>
+                    <TagInput label="Варианты ответа" placeholderText="Введите варианты ответа, которые может выбрать пользователь" currentTags={test.tasks.find(t => t.id === taskId)?.answers} onChange={handleTagsChange}></TagInput>
                 </div>
             </div>
 

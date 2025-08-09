@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 
 interface ITagInputInfo {
     label: string
-    placeholderText: string
+    placeholderText: string,
+    currentTags?: string[]
     onChange?: (value: string[]) => void;
 }
 
-export function TagInput({label, placeholderText, onChange} : ITagInputInfo)
+export function TagInput({label, placeholderText, currentTags, onChange} : ITagInputInfo)
 {
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(currentTags ?? []);
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {

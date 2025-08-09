@@ -1,4 +1,4 @@
-import { Button, Card, CardMedia, Checkbox, FormControlLabel, TextField, Typography} from "@mui/material";
+import { Button, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
@@ -181,7 +181,6 @@ export function CreateTest() {
                     </div>
                 </div>
             </div>
-            
 
             <div style={{ display: "flex", marginTop: "40px"}}>
                 <Typography variant="h5" style={{ marginLeft: "20px", width: "100%" }}>Задачи</Typography>
