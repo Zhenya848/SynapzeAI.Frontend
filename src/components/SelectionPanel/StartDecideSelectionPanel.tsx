@@ -5,7 +5,7 @@ import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic';
 
 const StartDecideSelectionPanel = ({onOpen, onClose, onOptionSelect}) => {
     return (
-        <SelectionPanelSkeleton onOpen={onOpen} onClose={onClose}>
+        <SelectionPanelSkeleton onOpen={onOpen} onClose={onClose} dialogTitle="Выберите режим викторины">
             <VibrantOptionButton
               onClick={() => onOptionSelect('ordinaryMode')}
               startIcon={<AutoAwesomeMosaicIcon />}

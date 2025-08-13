@@ -11,7 +11,7 @@ export function Header() {
                 <div className='flex flex-row gap-5 items-center justify-center'>
                     <NavLink to="/main" className="text-2xl pr-5">Synapze AI</NavLink>
                     <NavLink to="/tests">Мои квизы</NavLink>
-                    <NavLink to="/main">Глобальные квизы</NavLink>
+                    <NavLink to="/global">Глобальные квизы</NavLink>
                 </div>
 
                 {user ? <NavLink to="/accountInfo">Аккаунт</NavLink> : <NavLink to="/login">Войти</NavLink>}

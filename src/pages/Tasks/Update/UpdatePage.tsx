@@ -4,11 +4,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { TestDto } from "../../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../../models/Api/Tests/TestDto";
 import { ChangedTask } from "../../../models/Tasks/ChangedTask";
 import { ChangeType } from "../../../models/Tasks/ChangeType";
 import { TagInput } from "../../../components/Tasks/TagInput";
-import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
+import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
 
 export function UpdateTask() {
     const [taskName, setTaskName] = useState<string>("");
@@ -67,7 +67,7 @@ export function UpdateTask() {
                 testName: test.testName, 
                 theme: test.theme, 
                 limitTime: test.limitTime, 
-                isPublished: test.isPublished,
+                withAI: test.withAI,
                 tasks: test.tasks
             } as TestDto
 
@@ -134,7 +134,7 @@ export function UpdateTask() {
 
                     <Typography variant="h6" style={{ marginTop: "20px" }}>Варианты ответа для пользователя</Typography>
 
-                    <TagInput label="Варианты ответа" placeholderText="Введите варианты ответа, которые может выбрать пользователь" onChange={handleTagsChange}></TagInput>
+                    <TagInput label="Варианты ответа" placeholderText="Введите варианты ответа, которые может выбрать пользователь" currentTags={test.tasks.find(t => t.id === taskId)?.answers} onChange={handleTagsChange}></TagInput>
                 </div>
             </div>
 

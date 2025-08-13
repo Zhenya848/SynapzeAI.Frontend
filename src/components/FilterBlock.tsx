@@ -3,12 +3,10 @@ import SearchIcon from '@mui/icons-material/Search';
 
 interface IFilterBlockInfo {
     onSort: (property: string) => void;
-    onPublishedFilter: (value: string) => void;
-    onTimeLimitFilter: (value: string) => void;
     onSearch: (value: string) => void;
 }
 
-export function FilterBlock({ onSort, onPublishedFilter, onTimeLimitFilter, onSearch }: IFilterBlockInfo) 
+export function FilterBlock({ onSort, onSearch }: IFilterBlockInfo) 
 {
     return (
         <Box component="section" sx={{ p: 1, pr: 4, borderRadius: 3, bgcolor: "#616161",
@@ -37,28 +35,6 @@ export function FilterBlock({ onSort, onPublishedFilter, onTimeLimitFilter, onSe
                     fullWidth
                     sx={{m: 0, wight: '450p'}}
                     />
-            </div>
-
-            <div>
-                <Typography variant="h6" style={{ marginBottom: '10px' }}>Сортировка</Typography>
-                
-                <div>
-                    <Autocomplete
-                        disablePortal
-                        options={["Есть", "Нет"]}
-                        sx={{mb: 2, wight: '450p'}}
-                        renderInput={(params) => <TextField {...params} label="Ограничение по времени" />}
-                        onChange={(event, value) => onTimeLimitFilter(value || "")}
-                    />
-
-                    <Autocomplete
-                        disablePortal
-                        options={["Да", "Нет"]}
-                        sx={{mb: 2, wight: '450p'}}
-                        renderInput={(params) => <TextField {...params} label="Опубликовано" />}
-                        onChange={(event, value) => onPublishedFilter(value || "")}
-                    />
-                </div>
             </div>
 
             <Typography variant="h6" style={{ marginBottom: '10px', marginTop: "10px" }}>Сортировать по свойству</Typography>

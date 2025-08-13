@@ -41,10 +41,6 @@ export function LoginPage() {
 
     return (
         <div className="flex flex-col h-full w-full py-6 px-10 justify-center items-start gap-4">
-            <NavLink to="/" className="text-lg">
-                На главную
-            </NavLink>
-
             <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-9">
                 <form className="flex flex-col w-full items-center gap-7" onSubmit={(e) => handleSubmit(e)}>
                     <TextField 

@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { RootLayout } from "../components/Root/RootLayout";
 import { LoginPage } from "../pages/Login/LoginPage";
-import { MainPage } from "../pages/Main/MainPage";
 import { AccountPage } from "../pages/Account/AccountPage";
 import { AccountManagementPage } from "../pages/AccountManagement/AccountManagementPage";
 import { GetTests } from "../pages/Tests/Get/TestsPage";
@@ -12,6 +11,11 @@ import { CreateTest } from "../pages/Tests/Create/CreatePage";
 import { UpdateTask } from "../pages/Tasks/Update/UpdatePage";
 import { CreateTask } from "../pages/Tasks/Create/CreatePage";
 import { DecidePage } from "../pages/Tests/Get/DecidePage";
+import { DecideWithIntervalPage } from "../pages/Tests/Get/DecideWithIntervalPage";
+import { VerdictPage } from "../pages/VerdictPage";
+import { VerdictIntervalPage } from "../pages/VerdictIntervalPage";
+import { GetSolvingHistories } from "../pages/SolvingHistories/SolvingHistoriesPage";
+import { GlobalTests } from "../pages/Global/GlobalPage";
 
 export const router = createBrowserRouter([
     {
@@ -19,8 +23,8 @@ export const router = createBrowserRouter([
       element: <RootLayout />,
       children: [
         {
-          path: "/",
-          element: <MainPage />
+          path: "/global",
+          element: <GlobalTests />
         },
         {
           path: "/tests",
@@ -39,6 +43,10 @@ export const router = createBrowserRouter([
           element: <DecidePage />
         },
         {
+          path: "/tests/decideWithInterval",
+          element: <DecideWithIntervalPage />
+        },
+        {
           path: "/tests/createWithAI",
           element: <CreateTestWithAI />
         },
@@ -49,6 +57,18 @@ export const router = createBrowserRouter([
         {
           path: "/tasks/create",
           element: <CreateTask />
+        },
+        {
+          path: "/tests/verdict",
+          element: <VerdictPage />
+        },
+        {
+          path: '/tests/verdictInterval',
+          element: <VerdictIntervalPage />
+        },
+        {
+          path: '/tests/solvingHistories',
+          element: <GetSolvingHistories />
         },
         {
           path: "/registration",

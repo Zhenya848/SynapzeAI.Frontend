@@ -4,18 +4,15 @@ import { TestCard } from "../../../components/Tests/TestCard"
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
 import { DeleteDialog } from "../../../components/DeleteDialog";
-import { handlePublishedFilter } from "../../../models/FilterHandles/handlePublishedFilter";
-import { handleTimeLimitFilter } from "../../../models/FilterHandles/handleTimeLimitFilter";
 import { handleSearch } from "../../../models/FilterHandles/handleSearch";
 import { handleSort } from "../../../models/FilterHandles/handleSort";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../components/context/auth/useAuth";
 import { Tests } from "../../../api/Endpoints/tests";
-import { TestDto } from "../../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../../models/Api/Tests/TestDto";
 import { toast } from "react-toastify";
 import AddTestSelectionPanel from "../../../components/SelectionPanel/AddTestSelectionPanel";
 import StartDecideSelectionPanel from "../../../components/SelectionPanel/StartDecideSelectionPanel";
-import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
 
 export function GetTests() {
     const navigate = useNavigate();
@@ -115,19 +112,17 @@ export function GetTests() {
     const handleOptionStartDecideTestDialogSelect = (option: string) => {
         handleStartDecideTestDialogClose();
 
-        const tasksData = tests.find(t => t.id === testId)?.tasks;
+        const testData = tests.find(t => t.id === testId);
 
-        console.log(testId)
-
-        if (!tasksData)
+        if (!testData)
             return;
 
         switch (option) {
             case "intervalMode":
-                navigate("/tests/decide")
+                navigate("/tests/decideWithInterval", { state: { testData } })
                 break;
             case "ordinaryMode":
-                navigate("/tests/decide", { state: { tasksData } });
+                navigate("/tests/decide", { state: { testData } });
                 break;
         }
     };
@@ -136,7 +131,7 @@ export function GetTests() {
         const fetchData = async () => {
             try {
                 if (testId)
-                    await Tests.delete(testId)
+                    await Tests.delete(user.id, testId)
             }
             catch (error: any) {
                 error.response.data.responseErrors.forEach((e: { message: string }) => {
@@ -157,12 +152,19 @@ export function GetTests() {
         navigate("/tests/update", { state: { testData: testData } });
     }
 
+    const handleShowSolvingHistoriesSelect = (testId: string) => {
+        const testData = tests.find(i => i.id === testId);
+
+        if (!testData)
+            return;
+
+        navigate("/tests/solvingHistories", { state: { testData } });
+    }
+
     return (
         <div style={{alignItems: "flex-end",  display: 'flex', flexDirection: "column"}}>
             <FilterBlock 
-                onSort={(property: string) => setSortedTests(handleSort(tests, property))} 
-                onPublishedFilter={(property: string) => setSortedTests(handlePublishedFilter(tests, property))}
-                onTimeLimitFilter={(property: string) => setSortedTests(handleTimeLimitFilter(tests, property))}
+                onSort={(property: string) => setSortedTests(handleSort(tests, property))}
                 onSearch={(property: string) => setSortedTests(handleSearch(tests, property))}
             />
 
@@ -190,7 +192,8 @@ export function GetTests() {
                         test={card}
                         onDelete={handleDeleteDialogOpen}
                         onUpdate={handleChangeSelect}
-                        onStartDecide={handleStartDecideTestDialogOpen}>
+                        onStartDecide={handleStartDecideTestDialogOpen}
+                        onShowSolvingHistories={handleShowSolvingHistoriesSelect}>
                     </TestCard>
                 ))}
             </Box>

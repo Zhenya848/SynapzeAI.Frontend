@@ -29,13 +29,14 @@ type Props = {
     children: React.ReactNode;
     onOpen: any;
     onClose: any;
+    dialogTitle: string
 }
 
-export const SelectionPanelSkeleton = ({ children, onOpen, onClose }: Props) => {
+export const SelectionPanelSkeleton = ({ children, onOpen, onClose, dialogTitle }: Props) => {
   return (
     <div>
       <LargeDarkDialog open={onOpen} onClose={onClose}>
-        <DialogTitle>Выберите способ создания теста</DialogTitle>
+        <DialogTitle>{dialogTitle}</DialogTitle>
         <DialogContent>
           <div style={{ 
             display: 'flex', 

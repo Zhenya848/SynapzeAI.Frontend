@@ -4,16 +4,17 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import BuildIcon from '@mui/icons-material/Build';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import HistoryIcon from '@mui/icons-material/History';
-import { TestDto } from "../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../models/Api/Tests/TestDto";
 
 interface ITestCardInfo {
     test: TestDto,
     onDelete?: any,
     onUpdate?: any,
     onStartDecide?: any,
+    onShowSolvingHistories?: any
 }
 
-export function TestCard({test, onDelete, onUpdate, onStartDecide}: ITestCardInfo) {
+export function TestCard({test, onDelete, onUpdate, onStartDecide, onShowSolvingHistories}: ITestCardInfo) {
     return (
         <Box 
             component="section" 
@@ -38,7 +39,7 @@ export function TestCard({test, onDelete, onUpdate, onStartDecide}: ITestCardInf
 
                 <div style={{boxSizing: 'border-box', width: "100%"}}>
                     <CardInfo title="Огранич. по времени" value={(test.limitTime ? `Секунд: ${test.limitTime?.seconds},${'\u00A0'.repeat(2)}Минут: ${test.limitTime?.minutes}` : "нет")} />
-                    <div style={{marginTop: "20px"}}><CardInfo title="Опубликовано" value={(test.isPublished ? "Да" : "Нет")} /></div>
+                    <div style={{marginTop: "20px"}}><CardInfo title="С помощью AI" value={(test.withAI ? "Да" : "Нет")} /></div>
                 </div>
             </Box>
 
@@ -59,7 +60,7 @@ export function TestCard({test, onDelete, onUpdate, onStartDecide}: ITestCardInf
                 </div>
 
                 <div style={{maxWidth:"250px", width: "100%", boxSizing: 'border-box'}}>
-                    <p style={{textAlign: 'center'}}><Button variant="contained" color="warning" sx={{ color: 'white'}} startIcon={<HistoryIcon />}>История</Button></p>
+                    <p style={{textAlign: 'center'}}><Button onClick={() => onShowSolvingHistories(test.id)} variant="contained" color="warning" sx={{ color: 'white'}} startIcon={<HistoryIcon />}>История</Button></p>
                     <p style={{marginTop: "20px", textAlign: 'center'}}><Button onClick={() => onDelete(test.id)} variant="contained" color="error" startIcon={<DeleteIcon />}>Удалить</Button></p>
                 </div>
             </Box>

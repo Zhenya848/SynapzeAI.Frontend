@@ -5,7 +5,7 @@ import { VibrantOptionButton } from "./VibrantOptionButton";
 
 const AddTestSelectionPanel = ({onOpen, onClose, onOptionSelect}) => {
     return (
-        <SelectionPanelSkeleton onOpen={onOpen} onClose={onClose}>
+        <SelectionPanelSkeleton onOpen={onOpen} onClose={onClose} dialogTitle="Выберите способ создания викторины">
             <VibrantOptionButton
               onClick={() => onOptionSelect('ai')}
               startIcon={<AutoAwesomeMosaicIcon />}

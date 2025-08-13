@@ -1,7 +1,8 @@
 import { AxiosResponse } from "axios";
-import { Envelope } from "../../models/Accounts/Envelope";
-import { LoginResponse } from "../../models/Accounts/LoginResponse";
+import { Envelope } from "../../models/Api/Envelope";
+import { LoginResponse } from "../../models/Api/Accounts/LoginResponse";
 import { api } from "../api";
+import { UserInfo } from "../../models/Api/Accounts/UserInfo";
 
 const USER_SERVICE_API_URL:string = "http://localhost:5276/api/Account/";
 
@@ -16,5 +17,13 @@ export class Accounts {
 
     static async refresh() {
         return api.post<Envelope<LoginResponse>>(USER_SERVICE_API_URL + "refresh");
+    }
+
+    static async logout() {
+        return api.post(USER_SERVICE_API_URL + "logout");
+    }
+
+    static async getUsers(userIds: string[]) {
+        return api.post<Envelope<UserInfo[]>>(USER_SERVICE_API_URL + "users", { userIds });
     }
 }
