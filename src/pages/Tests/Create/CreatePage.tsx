@@ -1,17 +1,19 @@
-import { Button, TextField, Typography} from "@mui/material";
+import { Button, FormControlLabel, Switch, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { TestDto } from "../../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../../models/Api/Tests/TestDto";
 import { useAuth } from "../../../components/context/auth/useAuth";
-import { LimitTimeDto } from "../../../models/Dtos/Tests/LimitTimeDto";
+import { LimitTimeDto } from "../../../models/Api/Tests/LimitTimeDto";
 import { CreateTaskDto } from "../../../models/Api/Tasks/CreateTaskDto";
 import { Tests } from "../../../api/Endpoints/tests";
 import { TaskCard } from "../../../components/Tasks/TaskCard";
-import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
+import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
+import { TagInput } from "../../../components/Tasks/TagInput";
+import { PrivacySettingsDto } from "../../../models/Api/Tests/PrivacySettingsDto";
 
 export function CreateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -23,6 +25,13 @@ export function CreateTest() {
     const [testSeconds, setTestSeconds] = useState<string>("");
     const [testMinutes, setTestMinutes] = useState<string>("");
     const [testTasks, setTestTasks] = useState<TaskDto[]>([]);
+
+    const [isPrivate, setIsPrivate] = useState(true);
+
+    const [usersNamesAreAllowed, setUsersNamesAreAllowed] = useState<string[]>([]);
+    const [usersEmailsAreAllowed, setUsersEmailsAreAllowed] = useState<string[]>([]);
+
+    const [usersEmailsAreAllowedError, setUsersEmailsAreAllowedError] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -40,6 +49,9 @@ export function CreateTest() {
             setTestSeconds((test.limitTime ? test.limitTime.seconds.toString() : ""))
             setTestMinutes((test.limitTime ? test.limitTime.minutes.toString() : ""))
             setTestTasks(test.tasks);
+            setIsPrivate(test.privacySettings.isPrivate);
+            setUsersNamesAreAllowed(test.privacySettings.usersNamesAreAllowed);
+            setUsersEmailsAreAllowed(test.privacySettings.usersEmailsAreAllowed);
         }
     }, []);
 
@@ -56,6 +68,7 @@ export function CreateTest() {
             theme: testTheme, 
             limitTime: (testSeconds && testMinutes ? { seconds: Number.parseInt(testSeconds), minutes: Number.parseInt(testMinutes) } as LimitTimeDto : null), 
             withAI: false,
+            privacySettings: {isPrivate, usersNamesAreAllowed, usersEmailsAreAllowed} as PrivacySettingsDto,
             tasks: testTasks
         } as TestDto
 
@@ -99,6 +112,13 @@ export function CreateTest() {
             isValid = false;
         }
 
+        if (usersEmailsAreAllowed.some(u => u.includes("@") === false)) {
+            setUsersEmailsAreAllowedError(true);
+            toast.error("Один из почтовых адресов пользователей некорректный");
+
+            isValid = false;
+        }
+
         if (isValid == false)
             return;
 
@@ -115,7 +135,7 @@ export function CreateTest() {
         if (user) {
             try {
                 setIsLoading(true);
-                await Tests.create(user.id, testName, testTheme, false, tasks, seconds, minutes);
+                await Tests.create(user.id, testName, testTheme, false, tasks, seconds, minutes, isPrivate, usersNamesAreAllowed, usersEmailsAreAllowed);
                 
                 navigate("/tests");
             } 
@@ -129,6 +149,16 @@ export function CreateTest() {
             }
         }
     }
+
+    const handleSwitchIsPrivate = (isPrivate: boolean) => setIsPrivate(isPrivate);
+
+    const handleUsersNamesAreAllowedChange = (value: string[]) => {
+        setUsersNamesAreAllowed(value);
+    };
+
+    const handleUsersEmailsAreAllowedChange = (value: string[]) => {
+        setUsersEmailsAreAllowed(value);
+    };
 
     return (
         <div style={{margin: "10px"}}>
@@ -179,6 +209,31 @@ export function CreateTest() {
                             style={{ width: "100%", marginLeft: "10px" }} 
                         />
                     </div>
+
+                    <FormControlLabel
+                        value="end"
+                        control={<Switch color="primary"checked={isPrivate === false} name="loading" onChange={() => handleSwitchIsPrivate(isPrivate === false)} />}
+                        label="Публичный доступ"
+                        labelPlacement="end"
+                        sx={{marginTop: "20px"}}
+                    />
+
+                    {isPrivate === false && <div style={{ display: "flex", marginTop: "10px", gap: "20px" }}>
+                        <TagInput 
+                            label="Разрешённые имена пользователей" 
+                            placeholderText="Введите имена пользователей, которые могут просматривать викторину"
+                            currentTags={test.privacySettings.usersNamesAreAllowed}
+                            onChange={handleUsersNamesAreAllowedChange}>    
+                        </TagInput>
+
+                        <TagInput 
+                            label="Разрешённые почтовые адреса пользователей"
+                            placeholderText="Введите почтовые адреса пользователей, которые могут просматривать викторину"
+                            onChange={handleUsersEmailsAreAllowedChange}
+                            currentTags={test.privacySettings.usersEmailsAreAllowed}
+                            isError={usersEmailsAreAllowedError}>
+                        </TagInput>
+                    </div>}
                 </div>
             </div>
 

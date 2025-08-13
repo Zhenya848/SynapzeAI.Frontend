@@ -1,4 +1,4 @@
-import { TaskStatisticDto } from "../../Dtos/Tasks/TaskStatisticDto";
+import { TaskStatisticDto } from "./TaskStatisticDto";
 
 export type UpdateTaskStatisticDto = {
     taskId: string;

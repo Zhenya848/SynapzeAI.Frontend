@@ -1,4 +1,4 @@
-import { TaskDto } from "../Dtos/Tasks/TaskDto"
+import { TaskDto } from "../Api/Tasks/TaskDto"
 
 export type ChangedTask = {
     task: TaskDto

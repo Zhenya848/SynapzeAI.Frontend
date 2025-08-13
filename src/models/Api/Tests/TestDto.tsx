@@ -1,5 +1,6 @@
-import { LimitTimeDto } from "./LimitTimeDto"
 import { TaskDto } from "../Tasks/TaskDto"
+import { LimitTimeDto } from "./LimitTimeDto"
+import { PrivacySettingsDto } from "./PrivacySettingsDto"
 
 export type TestDto = {
     id: string
@@ -10,6 +11,8 @@ export type TestDto = {
     withAI: boolean
 
     limitTime?: LimitTimeDto
+
+    privacySettings: PrivacySettingsDto
     
     tasks: TaskDto[]
 }

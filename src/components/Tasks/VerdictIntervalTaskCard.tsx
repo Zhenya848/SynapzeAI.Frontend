@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardMedia, Typography } from "@mui/material";
 import { CardInfo } from "../CardInfo";
-import { TaskStatisticDto } from "../../models/Dtos/Tasks/TaskStatisticDto";
+import { TaskStatisticDto } from "../../models/Api/Tasks/TaskStatisticDto";
 import { textStyle } from "../../models/FilledBoxStyles/TextStyle";
 import { fillStyle } from "../../models/FilledBoxStyles/FillStyle";
 import { useEffect } from "react";

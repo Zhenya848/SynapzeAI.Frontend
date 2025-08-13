@@ -4,11 +4,11 @@ import CheckIcon from '@mui/icons-material/Check';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { TestDto } from "../../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../../models/Api/Tests/TestDto";
 import { ChangedTask } from "../../../models/Tasks/ChangedTask";
 import { ChangeType } from "../../../models/Tasks/ChangeType";
 import { TagInput } from "../../../components/Tasks/TagInput";
-import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
+import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
 
 export function CreateTask() {
     const [taskName, setTaskName] = useState<string>("");
@@ -54,6 +54,7 @@ export function CreateTask() {
                 theme: test.theme, 
                 limitTime: test.limitTime, 
                 withAI: test.withAI,
+                privacySettings: test.privacySettings,
                 tasks: [...test.tasks, task]
             } as TestDto
 

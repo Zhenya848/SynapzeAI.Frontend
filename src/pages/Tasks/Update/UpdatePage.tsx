@@ -4,11 +4,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { TestDto } from "../../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../../models/Api/Tests/TestDto";
 import { ChangedTask } from "../../../models/Tasks/ChangedTask";
 import { ChangeType } from "../../../models/Tasks/ChangeType";
 import { TagInput } from "../../../components/Tasks/TagInput";
-import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
+import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
 
 export function UpdateTask() {
     const [taskName, setTaskName] = useState<string>("");

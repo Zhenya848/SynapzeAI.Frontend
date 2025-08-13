@@ -1,21 +1,25 @@
-import { Button, Card, CardMedia, Checkbox, FormControlLabel, TextField, Typography} from "@mui/material";
+import { Button, Card, CardMedia, Checkbox, FormControlLabel, Switch, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import SaveIcon from '@mui/icons-material/Save';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { TestDto } from "../../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../../models/Api/Tests/TestDto";
 import { ChangedTask } from "../../../models/Tasks/ChangedTask";
 import { ChangeType } from "../../../models/Tasks/ChangeType";
 import { CreateTaskDto } from "../../../models/Api/Tasks/CreateTaskDto";
 import { UpdateTaskDto } from "../../../models/Api/Tasks/UpdateTaskDto";
 import { Tests } from "../../../api/Endpoints/tests";
 import { TaskCard } from "../../../components/Tasks/TaskCard";
-import { TaskDto } from "../../../models/Dtos/Tasks/TaskDto";
-import { LimitTimeDto } from "../../../models/Dtos/Tests/LimitTimeDto";
+import { LimitTimeDto } from "../../../models/Api/Tests/LimitTimeDto";
+import { useAuth } from "../../../components/context/auth/useAuth";
+import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
+import { TagInput } from "../../../components/Tasks/TagInput";
 
 export function UpdateTest() {
+    const { user } = useAuth();
+
     const [testName, setTestName] = useState<string>("");
     const [testNameError, setTestNameError] = useState(false);
 
@@ -24,6 +28,14 @@ export function UpdateTest() {
 
     const [testSeconds, setTestSeconds] = useState<string>("");
     const [testMinutes, setTestMinutes] = useState<string>("");
+
+    const [isPrivate, setIsPrivate] = useState(true);
+
+    const [usersNamesAreAllowed, setUsersNamesAreAllowed] = useState<string[]>([]);
+    const [usersEmailsAreAllowed, setUsersEmailsAreAllowed] = useState<string[]>([]);
+
+    const [usersEmailsAreAllowedError, setUsersEmailsAreAllowedError] = useState(false);
+
     const [testTasks, setTestTasks] = useState<TaskDto[]>([]);
 
     const [changedTasks, setChangedTasks] = useState<ChangedTask[]>([]);
@@ -42,6 +54,9 @@ export function UpdateTest() {
             setTestTheme(test.theme);
             setTestSeconds((test.limitTime ? test.limitTime.seconds.toString() : ""))
             setTestMinutes((test.limitTime ? test.limitTime.minutes.toString() : ""))
+            setIsPrivate(test.privacySettings.isPrivate);
+            setUsersNamesAreAllowed(test.privacySettings.usersNamesAreAllowed);
+            setUsersEmailsAreAllowed(test.privacySettings.usersEmailsAreAllowed);
             setTestTasks(test.tasks);
         }
 
@@ -118,6 +133,15 @@ export function UpdateTest() {
             isValid = false;
         }
 
+        console.log(usersEmailsAreAllowed)
+
+        if (usersEmailsAreAllowed.some(u => u.includes("@") === false)) {
+            setUsersEmailsAreAllowedError(true);
+            toast.error("Один из почтовых адресов пользователей некорректный");
+
+            isValid = false;
+        }
+
         if (isValid == false)
             return;
 
@@ -133,10 +157,13 @@ export function UpdateTest() {
         const seconds = testSeconds ? Number.parseInt(testSeconds) : undefined;
         const minutes = testMinutes ? Number.parseInt(testMinutes) : undefined;
 
-        if (test) {
+        console.log(user)
+
+        if (test && user) {
             try {
                 setIsLoading(true);
-                await Tests.update(test.id, testName, testTheme, false, seconds, minutes, createdTasks, updatedTasks, deletedTasks);
+                await Tests.update(user.id, test.id, testName, testTheme, false, seconds, minutes, isPrivate, usersNamesAreAllowed, usersEmailsAreAllowed, 
+                    createdTasks, updatedTasks, deletedTasks);
                 
                 navigate("/tests");
             } 
@@ -152,6 +179,16 @@ export function UpdateTest() {
             }
         }
     }
+
+    const handleSwitchIsPrivate = (isPrivate: boolean) => setIsPrivate(isPrivate);
+
+    const handleUsersNamesAreAllowedChange = (value: string[]) => {
+        setUsersNamesAreAllowed(value);
+    };
+
+    const handleUsersEmailsAreAllowedChange = (value: string[]) => {
+        setUsersEmailsAreAllowed(value);
+    };
 
     return (
         <div style={{margin: "10px"}}>
@@ -202,6 +239,31 @@ export function UpdateTest() {
                             style={{ width: "100%", marginLeft: "10px" }} 
                         />
                     </div>
+
+                    <FormControlLabel
+                        value="end"
+                        control={<Switch color="primary"checked={isPrivate === false} name="loading" onChange={() => handleSwitchIsPrivate(isPrivate === false)} />}
+                        label="Публичный доступ"
+                        labelPlacement="end"
+                        sx={{marginTop: "20px"}}
+                    />
+
+                    {isPrivate === false && <div style={{ display: "flex", marginTop: "10px", gap: "20px" }}>
+                        <TagInput 
+                            label="Разрешённые имена пользователей" 
+                            placeholderText="Введите имена пользователей, которые могут просматривать викторину"
+                            currentTags={test.privacySettings.usersNamesAreAllowed}
+                            onChange={handleUsersNamesAreAllowedChange}>    
+                        </TagInput>
+
+                        <TagInput 
+                            label="Разрешённые почтовые адреса пользователей"
+                            placeholderText="Введите почтовые адреса пользователей, которые могут просматривать викторину"
+                            onChange={handleUsersEmailsAreAllowedChange}
+                            currentTags={test.privacySettings.usersEmailsAreAllowed}
+                            isError={usersEmailsAreAllowedError}>
+                        </TagInput>
+                    </div>}
                 </div>
             </div>
             

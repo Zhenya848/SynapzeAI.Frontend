@@ -1,15 +1,16 @@
 import { createContext, useEffect, useLayoutEffect, useState } from "react";
-import { User } from "../../../models/Accounts/User";
+import { UserInfo } from "../../../models/Api/Accounts/UserInfo";
 import { api } from "../../../api/api";
 import { Accounts } from "../../../api/Endpoints/accounts";
 import { toast } from "react-toastify";
-import { LoginResponse } from "../../../models/Accounts/LoginResponse";
+import { LoginResponse } from "../../../models/Api/Accounts/LoginResponse";
 
 type AuthContextType = {
-    user: User | undefined;
+    user: UserInfo | undefined;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<LoginResponse | null>;
     refresh: () => Promise<LoginResponse | null>;
+    logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +21,7 @@ type Props = {
 
 export const AuthProvider = ({ children }: Props) => {
     const [accessToken, setAccessToken] = useState<string>();
-    const [user, setUser] = useState<User | undefined>();
+    const [user, setUser] = useState<UserInfo | undefined>();
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -46,7 +47,7 @@ export const AuthProvider = ({ children }: Props) => {
                 try {
                     const response = await Accounts.refresh();
 
-                    setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as User)
+                    setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as UserInfo)
                     setAccessToken(response.data.result!.accessToken)
 
                     await new Promise(resolve => setTimeout(resolve, 10));
@@ -74,7 +75,7 @@ export const AuthProvider = ({ children }: Props) => {
             const response = await Accounts.login(email, password);
 
             setAccessToken(response.data.result!.accessToken);
-            setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as User)
+            setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as UserInfo)
 
             setIsLoading(false);
 
@@ -95,7 +96,7 @@ export const AuthProvider = ({ children }: Props) => {
         try {
             const response = await Accounts.refresh();
 
-            setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as User);
+            setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as UserInfo);
             setAccessToken(response.data.result!.accessToken);
 
             await new Promise(resolve => setTimeout(resolve, 10));
@@ -111,5 +112,12 @@ export const AuthProvider = ({ children }: Props) => {
         }
     }
 
-    return <AuthContext.Provider value={{user, isLoading, login, refresh}}>{children}</AuthContext.Provider>
+    const logout = () => {
+        Accounts.logout();
+
+        setUser(undefined)
+        setAccessToken("");
+    }
+
+    return <AuthContext.Provider value={{user, isLoading, login, refresh, logout}}>{children}</AuthContext.Provider>
 }

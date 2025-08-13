@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import BuildIcon from '@mui/icons-material/Build';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import HistoryIcon from '@mui/icons-material/History';
-import { TestDto } from "../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../models/Api/Tests/TestDto";
 
 interface ITestCardInfo {
     test: TestDto,

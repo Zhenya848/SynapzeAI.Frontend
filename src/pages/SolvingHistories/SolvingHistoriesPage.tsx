@@ -5,7 +5,7 @@ import { SolvingHistoryDto } from "../../models/Dtos/SolvingHistories/SolvingHis
 import { toast } from "react-toastify";
 import { Button, Table, Typography } from "@mui/material";
 import { SolvingHistoryCard } from "../../components/SolvingHistories/SolvingHistoryCard";
-import { TestDto } from "../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../models/Api/Tests/TestDto";
 import { VerdictIntervalTaskCard } from "../../components/Tasks/VerdictIntervalTaskCard";
 import { calculatePriorityNumber } from "../../models/Tasks/CalculatePriorityNumber";
 

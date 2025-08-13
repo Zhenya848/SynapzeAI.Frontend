@@ -1,7 +1,7 @@
-import { Envelope } from "../../models/Accounts/Envelope";
+import { Envelope } from "../../models/Api/Envelope";
 import { AIMessageForTask } from "../../models/Api/SolvingHistories/AIMessageForTask";
 import { SolvingHistoryDto } from "../../models/Dtos/SolvingHistories/SolvingHistoryDto";
-import { TaskHistoryDto } from "../../models/Dtos/SolvingHistories/TaskHistoryDto";
+import { TaskHistoryDto } from "../../models/Api/SolvingHistories/TaskHistoryDto";
 import { api } from "../api";
 
 const TESTS_SERVICE_API_URL:string = "http://localhost:5095/api/Test/";

@@ -1,4 +1,4 @@
-import { TaskStatisticDto } from "../Dtos/Tasks/TaskStatisticDto";
+import { TaskStatisticDto } from "../Api/Tasks/TaskStatisticDto";
 
 export function calculatePriorityNumber(taskStatistic?: TaskStatisticDto): number {
     if (!taskStatistic) 

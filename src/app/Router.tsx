@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { RootLayout } from "../components/Root/RootLayout";
 import { LoginPage } from "../pages/Login/LoginPage";
-import { MainPage } from "../pages/Main/MainPage";
 import { AccountPage } from "../pages/Account/AccountPage";
 import { AccountManagementPage } from "../pages/AccountManagement/AccountManagementPage";
 import { GetTests } from "../pages/Tests/Get/TestsPage";
@@ -16,6 +15,7 @@ import { DecideWithIntervalPage } from "../pages/Tests/Get/DecideWithIntervalPag
 import { VerdictPage } from "../pages/VerdictPage";
 import { VerdictIntervalPage } from "../pages/VerdictIntervalPage";
 import { GetSolvingHistories } from "../pages/SolvingHistories/SolvingHistoriesPage";
+import { GlobalTests } from "../pages/Global/GlobalPage";
 
 export const router = createBrowserRouter([
     {
@@ -23,8 +23,8 @@ export const router = createBrowserRouter([
       element: <RootLayout />,
       children: [
         {
-          path: "/",
-          element: <MainPage />
+          path: "/global",
+          element: <GlobalTests />
         },
         {
           path: "/tests",

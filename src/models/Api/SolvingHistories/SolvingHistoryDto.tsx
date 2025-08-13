@@ -1,4 +1,4 @@
-import { TaskHistoryDto } from "../../Dtos/SolvingHistories/TaskHistoryDto";
+import { TaskHistoryDto } from "./TaskHistoryDto";
 
 export type SolvingHistoryDto = {
     id: string;

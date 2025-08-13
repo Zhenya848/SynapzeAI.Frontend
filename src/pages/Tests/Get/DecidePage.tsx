@@ -9,7 +9,7 @@ import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AnswersHistory } from "../../../models/Tasks/AswerHistory";
-import { TestDto } from "../../../models/Dtos/Tests/TestDto";
+import { TestDto } from "../../../models/Api/Tests/TestDto";
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { CountdownTimer } from "../../../components/Tasks/Timer/CountdownTimer";
 import { CountdownTimerHandle } from "../../../components/Tasks/Timer/CountdownTimerHandle";

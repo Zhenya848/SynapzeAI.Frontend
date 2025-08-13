@@ -3,7 +3,7 @@ import { Button, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import { StatisticTask } from "../models/Tasks/StatisticTask";
 import { VerdictIntervalTaskCard } from "../components/Tasks/VerdictIntervalTaskCard";
-import { TestDto } from "../models/Dtos/Tests/TestDto";
+import { TestDto } from "../models/Api/Tests/TestDto";
 import { useEffect, useState } from "react";
 import { UpdateTaskStatisticDto } from "../models/Api/Tasks/UpdateTaskStatisticDto";
 import { Tests } from "../api/Endpoints/tests";

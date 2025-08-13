@@ -1,4 +1,4 @@
-import { Button, Card, CardMedia, Slider, Switch, TextField, Typography } from "@mui/material";
+import { Button, Card, CardMedia, FormControlLabel, Slider, Switch, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useAuth } from "../../../components/context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -152,16 +152,13 @@ export function CreateTestWithAI() {
                     style={{ width: "100%", marginTop: "20px" }} 
                 />
 
-                <div style={{display: 'flex', marginTop: "20px", gap: 8}}>
-                    <Typography variant="h6">Ограничения по времени</Typography>
-
-                    <Switch
-                        checked={isTimeLimited}
-                        name="loading"
-                        color="primary"
-                        onChange={() => handleSwitchIsTimeLimited(isTimeLimited === false)}
-                    />
-                </div>
+                <FormControlLabel
+                    value="end"
+                    control={<Switch color="primary" checked={isTimeLimited} name="loading" onChange={() => handleSwitchIsTimeLimited(isTimeLimited === false)} />}
+                    label="Ограничение по времени"
+                    labelPlacement="end"
+                    sx={{marginTop: "20px"}}
+                />
 
                 {isTimeLimited && 
                 (<div style={{ display: "flex", marginTop: "10px", width: '100%'}}>

@@ -6,9 +6,10 @@ interface ITagInputInfo {
     placeholderText: string,
     currentTags?: string[]
     onChange?: (value: string[]) => void;
+    isError?: boolean
 }
 
-export function TagInput({label, placeholderText, currentTags, onChange} : ITagInputInfo)
+export function TagInput({label, placeholderText, currentTags, onChange, isError} : ITagInputInfo)
 {
   const [tags, setTags] = useState<string[]>(currentTags ?? []);
   const [inputValue, setInputValue] = useState("");
@@ -26,7 +27,7 @@ export function TagInput({label, placeholderText, currentTags, onChange} : ITagI
   };
 
   return (
-    <Box sx={{ border: "1px solid #ddd", p: 1, borderRadius: 1 }}>
+    <Box sx={{ border: "1px solid #ddd", p: 1, borderRadius: 1, width: "100%" }}>
       <TextField id="outlined-basic" label={label} variant="outlined" 
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
@@ -36,6 +37,7 @@ export function TagInput({label, placeholderText, currentTags, onChange} : ITagI
             addTag();
           }
         }}
+        error={isError}
         onBlur={addTag}
         placeholder={placeholderText}
         fullWidth

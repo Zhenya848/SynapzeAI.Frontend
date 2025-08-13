@@ -6,9 +6,9 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { useEffect, useState } from "react";
 import { SolvingHistories } from "../api/Endpoints/solvingHistories";
-import { TaskHistoryDto } from "../models/Dtos/SolvingHistories/TaskHistoryDto";
+import { TaskHistoryDto } from "../models/Api/SolvingHistories/TaskHistoryDto";
 import { toast } from "react-toastify";
-import { TestDto } from "../models/Dtos/Tests/TestDto";
+import { TestDto } from "../models/Api/Tests/TestDto";
 
 export function VerdictPage() {
     const navigate = useNavigate();

@@ -1,25 +1,17 @@
-import { Button, Typography } from "@mui/material"
+import { Box, Button, Typography } from "@mui/material";
 import EmailIcon from '@mui/icons-material/Email';
-import BadgeIcon from '@mui/icons-material/Badge';
 import { useAuth } from "../../components/context/auth/useAuth";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import BadgeIcon from '@mui/icons-material/Badge';
+import { Accounts } from "../../api/Endpoints/accounts";
+import { useNavigate } from "react-router-dom";
 
 export function AccountPage() {
-    const { user, refresh } = useAuth();
+    const { user, refresh, logout } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
 
-    const fullName = "Аккакий Аккакиев Драздрапермович";
-    const description = "ААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААА";
-
-    const years = 5;
-    const countOfAnimals = 8;
-
-    const phoneNumber = "+79773105950";
-    const email = "BelovEA100207@yandex.ru";
-    const instagram = "zheka.inst";
-    const telegram = "zheka4.tg"
-
-    const cards = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,45 +48,60 @@ export function AccountPage() {
         return <Typography>Загрузка...</Typography>;
     }
 
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    }
+
     return (
-        <div style={{width: "100%", display: "flex", marginTop: "20px"}}>
-            <div style={{width: "100%"}}>
-                <></>
+        <Box sx={{margin: "20px", width: "calc(100% - 40px)", gap: "10px", display: "flex", '@media (max-width: 1030px)': { flexDirection: 'column', gap: "40px" }}}>
+            <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
+                <Box sx={{width: "auto", textAlign: "left"}}>
+                    <div style={{ display: 'flex', justifyContent: "left" }}> 
+                        <EmailIcon style={{marginRight: "10px"}}/>
 
-                <div style={{ display: 'flex', justifyContent: "center", marginTop: "10px" }}> 
-                    <EmailIcon style={{marginRight: "10px"}}/>
+                        <Typography variant="h5"> 
+                            Почта: {user?.email ?? "<undefined>"}
+                        </Typography>
+                    </div>
 
-                    <Typography variant="h6"> 
-                        Почта: {user?.email ?? "<undefined>"}
-                    </Typography>
-                </div>
+                    <div style={{ display: 'flex', justifyContent: "left", marginTop: "10px" }}> 
+                        <BadgeIcon style={{marginRight: "10px"}}/>
 
-                <div style={{ display: 'flex', justifyContent: "center", marginTop: "10px" }}> 
-                    <BadgeIcon style={{marginRight: "10px"}}/>
-
-                    <Typography variant="h6"> 
-                        Имя пользователя: {user?.email ?? "<undefined>"}
-                    </Typography>
-                </div>
+                        <Typography variant="h5"> 
+                            Имя пользователя: {user?.userName ?? "<undefined>"}
+                        </Typography>
+                    </div>
+                </Box>
             </div>
 
-            <div style={{width: "100%"}}>
-                <div style={{ display: 'flex', justifyContent: "center", marginTop: "10px" }}> 
-                    <EmailIcon style={{marginRight: "10px"}}/>
+            <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
+                <Box sx={{width: "auto", textAlign: "left"}}>
+                    <div style={{ display: 'flex', justifyContent: "left" }}> 
+                        <EmailIcon style={{marginRight: "10px"}}/>
 
-                    <Typography variant="h6"> 
-                        {user?.email ?? "<undefined>"}
-                    </Typography>
-                </div>
+                        <Typography variant="h5"> 
+                            Всего решённых викторин: {10}
+                        </Typography>
+                    </div>
 
-                <div style={{ display: 'flex', justifyContent: "center", marginTop: "10px" }}> 
-                    <EmailIcon style={{marginRight: "10px"}}/>
+                    <div style={{ display: 'flex', justifyContent: "left", marginTop: "10px" }}> 
+                        <BadgeIcon style={{marginRight: "10px"}}/>
 
-                    <Typography variant="h6"> 
-                        {user?.email ?? "<undefined>"}
-                    </Typography>
-                </div>
+                        <Typography variant="h5"> 
+                            Процент правильных ответов: {25}%
+                        </Typography>
+                    </div>
+                </Box>
             </div>
-        </div>
+
+            <Button variant="contained" color="primary" disableElevation style={{ width: "100%", color: 'white' }}>
+                Редактировать информацию
+            </Button>
+
+            <Button variant="contained" onClick={handleLogout} color="error" disableElevation style={{ width: "100%", color: 'white' }}>
+                Выйти из аккаунта
+            </Button>
+        </Box>
     )
 }

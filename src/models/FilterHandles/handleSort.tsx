@@ -1,9 +1,9 @@
-import { TestDto } from "../Dtos/Tests/TestDto";
+import { TestDto } from "../Api/Tests/TestDto";
 
-export const handleSort = (cards: TestDto[], property: string) => {
+export function handleSort(cards: TestDto[], property: string) {
     return [...cards].sort((a, b) => {
         let valueA, valueB;
-        
+
         if (property === "Время прохождения") {
             if (a.limitTime && b.limitTime) {
                 const valueA = a.limitTime.minutes * 60 + a.limitTime.seconds;
