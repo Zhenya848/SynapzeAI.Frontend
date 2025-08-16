@@ -26,4 +26,8 @@ export class Accounts {
     static async getUsers(userIds: string[]) {
         return api.post<Envelope<UserInfo[]>>(USER_SERVICE_API_URL + "users", { userIds });
     }
+
+    static async updateUser(userId: string, userName: string) {
+        return api.put<Envelope<string>>(USER_SERVICE_API_URL + `users/${userId}`, { userName });
+    }
 }

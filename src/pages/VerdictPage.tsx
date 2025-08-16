@@ -9,6 +9,7 @@ import { SolvingHistories } from "../api/Endpoints/solvingHistories";
 import { TaskHistoryDto } from "../models/Api/SolvingHistories/TaskHistoryDto";
 import { toast } from "react-toastify";
 import { TestDto } from "../models/Api/Tests/TestDto";
+import { useAuth } from "../components/context/auth/useAuth";
 
 export function VerdictPage() {
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ export function VerdictPage() {
     const test: TestDto = location.state?.testData;
     const answerHistory: AnswersHistory[] = location.state?.answerHistoryData;
     const expiredTime: number = location.state?.expiredTimeData;
+
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,7 +47,7 @@ export function VerdictPage() {
                 if (!expiredTime)
                     return;
 
-                const response = await SolvingHistories.create(test.tasks[0].testId, taskHistories, new Date(), expiredTime);
+                const response = await SolvingHistories.create(user?.uniqueUserName ?? "none", user?.email ?? "none", test.id, taskHistories, new Date(), expiredTime);
                 setSolvingHistoryId(response.data.result!);
 
                 setTaskHistories(taskHistories);
@@ -82,8 +85,6 @@ export function VerdictPage() {
                 
             if (!test)
                 return;
-
-            console.log(solvingHistoryId);
 
             const response = await SolvingHistories.explainSolvingTest(test.id, solvingHistoryId);
             const aiMessagesForTasks = response.data.result!;

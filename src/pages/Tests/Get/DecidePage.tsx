@@ -6,7 +6,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import PauseIcon from '@mui/icons-material/Pause';
 import { useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AnswersHistory } from "../../../models/Tasks/AswerHistory";
 import { TestDto } from "../../../models/Api/Tests/TestDto";
@@ -14,6 +14,8 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { CountdownTimer } from "../../../components/Tasks/Timer/CountdownTimer";
 import { CountdownTimerHandle } from "../../../components/Tasks/Timer/CountdownTimerHandle";
 import { PauseDialog } from "../../../components/Tasks/Timer/PauseDialog";
+import { Tests } from "../../../api/Endpoints/tests";
+import { useAuth } from "../../../components/context/auth/useAuth";
 
 export function DecidePage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -27,10 +29,47 @@ export function DecidePage() {
 
   const timerRef = useRef<CountdownTimerHandle>(null);
 
+  const { user, refresh } = useAuth();
+  const { testId } = useParams();
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const test: TestDto = location.state?.testData;
+  const testData: TestDto = location.state?.testData;
+
+  const [test, setTest] = useState<TestDto>();
+
+  useState(() => {
+    const fetchData = async () => {
+      if (testId) {
+        try {
+          const response = await Tests.getTest(testId);
+
+          console.log(response.data)
+
+          setTest(response.data.result!);
+
+          if (!user) {
+              await refresh();
+          }
+        }
+        catch (error) {
+          error.response.data.responseErrors.forEach((e: { message: string }) => {
+              toast.error(e.message);
+          });
+        }
+      }
+      else {
+        setTest(testData);
+      }
+    };
+
+    fetchData();
+  })
+
+  if (!test) {
+    return <Typography>Что-то пошло не так</Typography>;
+  }
 
   const handleAnswerChange = (answer: string) => {
     setAnswersHistory(prev => {

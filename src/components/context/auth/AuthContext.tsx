@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: Props) => {
                 try {
                     const response = await Accounts.refresh();
 
-                    setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as UserInfo)
+                    setUser(response.data.result!.user)
                     setAccessToken(response.data.result!.accessToken)
 
                     await new Promise(resolve => setTimeout(resolve, 10));
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: Props) => {
             const response = await Accounts.login(email, password);
 
             setAccessToken(response.data.result!.accessToken);
-            setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as UserInfo)
+            setUser(response.data.result!.user)
 
             setIsLoading(false);
 
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }: Props) => {
         try {
             const response = await Accounts.refresh();
 
-            setUser({email: response.data.result!.email, id: response.data.result!.userId, userName: response.data.result!.userName} as UserInfo);
+            setUser(response.data.result!.user);
             setAccessToken(response.data.result!.accessToken);
 
             await new Promise(resolve => setTimeout(resolve, 10));

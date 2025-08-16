@@ -1,7 +1,5 @@
-import { Box, Button, Card, CardMedia, Typography } from "@mui/material";
+import { Box, Card, CardMedia, Typography } from "@mui/material";
 import { CardInfo } from "../CardInfo";
-import BuildIcon from '@mui/icons-material/Build';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 interface IVerdictTaskCardInfo {
     imageUrl?: string;
@@ -31,7 +29,7 @@ export function VerdictTaskCard({imageUrl, nameCardInfo, message, userAnswer, ri
             borderRadius: 3,
             bgcolor: getBgColor(isRightAnswer),
             margin: '20px',
-            maxWidth: '520px',
+            minWidth: '320px',
             boxSizing: 'border-box'
         }}>
             {rightAnswer && <Typography sx={{textAlign: 'center'}}>{userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase() ? "Верно!" : "Неверно!"}</Typography>}
@@ -51,7 +49,7 @@ export function VerdictTaskCard({imageUrl, nameCardInfo, message, userAnswer, ri
                 {answers && answers.length > 0 && <CardInfo title="Варианты ответов" value={answers.join(", ")} />}
                 {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
 
-                <CardInfo title="Ваш ответ" value={userAnswer} />
+                <CardInfo title="Ответ пользователя" value={userAnswer} />
 
                 {comment && <CardInfo title="Комментарий к задаче" value={comment} />}
             </Box>

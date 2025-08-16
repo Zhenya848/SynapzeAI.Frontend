@@ -3,7 +3,6 @@ import { FilterBlock } from "../../../components/FilterBlock"
 import { TestCard } from "../../../components/Tests/TestCard"
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
-import { DeleteDialog } from "../../../components/DeleteDialog";
 import { handleSearch } from "../../../models/FilterHandles/handleSearch";
 import { handleSort } from "../../../models/FilterHandles/handleSort";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +12,8 @@ import { TestDto } from "../../../models/Api/Tests/TestDto";
 import { toast } from "react-toastify";
 import AddTestSelectionPanel from "../../../components/SelectionPanel/AddTestSelectionPanel";
 import StartDecideSelectionPanel from "../../../components/SelectionPanel/StartDecideSelectionPanel";
+import { DialogWindow } from "../../../components/DialogWindow";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export function GetTests() {
     const navigate = useNavigate();
@@ -46,12 +47,12 @@ export function GetTests() {
                         return;
                     }
 
-                    userId = refreshResult.userId;
+                    userId = refreshResult.user.id;
                 }
                 else
                     userId = user.id
 
-                const response = await Tests.get(userId);
+                const response = await Tests.getTests(userId);
 
                 setTests(response.data.result!);
                 setSortedTests(response.data.result!);
@@ -210,10 +211,20 @@ export function GetTests() {
                 onOptionSelect={handleOptionStartDecideTestDialogSelect}
             />
 
-            <DeleteDialog
+            <DialogWindow
                 open={isDeleteTestDialogOpen}
                 onClose={handleDeleteDialogClose}
                 onConfirm={handleOptionDeleteDialogSelect}
+                title = "Вы точно хотите удалить тест?"
+                confirmText = "Удалить"
+                cancelText = "Отмена"
+                dialogContentChildren={
+                    <div style={{ fontSize: '1.1rem', marginBottom: '16px' }}>
+                        Это действие нельзя будет отменить
+                    </div>
+                }
+                confirmButtonBackgroundColor="#d32f2f"
+                confirmButtonIcon={<DeleteIcon />}
             />
         </div>
     )

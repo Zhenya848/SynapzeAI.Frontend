@@ -39,7 +39,7 @@ export function TestCard({test, onDelete, onUpdate, onStartDecide, onShowSolving
 
                 <div style={{boxSizing: 'border-box', width: "100%"}}>
                     <CardInfo title="Огранич. по времени" value={(test.limitTime ? `Секунд: ${test.limitTime?.seconds},${'\u00A0'.repeat(2)}Минут: ${test.limitTime?.minutes}` : "нет")} />
-                    <div style={{marginTop: "20px"}}><CardInfo title="С помощью AI" value={(test.withAI ? "Да" : "Нет")} /></div>
+                    <div style={{marginTop: "20px"}}><CardInfo title="Опубликовано" value={(test.isPublished ? "Да" : "Нет")} /></div>
                 </div>
             </Box>
 

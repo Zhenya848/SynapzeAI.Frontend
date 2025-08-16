@@ -4,7 +4,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import { styled } from '@mui/material/styles';
-import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 
 const DarkDialog = styled(Dialog)(({ theme }) => ({
@@ -23,20 +23,6 @@ const DarkDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const DangerButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#d32f2f',
-  color: '#ffffff',
-  padding: '10px 24px',
-  fontSize: '1rem',
-  fontWeight: '500',
-  '&:hover': {
-    backgroundColor: '#b71c1c',
-    transform: 'translateY(-2px)',
-  },
-  transition: 'all 0.2s ease',
-  marginLeft: theme.spacing(2),
-}));
-
 const CancelButton = styled(Button)(({ theme }) => ({
   color: '#bdbdbd',
   padding: '10px 24px',
@@ -48,21 +34,36 @@ const CancelButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-export const DeleteDialog = ({ 
+interface IDialogWindowInfo {
+    open: any,
+    onClose: any,
+    onConfirm: any,
+    title: string,
+    confirmText: string,
+    cancelText: string,
+    dialogContentChildren: React.ReactNode,
+    confirmButtonColor?: string,
+    confirmButtonBackgroundColor?: string,
+    confirmButtonIcon?: React.ReactNode
+}
+
+export const DialogWindow = ({ 
   open, 
   onClose, 
   onConfirm,
-  title = "Вы точно хотите удалить тест?",
-  confirmText = "Удалить",
-  cancelText = "Отмена"
-}) => {
+  title,
+  confirmText,
+  cancelText,
+  dialogContentChildren,
+  confirmButtonColor = "#ffffff",
+  confirmButtonBackgroundColor = "#808080",
+  confirmButtonIcon = <CheckIcon />
+}: IDialogWindowInfo) => {
   return (
     <DarkDialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent sx={{ padding: '24px' }}>
-        <div style={{ fontSize: '1.1rem', marginBottom: '16px' }}>
-          Это действие нельзя будет отменить
-        </div>
+        {dialogContentChildren}
       </DialogContent>
       <DialogActions sx={{ padding: '16px 24px', borderTop: '1px solid #444' }}>
         <CancelButton
@@ -71,15 +72,26 @@ export const DeleteDialog = ({
         >
           {cancelText}
         </CancelButton>
-        <DangerButton
-          onClick={() => {
-            onConfirm();
-            onClose();
-          }}
-          startIcon={<DeleteIcon />}
-        >
-          {confirmText}
-        </DangerButton>
+            <Button
+                onClick={() => {
+                    onConfirm();
+                    onClose();
+                }}
+                startIcon={confirmButtonIcon}
+                sx={{
+                    backgroundColor: confirmButtonBackgroundColor,
+                    color: confirmButtonColor,
+                    padding: '10px 24px',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    '&:hover': {
+                        transform: 'translateY(-2px)',
+                    },
+                    transition: 'all 0.2s ease'
+                }}
+                >
+                {confirmText}
+            </Button>
       </DialogActions>
     </DarkDialog>
   );

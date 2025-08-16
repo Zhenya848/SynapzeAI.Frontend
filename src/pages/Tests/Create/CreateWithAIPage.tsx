@@ -96,7 +96,7 @@ export function CreateTestWithAI() {
         if (user) {
             try {
                 setIsLoading(true);
-                await Tests.createWithAI(user.id, testTheme, isTimeLimited, percentOfOpenTasksNum, tasksCountNum, difficultyNum, seconds, minutes);
+                await Tests.createWithAI(user.id, user.uniqueUserName, testTheme, isTimeLimited, percentOfOpenTasksNum, tasksCountNum, difficultyNum, seconds, minutes);
                 
                 navigate("/tests");
             } 

@@ -64,10 +64,11 @@ export function UpdateTask() {
 
             const testData = {
                 id: test.id,
+                uniqueUserName: test.uniqueUserName,
                 testName: test.testName, 
                 theme: test.theme, 
                 limitTime: test.limitTime, 
-                withAI: test.withAI,
+                isPublished: test.isPublished,
                 tasks: test.tasks
             } as TestDto
 

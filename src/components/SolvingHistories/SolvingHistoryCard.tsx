@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
-import { SolvingHistoryDto } from "../../models/Dtos/SolvingHistories/SolvingHistoryDto";
 import { VerdictTaskCard } from "../Tasks/VerdictTaskCard";
+import { SolvingHistoryDto } from "../../models/Api/SolvingHistories/SolvingHistoryDto";
 
 interface ISolvingHistoryTaskInfo {
     solvingHistory: SolvingHistoryDto
@@ -17,7 +17,8 @@ export function SolvingHistoryCard({ solvingHistory }: ISolvingHistoryTaskInfo) 
             boxSizing: 'border-box',
             textAlign: 'center'
         }}>
-            <Typography variant="h5">Последнее время решения: {solvingHistory.solvingDate.toString()}</Typography>
+            <Typography variant="h5">Пользователь: {solvingHistory.uniqueUserName}, почта: {solvingHistory.userEmail}</Typography>
+            <Typography variant="h5" style={{marginTop: "20px"}}>Последнее время решения: {solvingHistory.solvingDate.toString()}</Typography>
             <Typography variant="h5" style={{marginTop: "20px"}}>Продолжительность: {solvingHistory.solvingTimeSeconds} секунд</Typography>
 
             <Box sx={{ display: 'flex', gap: 2, marginTop: "20px", width: '100%', overflowX: "auto", }}>

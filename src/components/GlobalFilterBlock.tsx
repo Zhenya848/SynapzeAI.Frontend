@@ -10,7 +10,7 @@ export function GlobalFilterBlock({ onFilter }: IFilterBlockInfo)
 {
     const [testName, setTestName] = useState("");
     const [testTheme, setTestTheme] = useState("");
-    const [userEmail, setUserEmail] = useState("");
+    const [userName, setUserName] = useState("");
     const [orderBy, setOrderBy] = useState("");
 
     return (
@@ -32,7 +32,7 @@ export function GlobalFilterBlock({ onFilter }: IFilterBlockInfo)
                     onChange={(e) => setTestName(e.target.value)}
                     InputProps={{
                         startAdornment: (
-                            <Button color="inherit" onClick={() => onFilter(testName, testTheme, userEmail, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
+                            <Button color="inherit" onClick={() => onFilter(testName, testTheme, userName, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
                                 <SearchIcon />
                             </Button>
                         ),
@@ -50,7 +50,7 @@ export function GlobalFilterBlock({ onFilter }: IFilterBlockInfo)
                     onChange={(e) => setTestTheme(e.target.value)}
                     InputProps={{
                         startAdornment: (
-                            <Button color="inherit" onClick={() => onFilter(testName, testTheme, userEmail, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
+                            <Button color="inherit" onClick={() => onFilter(testName, testTheme, userName, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
                                 <SearchIcon />
                             </Button>
                         ),
@@ -59,15 +59,15 @@ export function GlobalFilterBlock({ onFilter }: IFilterBlockInfo)
                     sx={{m: 0, wight: '450p'}}
                 />
 
-                <Typography variant="h6" style={{ marginBottom: '10px', marginTop: "20px" }}>Поиск по почте создателя</Typography>
+                <Typography variant="h6" style={{ marginBottom: '10px', marginTop: "20px" }}>Поиск по имени пользователя</Typography>
 
                 <TextField
                     variant="outlined"
                     placeholder="Поиск..."
-                    onChange={(e) => setUserEmail(e.target.value)}
+                    onChange={(e) => setUserName(e.target.value)}
                     InputProps={{
                         startAdornment: (
-                            <Button color="inherit" onClick={() => onFilter(testName, testTheme, userEmail, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
+                            <Button color="inherit" onClick={() => onFilter(testName, testTheme, userName, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
                                 <SearchIcon />
                             </Button>
                         ),
@@ -86,7 +86,7 @@ export function GlobalFilterBlock({ onFilter }: IFilterBlockInfo)
                 renderInput={(params) => <TextField {...params} label="Свойство" />}
                 onChange={(event, value) => {
                     setOrderBy(value || "");
-                    onFilter(testName, testTheme, userEmail, value ?? "");
+                    onFilter(testName, testTheme, userName, value ?? "");
                 }}
             />
         </Box>
