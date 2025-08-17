@@ -12,8 +12,6 @@ import { CreateTaskDto } from "../../../models/Api/Tasks/CreateTaskDto";
 import { Tests } from "../../../api/Endpoints/tests";
 import { TaskCard } from "../../../components/Tasks/TaskCard";
 import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
-import { TagInput } from "../../../components/Tasks/TagInput";
-import { PrivacySettingsDto } from "../../../models/Api/Tests/PrivacySettingsDto";
 
 export function CreateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -26,12 +24,7 @@ export function CreateTest() {
     const [testMinutes, setTestMinutes] = useState<string>("");
     const [testTasks, setTestTasks] = useState<TaskDto[]>([]);
 
-    const [isPrivate, setIsPrivate] = useState(true);
-
-    const [usersNamesAreAllowed, setUsersNamesAreAllowed] = useState<string[]>([]);
-    const [usersEmailsAreAllowed, setUsersEmailsAreAllowed] = useState<string[]>([]);
-
-    const [usersEmailsAreAllowedError, setUsersEmailsAreAllowedError] = useState(false);
+    const [isPublished, setIsPublished] = useState(true);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -49,11 +42,13 @@ export function CreateTest() {
             setTestSeconds((test.limitTime ? test.limitTime.seconds.toString() : ""))
             setTestMinutes((test.limitTime ? test.limitTime.minutes.toString() : ""))
             setTestTasks(test.tasks);
-            setIsPrivate(test.privacySettings.isPrivate);
-            setUsersNamesAreAllowed(test.privacySettings.usersNamesAreAllowed);
-            setUsersEmailsAreAllowed(test.privacySettings.usersEmailsAreAllowed);
+            setIsPublished(test.isPublished);
         }
     }, []);
+
+    if (!user) {
+        return <Typography>401 unauthorized</Typography>;
+    }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {
@@ -64,11 +59,11 @@ export function CreateTest() {
     const generateTestData = () => {
         const testData: TestDto = 
         { 
+            uniqueUserName: user?.uniqueUserName,
             testName: testName, 
             theme: testTheme, 
             limitTime: (testSeconds && testMinutes ? { seconds: Number.parseInt(testSeconds), minutes: Number.parseInt(testMinutes) } as LimitTimeDto : null), 
-            withAI: false,
-            privacySettings: {isPrivate, usersNamesAreAllowed, usersEmailsAreAllowed} as PrivacySettingsDto,
+            isPublished: isPublished,
             tasks: testTasks
         } as TestDto
 
@@ -112,13 +107,6 @@ export function CreateTest() {
             isValid = false;
         }
 
-        if (usersEmailsAreAllowed.some(u => u.includes("@") === false)) {
-            setUsersEmailsAreAllowedError(true);
-            toast.error("Один из почтовых адресов пользователей некорректный");
-
-            isValid = false;
-        }
-
         if (isValid == false)
             return;
 
@@ -135,7 +123,7 @@ export function CreateTest() {
         if (user) {
             try {
                 setIsLoading(true);
-                await Tests.create(user.id, testName, testTheme, false, tasks, seconds, minutes, isPrivate, usersNamesAreAllowed, usersEmailsAreAllowed);
+                await Tests.create(user.id, user.uniqueUserName, testName, testTheme, isPublished, tasks, seconds, minutes);
                 
                 navigate("/tests");
             } 
@@ -150,15 +138,7 @@ export function CreateTest() {
         }
     }
 
-    const handleSwitchIsPrivate = (isPrivate: boolean) => setIsPrivate(isPrivate);
-
-    const handleUsersNamesAreAllowedChange = (value: string[]) => {
-        setUsersNamesAreAllowed(value);
-    };
-
-    const handleUsersEmailsAreAllowedChange = (value: string[]) => {
-        setUsersEmailsAreAllowed(value);
-    };
+    const handleSwitchIsPublished = (isPublished: boolean) => setIsPublished(isPublished);
 
     return (
         <div style={{margin: "10px"}}>
@@ -212,28 +192,11 @@ export function CreateTest() {
 
                     <FormControlLabel
                         value="end"
-                        control={<Switch color="primary"checked={isPrivate === false} name="loading" onChange={() => handleSwitchIsPrivate(isPrivate === false)} />}
+                        control={<Switch color="primary"checked={isPublished} name="loading" onChange={() => handleSwitchIsPublished(isPublished === false)} />}
                         label="Публичный доступ"
                         labelPlacement="end"
                         sx={{marginTop: "20px"}}
                     />
-
-                    {isPrivate === false && <div style={{ display: "flex", marginTop: "10px", gap: "20px" }}>
-                        <TagInput 
-                            label="Разрешённые имена пользователей" 
-                            placeholderText="Введите имена пользователей, которые могут просматривать викторину"
-                            currentTags={test.privacySettings.usersNamesAreAllowed}
-                            onChange={handleUsersNamesAreAllowedChange}>    
-                        </TagInput>
-
-                        <TagInput 
-                            label="Разрешённые почтовые адреса пользователей"
-                            placeholderText="Введите почтовые адреса пользователей, которые могут просматривать викторину"
-                            onChange={handleUsersEmailsAreAllowedChange}
-                            currentTags={test.privacySettings.usersEmailsAreAllowed}
-                            isError={usersEmailsAreAllowedError}>
-                        </TagInput>
-                    </div>}
                 </div>
             </div>
 

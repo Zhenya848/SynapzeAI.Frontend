@@ -50,11 +50,11 @@ export function CreateTask() {
 
             const testData = {
                 id: test.id,
+                uniqueUserName: test.uniqueUserName,
                 testName: test.testName, 
                 theme: test.theme, 
                 limitTime: test.limitTime, 
-                withAI: test.withAI,
-                privacySettings: test.privacySettings,
+                isPublished: test.isPublished,
                 tasks: [...test.tasks, task]
             } as TestDto
 

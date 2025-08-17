@@ -6,11 +6,11 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { Tests } from "../../api/Endpoints/tests";
 import { toast } from "react-toastify";
 import StartDecideSelectionPanel from "../../components/SelectionPanel/StartDecideSelectionPanel";
-import { GlobalTestDto } from "../../models/Api/Tests/GlobalTestDto";
 import { GlobalTestCard } from "../../components/Tests/GlobalTestCard";
 import { number } from "framer-motion";
 import { useAuth } from "../../components/context/auth/useAuth";
 import { GlobalFilterBlock } from "../../components/GlobalFilterBlock";
+import { TestDto } from "../../models/Api/Tests/TestDto";
 
 export function GlobalTests() {
     const navigate = useNavigate();
@@ -19,23 +19,27 @@ export function GlobalTests() {
 
     const [isStartDecideTestDialogOpen, setIsStartDecideTestDialogOpen] = useState(false);
 
-    const [tests, setTests] = useState<GlobalTestDto[] | undefined>(undefined);
+    const [tests, setTests] = useState<TestDto[] | undefined>(undefined);
 
     const [isLoading, setIsLoading] = useState(true);
 
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
 
-    const { user } = useAuth();
+    const { user, refresh } = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
 
-                const response = await Tests.getWithPagination(page, PAGE_SIZE, user);
+                const response = await Tests.getWithPagination(page, PAGE_SIZE);
 
                 setTests(response.data.result!.items);
+
+                if (!user) {
+                    await refresh();
+                }
             } 
             catch (error: any) {
                 error.response.data.responseErrors.forEach((e: { message: string }) => {
@@ -67,7 +71,7 @@ export function GlobalTests() {
     const handleOptionStartDecideTestDialogSelect = (option: string) => {
         handleStartDecideTestDialogClose();
 
-        const testData = tests.find(t => t.test.id === testId)?.test;
+        const testData = tests.find(t => t.id === testId);
 
         if (!testData)
             return;
@@ -93,11 +97,9 @@ export function GlobalTests() {
         }
     };
 
-    const handleFilter = async (testName: string, testTheme: string, userEmail: string, orderBy: string) => {
+    const handleFilter = async (testName: string, testTheme: string, userName: string, orderBy: string) => {
         try {
-            const response = await Tests.getWithPagination(page, PAGE_SIZE, user, testName, testTheme, userEmail, orderBy);
-
-            console.log(response.data.result!)
+            const response = await Tests.getWithPagination(page, PAGE_SIZE, testName, testTheme, userName, orderBy);
 
             setTests(response.data.result!.items);
         }
@@ -111,7 +113,7 @@ export function GlobalTests() {
     return (
         <div style={{alignItems: "flex-end",  display: 'flex', flexDirection: "column"}}>
             <GlobalFilterBlock
-                onFilter={(testName: string, testTheme: string, userEmail: string, orderBy: string) => handleFilter(testName, testTheme, userEmail, orderBy)}
+                onFilter={(testName: string, testTheme: string, userName: string, orderBy: string) => handleFilter(testName, testTheme, userName, orderBy)}
             />
 
             <div style={{margin: "20px", width: "calc(100% - 40px)", display: "flex", height: "50px"}}>
@@ -152,7 +154,7 @@ export function GlobalTests() {
                 >
                 {tests.map((card) => (
                     <GlobalTestCard
-                        globalTest={card}
+                        test={card}
                         onStartDecide={handleStartDecideTestDialogOpen}>
                     </GlobalTestCard>
                 ))}

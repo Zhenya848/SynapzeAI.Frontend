@@ -43,6 +43,10 @@ export const router = createBrowserRouter([
           element: <DecidePage />
         },
         {
+          path: "/tests/decide/:testId",
+          element: <DecidePage />
+        },
+        {
           path: "/tests/decideWithInterval",
           element: <DecideWithIntervalPage />
         },

@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SolvingHistories } from "../../api/Endpoints/solvingHistories";
-import { SolvingHistoryDto } from "../../models/Dtos/SolvingHistories/SolvingHistoryDto";
 import { toast } from "react-toastify";
-import { Button, Table, Typography } from "@mui/material";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Button, InputAdornment, Table, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { SolvingHistoryCard } from "../../components/SolvingHistories/SolvingHistoryCard";
 import { TestDto } from "../../models/Api/Tests/TestDto";
 import { VerdictIntervalTaskCard } from "../../components/Tasks/VerdictIntervalTaskCard";
 import { calculatePriorityNumber } from "../../models/Tasks/CalculatePriorityNumber";
+import { SolvingHistoryDto } from "../../models/Api/SolvingHistories/SolvingHistoryDto";
+import { number } from "framer-motion";
+import SearchIcon from '@mui/icons-material/Search';
 
 enum TestMode {
     OrdinaryMode,
@@ -21,6 +25,12 @@ export function GetSolvingHistories() {
     const [isLoading, setIsLoading] = useState(true);
     const [solvingHistories, setSolvingHistories] = useState<SolvingHistoryDto[]>([]);
 
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 5;
+
+    const [userName, setUserName] = useState("");
+    const [userEmail, setUserEmail] = useState("");
+
     const [testMode, setTestMode] = useState<TestMode>(TestMode.OrdinaryMode);
 
     const test: TestDto = location.state?.testData;
@@ -33,8 +43,8 @@ export function GetSolvingHistories() {
                 if (!test)
                     return;
 
-                const solvingHistoriesResponse = await SolvingHistories.get(test.id);
-                setSolvingHistories(solvingHistoriesResponse.data.result!);
+                const solvingHistoriesResponse = await SolvingHistories.getWithPagination(page, PAGE_SIZE, test.id);
+                setSolvingHistories(solvingHistoriesResponse.data.result!.items);
             } 
             catch (error: any) {
                 console.log(error);
@@ -49,13 +59,32 @@ export function GetSolvingHistories() {
         };
 
         fetchData();
-    }, [])
+    }, [page])
 
     if (isLoading) {
         return <Typography>Загрузка...</Typography>;
     }
 
     const changeTestMode = (testMode: TestMode) => setTestMode(testMode);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!/[1-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {
+            e.preventDefault();
+        }
+    };
+
+    const handleSearch = async () => {
+        try {
+            const response = await SolvingHistories.getWithPagination(page, PAGE_SIZE, test.id, userName, userEmail)
+
+            setSolvingHistories(response.data.result!.items);
+        }
+        catch (error: any) {
+            error.response.data.responseErrors.forEach((e: { message: string }) => {
+                toast.error(e.message);
+            });
+        }
+    }
 
     return (
         <div>
@@ -85,6 +114,62 @@ export function GetSolvingHistories() {
                     >
                     Режим интервальных повторений
                 </Button>
+            </div>
+
+            <TextField
+                variant="outlined"
+                placeholder="Поиск по почтовому адресу..."
+                onChange={(e) => setUserEmail(e.target.value)}
+                InputProps={{
+                    startAdornment: (
+                        <Button color="inherit" onClick={handleSearch} variant="outlined" sx={{marginRight: "10px"}}>
+                            <SearchIcon />
+                        </Button>
+                    ),
+                }}
+                fullWidth
+                sx={{margin: "20px", width: "calc(100% - 40px)", display: "flex", marginTop: "80px"}}
+            />
+
+            <TextField
+                variant="outlined"
+                placeholder="Поиск по имени пользователя..."
+                onChange={(e) => setUserName(e.target.value)}
+                InputProps={{
+                    startAdornment: (
+                        <Button color="inherit" onClick={handleSearch} variant="outlined" sx={{marginRight: "10px"}}>
+                            <SearchIcon />
+                        </Button>
+                    ),
+                }}
+                fullWidth
+                sx={{margin: "20px", width: "calc(100% - 40px)", display: "flex"}}
+            />
+
+            <div style={{margin: "20px", width: "calc(100% - 40px)", display: "flex", height: "50px"}}>
+                <ToggleButtonGroup
+                    exclusive
+                    aria-label="text alignment"
+                >
+                    <ToggleButton value="left" aria-label="left aligned" onClick={() => setPage(page > 1 ? page - 1 : 1)}>
+                        <ArrowBackIosIcon />
+                    </ToggleButton>
+
+                    <TextField 
+                        sx={{ 
+                            '& .MuiInputBase-root': { height: 50, width: 50 }
+                        }}
+                        value={page}
+                        variant="outlined"
+                        onKeyDown={handleKeyDown}
+                        onChange={(e) => setPage(number.parse(e.target.value))}
+                        style={{ height: "10px", textAlign: "center" }} 
+                    />
+
+                    <ToggleButton value="right" aria-label="right aligned" onClick={() => setPage(page + 1)}>
+                        <ArrowForwardIosIcon />
+                    </ToggleButton>
+                </ToggleButtonGroup>
             </div>
 
 

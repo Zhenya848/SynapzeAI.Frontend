@@ -1,7 +1,7 @@
+import { UserInfo } from "./UserInfo";
+
 export type LoginResponse = {
     accessToken: string;
     refreshToken: string;
-    userId: string;
-    email: string;
-    userName: string;
+    user: UserInfo;
 }

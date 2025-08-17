@@ -1,15 +1,21 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import EmailIcon from '@mui/icons-material/Email';
 import { useAuth } from "../../components/context/auth/useAuth";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import BadgeIcon from '@mui/icons-material/Badge';
-import { Accounts } from "../../api/Endpoints/accounts";
 import { useNavigate } from "react-router-dom";
+import { DialogWindow } from "../../components/DialogWindow";
+import SaveIcon from '@mui/icons-material/Save';
+import { Accounts } from "../../api/Endpoints/accounts";
 
 export function AccountPage() {
     const { user, refresh, logout } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
+
+    const [isUpdateUserDataDialogOpen, setIsUpdateUserDataDialogOpen] = useState(false);
+
+    const [newUserName, setNewUserName] = useState("");
 
     const navigate = useNavigate();
 
@@ -53,6 +59,26 @@ export function AccountPage() {
         navigate("/login");
     }
 
+    const handleUpdateUserDataDialogClose = () => setIsUpdateUserDataDialogOpen(false);
+    const handleUpdateUserDataDialogOpen = () => setIsUpdateUserDataDialogOpen(true);
+
+    const handleOptionUpdateUserDataDialogSelect = async () => {
+        try {
+            setIsLoading(true);
+
+            await Accounts.updateUser(user.id, newUserName);
+            await refresh();
+        }
+        catch (error: any) {
+            error.response.data.responseErrors.forEach((e: { message: string }) => {
+                toast.error(e.message);
+            });
+        }
+        finally {
+            setIsLoading(false)
+        }
+    }
+
     return (
         <Box sx={{margin: "20px", width: "calc(100% - 40px)", gap: "10px", display: "flex", '@media (max-width: 1030px)': { flexDirection: 'column', gap: "40px" }}}>
             <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
@@ -61,7 +87,7 @@ export function AccountPage() {
                         <EmailIcon style={{marginRight: "10px"}}/>
 
                         <Typography variant="h5"> 
-                            Почта: {user?.email ?? "<undefined>"}
+                            Почта: {user.email}
                         </Typography>
                     </div>
 
@@ -69,7 +95,15 @@ export function AccountPage() {
                         <BadgeIcon style={{marginRight: "10px"}}/>
 
                         <Typography variant="h5"> 
-                            Имя пользователя: {user?.userName ?? "<undefined>"}
+                            Имя пользователя: {user.userName}
+                        </Typography>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: "left", marginTop: "10px" }}> 
+                        <BadgeIcon style={{marginRight: "10px"}}/>
+
+                        <Typography variant="h5"> 
+                            Имя пользователя в системе: {user.uniqueUserName}
                         </Typography>
                     </div>
                 </Box>
@@ -95,13 +129,35 @@ export function AccountPage() {
                 </Box>
             </div>
 
-            <Button variant="contained" color="primary" disableElevation style={{ width: "100%", color: 'white' }}>
+            <Button variant="contained" onClick={handleUpdateUserDataDialogOpen} color="primary" disableElevation style={{ width: "100%", color: 'white' }}>
                 Редактировать информацию
             </Button>
 
             <Button variant="contained" onClick={handleLogout} color="error" disableElevation style={{ width: "100%", color: 'white' }}>
                 Выйти из аккаунта
             </Button>
+
+            <DialogWindow
+                open={isUpdateUserDataDialogOpen}
+                onClose={handleUpdateUserDataDialogClose}
+                onConfirm={handleOptionUpdateUserDataDialogSelect}
+                title = "Изменение пользовательских данных"
+                confirmText = "Изменить"
+                cancelText = "Отмена"
+                dialogContentChildren={
+                    <div style={{marginTop: "10px"}}>
+                        <TextField 
+                            id="outlined-basic" 
+                            label="Имя пользователя" 
+                            value={newUserName} 
+                            onChange={(e) => setNewUserName(e.target.value)} 
+                            variant="outlined" 
+                            style={{ width: "100%" }} />
+                    </div>
+                }
+                confirmButtonBackgroundColor="#00BFFF"
+                confirmButtonIcon={<SaveIcon />}
+            />
         </Box>
     )
 }
