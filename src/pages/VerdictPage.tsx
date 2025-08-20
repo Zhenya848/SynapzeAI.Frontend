@@ -10,6 +10,7 @@ import { TaskHistoryDto } from "../models/Api/SolvingHistories/TaskHistoryDto";
 import { toast } from "react-toastify";
 import { TestDto } from "../models/Api/Tests/TestDto";
 import { useAuth } from "../components/context/auth/useAuth";
+import { AIProvider } from "../models/AIProvider";
 
 export function VerdictPage() {
     const navigate = useNavigate();
@@ -86,8 +87,12 @@ export function VerdictPage() {
             if (!test)
                 return;
 
-            const response = await SolvingHistories.explainSolvingTest(test.id, solvingHistoryId);
-            const aiMessagesForTasks = response.data.result!;
+            const aiMessagesForTasks = await AIProvider.explainTasks(taskHistories);
+
+            if (!aiMessagesForTasks)
+                return;
+
+            await SolvingHistories.updateAIMessagesForTasks(test.id, solvingHistoryId, aiMessagesForTasks);
 
             setTaskHistories(prev => {
                 return prev.map((item, idx) => ({ ...item, messageAI: aiMessagesForTasks.find(v => v.taskSerialNumber === item.serialNumber)?.aiMessage ?? ""}));
@@ -110,8 +115,6 @@ export function VerdictPage() {
             <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
                 {taskHistories.map((taskHistory, index) => (
                     <VerdictTaskCard
-                        imageUrl="https://pic.rutubelist.ru/playlist/bf544654-e5e5-11ef-b595-02420a00066a.jpg"
-                        audioUrl={taskHistory.audioPath}
                         nameCardInfo={taskHistory.taskName}
                         message={taskHistory.taskMessage}
                         userAnswer={taskHistory.userAnswer}

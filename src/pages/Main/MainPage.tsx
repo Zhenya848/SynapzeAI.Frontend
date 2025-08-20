@@ -1,5 +1,5 @@
 
-import { FilterBlock } from "../../components/FilterBlock";
+import { FilterBlock } from "../../components/FilterBlocks/FilterBlock";
 import { ImageWithTextCard } from "../../components/ImageWithTextCard";
 
 export function MainPage() {

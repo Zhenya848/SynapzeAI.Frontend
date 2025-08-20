@@ -2,13 +2,15 @@ import { Box, Button, Card, CardMedia } from "@mui/material";
 import { CardInfo } from "../CardInfo";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { TestDto } from "../../models/Api/Tests/TestDto";
+import HistoryIcon from '@mui/icons-material/History';
 
 interface ITestCardInfo {
     test: TestDto,
     onStartDecide?: any,
+    onShowSolvingHistories?: any
 }
 
-export function GlobalTestCard({test: test, onStartDecide}: ITestCardInfo) {
+export function GlobalTestCard({test: test, onStartDecide, onShowSolvingHistories}: ITestCardInfo) {
     return (
         <Box 
             component="section" 
@@ -49,8 +51,9 @@ export function GlobalTestCard({test: test, onStartDecide}: ITestCardInfo) {
                 }}
                 >
 
-                <div style={{boxSizing: 'border-box', width: "100%"}}>
+                <div style={{width: "100%", boxSizing: 'border-box', textAlign: "center"}}>
                     <p style={{textAlign: 'center'}}><Button variant="contained" color="success" onClick={() => onStartDecide(test.id)} sx={{ color: 'white'}} startIcon={<PlayArrowIcon />}>Начать решать</Button></p>
+                    <p style={{marginTop: "20px", textAlign: 'center'}}><Button onClick={() => onShowSolvingHistories(test.id)} variant="contained" color="warning" sx={{ color: 'white'}} startIcon={<HistoryIcon />}>История</Button></p>
                 </div>
             </Box>
         </Box>

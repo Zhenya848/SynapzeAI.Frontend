@@ -12,6 +12,7 @@ import { calculatePriorityNumber } from "../../models/Tasks/CalculatePriorityNum
 import { SolvingHistoryDto } from "../../models/Api/SolvingHistories/SolvingHistoryDto";
 import { number } from "framer-motion";
 import SearchIcon from '@mui/icons-material/Search';
+import { SolvingHistoriesFilterBlock } from "../../components/FilterBlocks/SolvingHistoriesFilterBlock";
 
 enum TestMode {
     OrdinaryMode,
@@ -27,9 +28,6 @@ export function GetSolvingHistories() {
 
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 5;
-
-    const [userName, setUserName] = useState("");
-    const [userEmail, setUserEmail] = useState("");
 
     const [testMode, setTestMode] = useState<TestMode>(TestMode.OrdinaryMode);
 
@@ -73,9 +71,9 @@ export function GetSolvingHistories() {
         }
     };
 
-    const handleSearch = async () => {
+    const handleFilter = async (userName: string, email: string, orderBy: string) => {
         try {
-            const response = await SolvingHistories.getWithPagination(page, PAGE_SIZE, test.id, userName, userEmail)
+            const response = await SolvingHistories.getWithPagination(page, PAGE_SIZE, test.id, userName, email, orderBy)
 
             setSolvingHistories(response.data.result!.items);
         }
@@ -116,35 +114,9 @@ export function GetSolvingHistories() {
                 </Button>
             </div>
 
-            <TextField
-                variant="outlined"
-                placeholder="Поиск по почтовому адресу..."
-                onChange={(e) => setUserEmail(e.target.value)}
-                InputProps={{
-                    startAdornment: (
-                        <Button color="inherit" onClick={handleSearch} variant="outlined" sx={{marginRight: "10px"}}>
-                            <SearchIcon />
-                        </Button>
-                    ),
-                }}
-                fullWidth
-                sx={{margin: "20px", width: "calc(100% - 40px)", display: "flex", marginTop: "80px"}}
-            />
-
-            <TextField
-                variant="outlined"
-                placeholder="Поиск по имени пользователя..."
-                onChange={(e) => setUserName(e.target.value)}
-                InputProps={{
-                    startAdornment: (
-                        <Button color="inherit" onClick={handleSearch} variant="outlined" sx={{marginRight: "10px"}}>
-                            <SearchIcon />
-                        </Button>
-                    ),
-                }}
-                fullWidth
-                sx={{margin: "20px", width: "calc(100% - 40px)", display: "flex"}}
-            />
+            <SolvingHistoriesFilterBlock onFilter={handleFilter}>
+                
+            </SolvingHistoriesFilterBlock>
 
             <div style={{margin: "20px", width: "calc(100% - 40px)", display: "flex", height: "50px"}}>
                 <ToggleButtonGroup

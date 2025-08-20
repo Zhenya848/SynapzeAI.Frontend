@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { UpdateTaskStatisticDto } from "../models/Api/Tasks/UpdateTaskStatisticDto";
 import { Tests } from "../api/Endpoints/tests";
 import { toast } from "react-toastify";
+import { useAuth } from "../components/context/auth/useAuth";
 
 export function VerdictIntervalPage() {
     const navigate = useNavigate();
@@ -18,20 +19,25 @@ export function VerdictIntervalPage() {
     const test: TestDto = location.state?.testData;
     const statisticTasks: StatisticTask[] = location.state?.statisticTasksData;
 
+    const { user } = useAuth();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
                 
-                if (!test || test.tasks.length < 1)
+                if (!user || !test || test.tasks.length < 1)
                     return;
 
                 const tasks: UpdateTaskStatisticDto[] = statisticTasks.map((task, index) => ({
                     taskId: test.tasks[index].id,
-                    statistic: task.taskStatistic
+                    errorsCount: task.taskStatistic.errorsCount,
+                    rightAnswersCount: task.taskStatistic.rightAnswersCount,
+                    lastReviewTime: task.taskStatistic.lastReviewTime,
+                    avgTimeSolvingSec: task.taskStatistic.avgTimeSolvingSec,
                 }))
 
-                await Tests.updateTasksStatistic(test.id, tasks);
+                await Tests.updateTasksStatistic(user.id, test.id, tasks);
             } 
             catch (error: any) {
                 error.response.data.responseErrors.forEach((e: { message: string }) => {
@@ -61,8 +67,6 @@ export function VerdictIntervalPage() {
             <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
                 {test.tasks.map((task, index) => (
                     <VerdictIntervalTaskCard
-                        imageUrl="https://pic.rutubelist.ru/playlist/bf544654-e5e5-11ef-b595-02420a00066a.jpg"
-                        audioUrl={task.audioPath}
                         nameCardInfo={task.taskName}
                         message={task.taskMessage}
                         taskStatistic={statisticTasks.find(i => i.taskIndex === index)?.taskStatistic}

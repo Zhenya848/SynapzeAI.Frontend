@@ -20,7 +20,7 @@ function getBgColor(isRightAnswer: boolean | string | undefined) {
     return isRightAnswer != undefined ? (isRightAnswer ? "#17a023" : "#8b171c") : "#616161"
 }
 
-export function VerdictTaskCard({imageUrl, nameCardInfo, message, userAnswer, rightAnswer, answers, comment}: IVerdictTaskCardInfo) {
+export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer, answers, comment}: IVerdictTaskCardInfo) {
     const isRightAnswer = rightAnswer && userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase()
 
     return (
@@ -33,13 +33,6 @@ export function VerdictTaskCard({imageUrl, nameCardInfo, message, userAnswer, ri
             boxSizing: 'border-box'
         }}>
             {rightAnswer && <Typography sx={{textAlign: 'center'}}>{userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase() ? "Верно!" : "Неверно!"}</Typography>}
-
-            <Card sx={{ 
-                maxWidth: 480,
-                margin: '10px auto'
-            }}>
-                <CardMedia component="img" height="140" image={imageUrl} alt="Без фото" />
-            </Card>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px', margin: '20px' }}>
                 <CardInfo title="Название" value={nameCardInfo} />

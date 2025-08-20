@@ -1,6 +1,7 @@
-import { TaskStatisticDto } from "./TaskStatisticDto";
-
 export type UpdateTaskStatisticDto = {
     taskId: string;
-    statistic: TaskStatisticDto
+    errorsCount: number
+    rightAnswersCount: number
+    lastReviewTime: Date
+    avgTimeSolvingSec: number
 }
