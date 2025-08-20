@@ -1,9 +1,8 @@
-import { Box, Button, Card, CardMedia, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { CardInfo } from "../CardInfo";
 import { TaskStatisticDto } from "../../models/Api/Tasks/TaskStatisticDto";
 import { textStyle } from "../../models/FilledBoxStyles/TextStyle";
 import { fillStyle } from "../../models/FilledBoxStyles/FillStyle";
-import { useEffect } from "react";
 
 interface IVerdictTaskCardInfo {
     imageUrl?: string;
@@ -21,7 +20,7 @@ interface IVerdictTaskCardInfo {
     answers?: string[]
 }
 
-export function VerdictIntervalTaskCard({imageUrl, nameCardInfo, message, taskStatistic, progressValue: progressValue, rightAnswer, answers}: IVerdictTaskCardInfo) {
+export function VerdictIntervalTaskCard({nameCardInfo, message, taskStatistic, progressValue: progressValue, rightAnswer, answers}: IVerdictTaskCardInfo) {
     return (
         <Box sx={{
             p: 1,
@@ -32,14 +31,7 @@ export function VerdictIntervalTaskCard({imageUrl, nameCardInfo, message, taskSt
             boxSizing: 'border-box',
             position: 'relative',
             overflow: 'hidden'
-        }}>
-            <Card sx={{ 
-                maxWidth: 480,
-                margin: '10px auto'
-            }}>
-                <CardMedia component="img" height="140" image={imageUrl} alt="image" />
-            </Card>
-            
+        }}> 
             <Box sx={{ ...textStyle, display: 'flex', flexDirection: 'column', gap: '15px', margin: '15px' }}>
                 <CardInfo title="Название" value={nameCardInfo} />
             

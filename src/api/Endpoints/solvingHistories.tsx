@@ -12,13 +12,17 @@ export class SolvingHistories {
         return api.put<Envelope<string>>(TESTS_SERVICE_API_URL + `${testId}/history`, { uniqueUserName, userEmail, taskHistories, solvingDate, solvingTimeSeconds })
     }
 
-    static async getWithPagination(page: number, pageSize: number, testId: string, searchUserName?: string, searchUserEmail?: string) {
+    static async getWithPagination(page: number, pageSize: number, testId: string, searchUserName?: string, searchUserEmail?: string, orderBy?: string) {
         console.log(page, pageSize, testId, searchUserName, searchUserEmail)
 
-        return api.post<Envelope<PageList<SolvingHistoryDto>>>(TESTS_SERVICE_API_URL + `${testId}/history`, { page, pageSize, searchUserName, searchUserEmail })
+        return api.post<Envelope<PageList<SolvingHistoryDto>>>(TESTS_SERVICE_API_URL + `${testId}/history`, { page, pageSize, searchUserName, searchUserEmail, orderBy })
     }
 
     static async explainSolvingTest(testId: string, solvingHistoryId: string) {
         return api.put<Envelope<AIMessageForTask[]>>(TESTS_SERVICE_API_URL + `${testId}/history/explain/${solvingHistoryId}`)
+    }
+
+    static async updateAIMessagesForTasks(testId: string, solvingHistoryId: string, aiMessagesForTasks: AIMessageForTask[]) {
+        return api.put(TESTS_SERVICE_API_URL + `${testId}/history/update/${solvingHistoryId}`, { aiMessagesForTasks })
     }
 }

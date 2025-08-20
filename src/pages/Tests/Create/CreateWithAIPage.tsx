@@ -1,14 +1,18 @@
-import { Button, Card, CardMedia, FormControlLabel, Slider, Switch, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { Button, Card, CardMedia, FormControlLabel, Input, Slider, Switch, TextField, Typography } from "@mui/material";
+import { useCallback, useState } from "react";
 import { useAuth } from "../../../components/context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
 import { toast } from "react-toastify";
 import { Tests } from "../../../api/Endpoints/tests";
+import { AIProvider } from "../../../models/AIProvider";
+import { FileExtensions } from "../../../models/FileExtensions";
 
 export function CreateTestWithAI() {
     const navigate = useNavigate();
+
+    const [preview, setPreview] = useState<string>('');
 
     const [testTheme, setTestTheme] = useState<string>("");
     const [testThemeError, setTestThemeError] = useState(false);
@@ -96,7 +100,13 @@ export function CreateTestWithAI() {
         if (user) {
             try {
                 setIsLoading(true);
-                await Tests.createWithAI(user.id, user.uniqueUserName, testTheme, isTimeLimited, percentOfOpenTasksNum, tasksCountNum, difficultyNum, seconds, minutes);
+
+                const test = await AIProvider.generateTestWithAI(testTheme, isTimeLimited, percentOfOpenTasksNum, tasksCountNum, difficultyNum, seconds, minutes, preview);
+                
+                if (!test)
+                    return;
+
+                await Tests.create(user.id, user.uniqueUserName, test.testName, test.theme, false, test.tasks, test.limitTime?.seconds, test.limitTime?.minutes);
                 
                 navigate("/tests");
             } 
@@ -115,6 +125,27 @@ export function CreateTestWithAI() {
         navigate("/tests");
     }
 
+    const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+
+        if (!file) 
+            return;
+
+        setIsLoading(true);
+        
+        try {
+            const base64 = await FileExtensions.encodeImageToBase64(file);
+            setPreview(base64);
+        } 
+        catch (error) {
+            console.error('Ошибка:', error);
+            alert('Ошибка обработки изображения');
+        } 
+        finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     return (
         <div style={{margin: "10px"}}>
             <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: "center"}}>
@@ -122,13 +153,14 @@ export function CreateTestWithAI() {
                     <CardMedia
                         component="img"
                         height="140"
-                        image="https://i.pinimg.com/originals/0b/ae/97/0bae97a138f2cd95c739ef87685cfc92.jpg"
-                        alt="image"
+                        image={preview ?? "https://i.pinimg.com/originals/0b/ae/97/0bae97a138f2cd95c739ef87685cfc92.jpg"}
                     />
 
-                    <Button variant="contained" disableElevation style={{ width: "100%" }}>
-                        Редактировать файл
-                    </Button>
+                    <Input
+                        type="file"
+                        style={{ width: "100%" }}
+                        onChange={handleFileSelect}
+                        disabled={isLoading} />
                 </Card>
 
                 <TextField 

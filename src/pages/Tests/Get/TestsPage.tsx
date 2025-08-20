@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@mui/material"
-import { FilterBlock } from "../../../components/FilterBlock"
+import { FilterBlock } from "../../../components/FilterBlocks/FilterBlock"
 import { TestCard } from "../../../components/Tests/TestCard"
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";

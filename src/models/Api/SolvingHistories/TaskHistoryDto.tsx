@@ -4,9 +4,6 @@ export type TaskHistoryDto = {
     taskMessage: string
     rightAnswer?: string
     
-    imagePath?: string
-    audioPath?: string
-    
     answers?: string[]
     userAnswer: string
 

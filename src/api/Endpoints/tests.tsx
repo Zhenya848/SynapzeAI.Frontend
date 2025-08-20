@@ -17,8 +17,8 @@ export class Tests {
         return api.get<Envelope<TestDto>>(TESTS_SERVICE_API_URL + testId + "/test")
     }
 
-    static async getWithPagination(page: number, pageSize: number, searchTestName?: string, searchTestTheme?: string, searchUserName?: string, orderBy?: string) {
-        return api.post<Envelope<PageList<TestDto>>>(TESTS_SERVICE_API_URL + "tests", { page, pageSize, searchTestName, searchTestTheme, searchUserName, orderBy })
+    static async getWithPagination(page: number, pageSize: number, userId?: string, searchTestName?: string, searchTestTheme?: string, searchUserName?: string, orderBy?: string) {
+        return api.post<Envelope<PageList<TestDto>>>(TESTS_SERVICE_API_URL + "tests", { page, pageSize, searchTestName, searchTestTheme, searchUserName, orderBy, userId })
     }
 
     static async delete(userId: string, testId: string) {
@@ -37,7 +37,7 @@ export class Tests {
         return api.post<Envelope<string>>(TESTS_SERVICE_API_URL + userId + "/withAI", { uniqueUserName, theme, isTimeLimited, percentOfOpenTasks, tasksCount, difficulty, seconds, minutes })
     }
 
-    static async updateTasksStatistic(testId: string, tasks: UpdateTaskStatisticDto[]) {
-        return api.put<Envelope<string>>(TESTS_SERVICE_API_URL + `${testId}/task`, { tasks })
+    static async updateTasksStatistic(userId:string, testId: string, tasks: UpdateTaskStatisticDto[]) {
+        return api.put<Envelope<string>>(TESTS_SERVICE_API_URL + `${userId}/${testId}/tasksStatistic`, { tasks })
     }
 }

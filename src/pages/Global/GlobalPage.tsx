@@ -9,7 +9,7 @@ import StartDecideSelectionPanel from "../../components/SelectionPanel/StartDeci
 import { GlobalTestCard } from "../../components/Tests/GlobalTestCard";
 import { number } from "framer-motion";
 import { useAuth } from "../../components/context/auth/useAuth";
-import { GlobalFilterBlock } from "../../components/GlobalFilterBlock";
+import { GlobalFilterBlock } from "../../components/FilterBlocks/GlobalFilterBlock";
 import { TestDto } from "../../models/Api/Tests/TestDto";
 
 export function GlobalTests() {
@@ -33,7 +33,7 @@ export function GlobalTests() {
             try {
                 setIsLoading(true);
 
-                const response = await Tests.getWithPagination(page, PAGE_SIZE);
+                const response = await Tests.getWithPagination(page, PAGE_SIZE, user?.id);
 
                 setTests(response.data.result!.items);
 
@@ -99,7 +99,7 @@ export function GlobalTests() {
 
     const handleFilter = async (testName: string, testTheme: string, userName: string, orderBy: string) => {
         try {
-            const response = await Tests.getWithPagination(page, PAGE_SIZE, testName, testTheme, userName, orderBy);
+            const response = await Tests.getWithPagination(page, PAGE_SIZE, user?.id, testName, testTheme, userName, orderBy);
 
             setTests(response.data.result!.items);
         }
@@ -108,6 +108,15 @@ export function GlobalTests() {
                 toast.error(e.message);
             });
         }
+    }
+
+    const handleShowSolvingHistoriesSelect = (testId: string) => {
+        const testData = tests.find(i => i.id === testId);
+
+        if (!testData)
+            return;
+
+        navigate("/tests/solvingHistories", { state: { testData } });
     }
 
     return (
@@ -155,7 +164,8 @@ export function GlobalTests() {
                 {tests.map((card) => (
                     <GlobalTestCard
                         test={card}
-                        onStartDecide={handleStartDecideTestDialogOpen}>
+                        onStartDecide={handleStartDecideTestDialogOpen}
+                        onShowSolvingHistories={handleShowSolvingHistoriesSelect}>
                     </GlobalTestCard>
                 ))}
             </Box>
