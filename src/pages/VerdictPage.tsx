@@ -1,73 +1,80 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { AnswersHistory } from "../models/Tasks/AswerHistory";
-import { Button, Typography } from "@mui/material";
-import { VerdictTaskCard } from "../components/Tasks/VerdictTaskCard";
+import { AnswersHistory } from "../features/tasks/model/AswerHistory";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { useEffect, useState } from "react";
-import { SolvingHistories } from "../api/Endpoints/solvingHistories";
-import { TaskHistoryDto } from "../models/Api/SolvingHistories/TaskHistoryDto";
+import { TaskHistory } from "../entities/taskHistory/TaskHistory";
 import { toast } from "react-toastify";
-import { TestDto } from "../models/Api/Tests/TestDto";
-import { useAuth } from "../components/context/auth/useAuth";
-import { AIProvider } from "../models/AIProvider";
+import { Test } from "../entities/test/Test";
+import { explainTasks } from "../features/AI/ExplainTasks";
+import { VerdictTaskCard } from "../entities/task/components/VerdictTaskCard";
+import { useCreateSolvingHistoryMutation, useUpdateAIMessagesForTasksMutation } from "../features/solvingHistories/api";
 
 export function VerdictPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [taskHistories, setTaskHistories] = useState<TaskHistoryDto[]>([]);
+    const [taskHistories, setTaskHistories] = useState<TaskHistory[]>([]);
     const [solvingHistoryId, setSolvingHistoryId] = useState<string>("");
 
-    const test: TestDto = location.state?.testData;
+    const test: Test = location.state?.testData;
     const answerHistory: AnswersHistory[] = location.state?.answerHistoryData;
     const expiredTime: number = location.state?.expiredTimeData;
 
-    const { user } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [createSolvingHistory] = useCreateSolvingHistoryMutation();
+    const [updateAIMessagesForTasks] = useUpdateAIMessagesForTasksMutation();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                
-                if (!test || test.tasks.length < 1)
+
+                if (!test || test.tasks.length < 1 || !expiredTime)
                     return;
 
-                const taskHistories: TaskHistoryDto[] = test.tasks.map((task, index) => ({
+                const taskHistories: TaskHistory[] = test.tasks.map((task, index) => ({
                     serialNumber: task.serialNumber,
                     taskName: task.taskName,
                     taskMessage: task.taskMessage,
                     rightAnswer: task.rightAnswer,
-                    imagePath: task.imagePath,
-                    audioPath: task.audioPath,
                     userAnswer: answerHistory.find(i => i.taskIndex === index)?.answer ?? "none",
                     messageAI: ""
                 }))
+                
+                const response = await createSolvingHistory({ 
+                    testId: test.id, 
+                    taskHistories: taskHistories, 
+                    solvingDate: new Date(), 
+                    solvingTimeSeconds: expiredTime
+                }).unwrap();
 
-                if (!expiredTime)
-                    return;
-
-                const response = await SolvingHistories.create(user?.uniqueUserName ?? "none", user?.email ?? "none", test.id, taskHistories, new Date(), expiredTime);
-                setSolvingHistoryId(response.data.result!);
+                setSolvingHistoryId(response.result!);
 
                 setTaskHistories(taskHistories);
             } 
             catch (error: any) {
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
+                error.data.responseErrors.forEach((e: { message: string }) => {
                     toast.error(e.message);
                 });
-            } 
+            }
             finally {
                 setIsLoading(false);
             }
         };
 
         fetchData();
-    }, []);
+    }, [answerHistory, createSolvingHistory, expiredTime, test]);
 
     if (isLoading) {
-        return <Typography>Загрузка...</Typography>;
+        return (
+            <Box sx={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%", gap: 1}}>
+                <CircularProgress variant="indeterminate" />
+                <Typography variant="h4" color="primary">Загрузка...</Typography>
+            </Box>
+        )
     }
 
     const handleCancel = () => {
@@ -83,16 +90,19 @@ export function VerdictPage() {
     const handleExplain = async () => {
         try {
             setIsLoading(true);
-                
+
             if (!test)
                 return;
 
-            const aiMessagesForTasks = await AIProvider.explainTasks(taskHistories);
+            const aiMessagesForTasks = await explainTasks(taskHistories);
 
             if (!aiMessagesForTasks)
                 return;
 
-            await SolvingHistories.updateAIMessagesForTasks(test.id, solvingHistoryId, aiMessagesForTasks);
+            await updateAIMessagesForTasks({
+                solvingHistoryId: solvingHistoryId, 
+                aiMessagesForTasks: aiMessagesForTasks 
+            });
 
             setTaskHistories(prev => {
                 return prev.map((item, idx) => ({ ...item, messageAI: aiMessagesForTasks.find(v => v.taskSerialNumber === item.serialNumber)?.aiMessage ?? ""}));
@@ -115,6 +125,7 @@ export function VerdictPage() {
             <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
                 {taskHistories.map((taskHistory, index) => (
                     <VerdictTaskCard
+                        key={index}
                         nameCardInfo={taskHistory.taskName}
                         message={taskHistory.taskMessage}
                         userAnswer={taskHistory.userAnswer}

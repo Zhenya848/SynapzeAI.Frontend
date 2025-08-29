@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { RootLayout } from "../components/Root/RootLayout";
+import { RootLayout } from "../widgets/Root/RootLayout";
 import { LoginPage } from "../pages/Login/LoginPage";
 import { AccountPage } from "../pages/Account/AccountPage";
 import { AccountManagementPage } from "../pages/AccountManagement/AccountManagementPage";
@@ -16,12 +16,19 @@ import { VerdictPage } from "../pages/VerdictPage";
 import { VerdictIntervalPage } from "../pages/VerdictIntervalPage";
 import { GetSolvingHistories } from "../pages/SolvingHistories/SolvingHistoriesPage";
 import { GlobalTests } from "../pages/Global/GlobalPage";
+import { SavedTestsPage } from "../pages/SavedTests/SavedTestsPage";
+import { MainPage } from "../pages/Main/MainPage";
 
 export const router = createBrowserRouter([
     {
       path: "/",
       element: <RootLayout />,
+      
       children: [
+        {
+          path: "/",
+          element: <MainPage />
+        },
         {
           path: "/global",
           element: <GlobalTests />
@@ -29,6 +36,10 @@ export const router = createBrowserRouter([
         {
           path: "/tests",
           element: <GetTests />
+        },
+        {
+          path: "/tests/saved",
+          element: <SavedTestsPage />
         },
         {
           path: "/tests/update",
@@ -73,10 +84,6 @@ export const router = createBrowserRouter([
         {
           path: '/tests/solvingHistories',
           element: <GetSolvingHistories />
-        },
-        {
-          path: "/registration",
-          element: <div>Регистрация</div>
         },
         {
           path: "/login",

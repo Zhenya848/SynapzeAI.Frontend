@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { toast } from "react-toastify";
-import { useAuth } from "../../components/context/auth/useAuth";
-import { Accounts } from "../../api/Endpoints/accounts";
+import { useLoginMutation, useRegisterMutation } from "../../features/accounts/api";
+import { useAppDispatch } from "../../app/store";
+import { setCredentials } from "../../features/accounts/auth.slice";
 
 export function RegistrationPage() {
-    const { login, isLoading } = useAuth();
-
     const [userName, setUserName] = useState("");
     const [userNameError, setUserNameError] = useState(false);
     const [email, setEmail] = useState("");
@@ -15,6 +14,13 @@ export function RegistrationPage() {
     const [password, setPassword] = useState("");
     const [repeatedPassword, setRepeatedPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
+
+    const dispatch = useAppDispatch();
+
+    const [register] = useRegisterMutation();
+    const [login] = useLoginMutation();
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -52,22 +58,28 @@ export function RegistrationPage() {
         
         if (isValid) {
             try {
-                await Accounts.register(userName, email, password);
-                const loginResult = await login(email, password);
+                setIsLoading(true);
 
-                if (loginResult != null)
-                    navigate("/accountInfo");
+                await register({ userName: userName, email: email, password: password }).unwrap();
+                const loginResponse = await login({ email: email, password: password }).unwrap();
+
+                dispatch(setCredentials({ accessToken: loginResponse.result!.accessToken, user: loginResponse.result!.user }));
+
+                navigate("/accountInfo");
             }
-            catch (error) {
-                error.response.data.responseErrors.forEach(e => {
+            catch (error: any) {
+                error.data.responseErrors.forEach(e => {
                     toast.error(e.message)
                 });
+            }
+            finally {
+                setIsLoading(false);
             }
         }
     }
 
     return (
-        <div className="flex flex-col h-full w-full py-6 px-10 justify-center items-start gap-4">
+        <div className="flex flex-col h-full w-full py-6 justify-center items-start gap-4">
             <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-9">
                 <form className="flex flex-col w-full items-center gap-7" onSubmit={(e) => handleSubmit(e)}>
                     <TextField 

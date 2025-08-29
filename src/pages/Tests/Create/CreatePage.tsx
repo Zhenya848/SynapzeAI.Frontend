@@ -5,13 +5,12 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { TestDto } from "../../../models/Api/Tests/TestDto";
-import { useAuth } from "../../../components/context/auth/useAuth";
-import { LimitTimeDto } from "../../../models/Api/Tests/LimitTimeDto";
-import { CreateTaskDto } from "../../../models/Api/Tasks/CreateTaskDto";
-import { Tests } from "../../../api/Endpoints/tests";
-import { TaskCard } from "../../../components/Tasks/TaskCard";
-import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
+import { Test } from "../../../entities/test/Test";
+import { LimitTime } from "../../../entities/valueObjects/LimitTime";
+import { CreateTaskDto } from "../../../entities/task/api/CreateTaskDto";
+import { TaskCard } from "../../../entities/task/components/TaskCard";
+import { Task } from "../../../entities/task/Task";
+import { useCreateTestMutation } from "../../../features/tests/api";
 
 export function CreateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -22,18 +21,16 @@ export function CreateTest() {
 
     const [testSeconds, setTestSeconds] = useState<string>("");
     const [testMinutes, setTestMinutes] = useState<string>("");
-    const [testTasks, setTestTasks] = useState<TaskDto[]>([]);
+    const [testTasks, setTestTasks] = useState<Task[]>([]);
 
     const [isPublished, setIsPublished] = useState(true);
+
+    const [createTest, {isLoading}] = useCreateTestMutation();
 
     const navigate = useNavigate();
     const location = useLocation();
 
-    const test: TestDto = location.state?.testData;
-
-    const { user } = useAuth();
-
-    const [isLoading, setIsLoading] = useState(false);
+    const test: Test = location.state?.testData;
 
     useEffect(() => {
         if (test) {
@@ -44,11 +41,7 @@ export function CreateTest() {
             setTestTasks(test.tasks);
             setIsPublished(test.isPublished);
         }
-    }, []);
-
-    if (!user) {
-        return <Typography>401 unauthorized</Typography>;
-    }
+    }, [test]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {
@@ -57,15 +50,14 @@ export function CreateTest() {
     };
 
     const generateTestData = () => {
-        const testData: TestDto = 
+        const testData: Test = 
         { 
-            uniqueUserName: user?.uniqueUserName,
             testName: testName, 
             theme: testTheme, 
-            limitTime: (testSeconds && testMinutes ? { seconds: Number.parseInt(testSeconds), minutes: Number.parseInt(testMinutes) } as LimitTimeDto : null), 
+            limitTime: (testSeconds || testMinutes ? { seconds: Number.parseInt(testSeconds ?? 0), minutes: Number.parseInt(testMinutes ?? 0) } as LimitTime : null), 
             isPublished: isPublished,
             tasks: testTasks
-        } as TestDto
+        } as Test
 
         return testData;
     }
@@ -75,7 +67,7 @@ export function CreateTest() {
     }
 
     const handleCreateTask = () => {
-        const testData: TestDto = generateTestData();
+        const testData: Test = generateTestData();
 
         navigate("/tasks/create", { state: {testData} })
     }
@@ -85,7 +77,7 @@ export function CreateTest() {
     }
 
     const handleUpdateTask = (taskId: string) => {
-        const testData: TestDto = generateTestData();
+        const testData: Test = generateTestData();
 
         navigate("/tasks/update", { state: {testData, taskId} })
     }
@@ -120,21 +112,22 @@ export function CreateTest() {
         const seconds = testSeconds ? Number.parseInt(testSeconds) : undefined;
         const minutes = testMinutes ? Number.parseInt(testMinutes) : undefined;
 
-        if (user) {
-            try {
-                setIsLoading(true);
-                await Tests.create(user.id, user.uniqueUserName, testName, testTheme, isPublished, tasks, seconds, minutes);
-                
-                navigate("/tests");
-            } 
-            catch (error: any) {
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
-                });
-            } 
-            finally {
-                setIsLoading(false);
-            }
+        try {
+            await createTest({ 
+                testName: testName, 
+                theme: testTheme, 
+                isPublished: isPublished, 
+                tasks: tasks,
+                seconds: seconds,
+                minutes: minutes 
+            }).unwrap();
+
+            navigate("/tests");
+        }
+        catch (error: any) {
+            error.data.responseErrors.forEach((e: { message: string }) => {
+                toast.error(e.message);
+            });
         }
     }
 
@@ -206,11 +199,10 @@ export function CreateTest() {
             </div>
 
             <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left" }}>
-                {testTasks.map(task => (
+                {testTasks.map((task, index) => (
                     <TaskCard 
+                        key={index}
                         taskId={task.id}
-                        imageUrl="https://pic.rutubelist.ru/playlist/bf544654-e5e5-11ef-b595-02420a00066a.jpg"
-                        audioUrl={task.audioPath ?? ""}
                         nameCardInfo={task.taskName}
                         message={task.taskMessage}
                         rightAnswer={task.rightAnswer ?? ""}

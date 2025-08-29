@@ -1,13 +1,12 @@
 import { Button, Card, CardMedia, FormControlLabel, Input, Slider, Switch, TextField, Typography } from "@mui/material";
 import { useCallback, useState } from "react";
-import { useAuth } from "../../../components/context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
 import { toast } from "react-toastify";
-import { Tests } from "../../../api/Endpoints/tests";
-import { AIProvider } from "../../../models/AIProvider";
-import { FileExtensions } from "../../../models/FileExtensions";
+import { FileExtensions } from "../../../shared/extensions/FileExtensions";
+import { generateTestWithAI } from "../../../features/AI/GenerateTestWithAI";
+import { useCreateTestMutation } from "../../../features/tests/api";
 
 export function CreateTestWithAI() {
     const navigate = useNavigate();
@@ -19,8 +18,6 @@ export function CreateTestWithAI() {
 
     const [tasksCount, setTasksCount] = useState<string>("");
 
-    const { user } = useAuth();
-
     const [testSeconds, setTestSeconds] = useState<string>("");
     const [testMinutes, setTestMinutes] = useState<string>("");
 
@@ -31,6 +28,8 @@ export function CreateTestWithAI() {
 
     const [isLoading, setIsLoading] = useState(false);
 
+    const [createTest] = useCreateTestMutation();
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {
             e.preventDefault();
@@ -40,7 +39,7 @@ export function CreateTestWithAI() {
     const difficultyMarks = [
         {
             value: 0,
-            label: 'На изич',
+            label: 'Просто',
         },
         {
             value: 25,
@@ -97,27 +96,40 @@ export function CreateTestWithAI() {
         const tasksCountNum = tasksCount ? Number.parseInt(tasksCount) : 5;
         const difficultyNum = difficulty ? Number.parseInt(difficulty) : 50;
 
-        if (user) {
-            try {
-                setIsLoading(true);
+        try {
+            setIsLoading(true);
 
-                const test = await AIProvider.generateTestWithAI(testTheme, isTimeLimited, percentOfOpenTasksNum, tasksCountNum, difficultyNum, seconds, minutes, preview);
-                
-                if (!test)
-                    return;
+            const test = await generateTestWithAI(
+                testTheme, 
+                isTimeLimited, 
+                percentOfOpenTasksNum, 
+                tasksCountNum, 
+                difficultyNum, 
+                seconds, 
+                minutes, 
+                preview);
+            
+            if (!test)
+                return;
 
-                await Tests.create(user.id, user.uniqueUserName, test.testName, test.theme, false, test.tasks, test.limitTime?.seconds, test.limitTime?.minutes);
-                
-                navigate("/tests");
-            } 
-            catch (error: any) {
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
-                });
-            } 
-            finally {
-                setIsLoading(false);
-            }
+            await createTest({ 
+                testName: test.testName, 
+                theme: test.theme, 
+                isPublished: false, 
+                tasks: test.tasks,
+                seconds: test.limitTime?.seconds,
+                minutes: test.limitTime?.minutes
+            }).unwrap();
+            
+            navigate("/tests");
+        } 
+        catch (error: any) {
+            error.data.responseErrors.forEach((e: { message: string }) => {
+                toast.error(e.message);
+            });
+        } 
+        finally {
+            setIsLoading(false);
         }
     }
 

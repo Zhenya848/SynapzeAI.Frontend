@@ -1,21 +1,20 @@
-import { Box, Button, Card, CardMedia, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, CircularProgress, FormControlLabel, TextField, Typography } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import BuildIcon from '@mui/icons-material/Build';
-import ProgressBoxes from "../../../components/ProgressBoxes";
+import ProgressBoxes from "../../../widgets/ProgressBoxes";
 import ClearIcon from '@mui/icons-material/Clear';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import PauseIcon from '@mui/icons-material/Pause';
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { AnswersHistory } from "../../../models/Tasks/AswerHistory";
-import { TestDto } from "../../../models/Api/Tests/TestDto";
+import { AnswersHistory } from "../../../features/tasks/model/AswerHistory";
+import { Test } from "../../../entities/test/Test";
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import { CountdownTimer } from "../../../components/Tasks/Timer/CountdownTimer";
-import { CountdownTimerHandle } from "../../../components/Tasks/Timer/CountdownTimerHandle";
-import { PauseDialog } from "../../../components/Tasks/Timer/PauseDialog";
-import { Tests } from "../../../api/Endpoints/tests";
-import { useAuth } from "../../../components/context/auth/useAuth";
+import { CountdownTimer } from "../../../entities/task/components/Timer/CountdownTimer";
+import { CountdownTimerHandle } from "../../../entities/task/components/Timer/CountdownTimerHandle";
+import { PauseDialog } from "../../../entities/task/components/Timer/PauseDialog";
+import { useGetTestMutation } from "../../../features/tests/api";
 
 export function DecidePage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -29,32 +28,27 @@ export function DecidePage() {
 
   const timerRef = useRef<CountdownTimerHandle>(null);
 
-  const { user, refresh } = useAuth();
   const { testId } = useParams();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const testData: TestDto = location.state?.testData;
+  const testData: Test = location.state?.testData;
 
-  const [test, setTest] = useState<TestDto>();
+  const [test, setTest] = useState<Test>();
 
-  useState(() => {
+  const [getTest, {isLoading}] = useGetTestMutation();
+
+  useEffect(() => {
     const fetchData = async () => {
       if (testId) {
         try {
-          const response = await Tests.getTest(testId);
+          const response = await getTest({ testId: testId }).unwrap();
 
-          console.log(response.data)
-
-          setTest(response.data.result!);
-
-          if (!user) {
-              await refresh();
-          }
+          setTest(response.result!);
         }
-        catch (error) {
-          error.response.data.responseErrors.forEach((e: { message: string }) => {
+        catch (error: any) {
+          error.data.responseErrors.forEach((e: { message: string }) => {
               toast.error(e.message);
           });
         }
@@ -65,10 +59,22 @@ export function DecidePage() {
     };
 
     fetchData();
-  })
+  }, [getTest, testData, testId])
 
-  if (!test) {
-    return <Typography>Что-то пошло не так</Typography>;
+  if (isLoading || !test) {
+    return (
+      <Box sx={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%", gap: 1}}>
+        <CircularProgress variant="indeterminate" />
+        <Typography variant="h4" color="primary">Загрузка...</Typography>
+      </Box>
+    )
+  }
+
+  if (test.tasks.length === 0) {
+    toast.error("Викторина не содержит задач для решения!");
+    navigate("/tests");
+
+    return;
   }
 
   const handleAnswerChange = (answer: string) => {
@@ -185,7 +191,12 @@ export function DecidePage() {
           width: 'calc(100% - 40px)'
       },
     }}>
-        <ProgressBoxes totalQuestions={test.tasks.length} errorBoxes={notFixedAnswersIndexes} onChoose={handleChoosingTask}></ProgressBoxes>
+        <ProgressBoxes 
+          totalQuestions={test.tasks.length} 
+          errorBoxes={notFixedAnswersIndexes} 
+          onChoose={handleChoosingTask}
+          currentIndex={currentTaskIndex}>
+        </ProgressBoxes>
 
         <Box component="section" sx={{ 
           borderRadius: 3, 
@@ -209,14 +220,6 @@ export function DecidePage() {
             }}>
               {test.tasks[currentTaskIndex].taskName}
             </Typography>
-
-            <Card sx={{ 
-              maxWidth: 600,
-              margin: '10px auto',
-              width: "calc(100% - 20px)"
-            }}>
-              <CardMedia component="img" height="140" image="https://pic.rutubelist.ru/playlist/bf544654-e5e5-11ef-b595-02420a00066a.jpg" alt="image" />
-            </Card>
 
             <Typography 
               variant="h5" 
@@ -322,7 +325,7 @@ export function DecidePage() {
               width: '100%',
               margin: "20px",
               maxWidth: '900px',
-              height: "120px",
+              height: "350px",
               overflowY: "auto",
           },
         }}> 

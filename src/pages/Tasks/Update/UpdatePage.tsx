@@ -4,11 +4,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { TestDto } from "../../../models/Api/Tests/TestDto";
-import { ChangedTask } from "../../../models/Tasks/ChangedTask";
-import { ChangeType } from "../../../models/Tasks/ChangeType";
-import { TagInput } from "../../../components/Tasks/TagInput";
-import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
+import { Test } from "../../../entities/test/Test";
+import { ChangedTask } from "../../../features/tasks/model/ChangedTask";
+import { ChangeType } from "../../../features/tasks/model/ChangeType";
+import { TagInput } from "../../../widgets/TagInput";
+import { Task } from "../../../entities/task/Task";
 
 export function UpdateTask() {
     const [taskName, setTaskName] = useState<string>("");
@@ -19,7 +19,7 @@ export function UpdateTask() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const test: TestDto = location.state?.testData;
+    const test: Test = location.state?.testData;
     const taskId: string = location.state?.taskId;
     const chTasks: ChangedTask[] = location.state?.changedTasks;
 
@@ -60,19 +60,12 @@ export function UpdateTask() {
                 taskMessage: taskMessage,
                 rightAnswer: taskRightAnswer,
                 answers: taskAnswers
-            } as TaskDto
+            } as Task
 
-            const testData = {
-                id: test.id,
-                uniqueUserName: test.uniqueUserName,
-                testName: test.testName, 
-                theme: test.theme, 
-                limitTime: test.limitTime, 
-                isPublished: test.isPublished,
-                tasks: test.tasks
-            } as TestDto
-
-            testData.tasks[testData.tasks.findIndex(t => t.id === taskId)] = task
+            const testData = structuredClone({
+                ...test,
+                tasks: test.tasks.map(t => t.id === taskId ? task : t)
+            }) as Test;
 
             if (chTasks) {
                 const changedTask: ChangedTask = { task: task, changeType: ChangeType.updated } as ChangedTask;
