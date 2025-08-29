@@ -4,11 +4,11 @@ import CheckIcon from '@mui/icons-material/Check';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { TestDto } from "../../../models/Api/Tests/TestDto";
-import { ChangedTask } from "../../../models/Tasks/ChangedTask";
-import { ChangeType } from "../../../models/Tasks/ChangeType";
-import { TagInput } from "../../../components/Tasks/TagInput";
-import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
+import { Test } from "../../../entities/test/Test";
+import { ChangedTask } from "../../../features/tasks/model/ChangedTask";
+import { ChangeType } from "../../../features/tasks/model/ChangeType";
+import { TagInput } from "../../../widgets/TagInput";
+import { Task } from "../../../entities/task/Task";
 
 export function CreateTask() {
     const [taskName, setTaskName] = useState<string>("");
@@ -19,7 +19,7 @@ export function CreateTask() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const test: TestDto = location.state?.testData;
+    const test: Test = location.state?.testData;
     const chTasks: ChangedTask[] = location.state?.changedTasks;
 
     const handleCancel = () => {
@@ -46,7 +46,7 @@ export function CreateTask() {
                 taskMessage: taskMessage,
                 rightAnswer: taskRightAnswer,
                 answers: taskAnswers
-            } as TaskDto
+            } as Task
 
             const testData = {
                 id: test.id,
@@ -56,7 +56,7 @@ export function CreateTask() {
                 limitTime: test.limitTime, 
                 isPublished: test.isPublished,
                 tasks: [...test.tasks, task]
-            } as TestDto
+            } as Test
 
             if (chTasks) {
                 const changedTask: ChangedTask = { task: task, changeType: ChangeType.created } as ChangedTask

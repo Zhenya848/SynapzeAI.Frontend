@@ -1,16 +1,15 @@
-import { Box, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material"
+import { Autocomplete, Box, Button, Pagination, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Tests } from "../../api/Endpoints/tests";
+import StartDecideSelectionPanel from "../../entities/test/components/StartDecideSelectionPanel";
+import { Test } from "../../entities/test/Test";
+import { GlobalTestCard } from "../../entities/test/components/GlobalTestCard";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "../../features/accounts/auth.slice";
+import { useAddSavedTestMutation, useDeleteSavedTestMutation, useGetWithPaginationQuery } from "../../features/tests/api";
+import SearchIcon from '@mui/icons-material/Search';
+import { GlobalTestCardSkeleton } from "../../entities/test/components/GlobalTestCardSkeleton";
 import { toast } from "react-toastify";
-import StartDecideSelectionPanel from "../../components/SelectionPanel/StartDecideSelectionPanel";
-import { GlobalTestCard } from "../../components/Tests/GlobalTestCard";
-import { number } from "framer-motion";
-import { useAuth } from "../../components/context/auth/useAuth";
-import { GlobalFilterBlock } from "../../components/FilterBlocks/GlobalFilterBlock";
-import { TestDto } from "../../models/Api/Tests/TestDto";
 
 export function GlobalTests() {
     const navigate = useNavigate();
@@ -19,48 +18,44 @@ export function GlobalTests() {
 
     const [isStartDecideTestDialogOpen, setIsStartDecideTestDialogOpen] = useState(false);
 
-    const [tests, setTests] = useState<TestDto[] | undefined>(undefined);
-
-    const [isLoading, setIsLoading] = useState(true);
+    const [tests, setTests] = useState<Test[]>([]);
 
     const [page, setPage] = useState(1);
-    const PAGE_SIZE = 10;
+    const PAGE_SIZE = 5;
 
-    const { user, refresh } = useAuth();
+    const [testName, setTestName] = useState<string | undefined>(undefined);
+    const [testTheme, setTestTheme] = useState<string | undefined>(undefined);
+    const [userName, setUserName] = useState<string | undefined>(undefined);
+    const [orderBy, setOrderBy] = useState<string | undefined>(undefined);
+
+    const [queryParams, setQueryParams] = useState({
+        page: 1,
+        pageSize: PAGE_SIZE,
+        searchTestName: undefined as string | undefined,
+        searchTestTheme: undefined as string | undefined,
+        searchUserName: undefined as string | undefined,
+        orderBy: undefined as string | undefined
+    });
+
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+
+    const { data: testsData, isLoading, isFetching, error } = useGetWithPaginationQuery(queryParams);
+    const [saveTest] = useAddSavedTestMutation();
+    const [deleteSavedTest] = useDeleteSavedTestMutation();
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
+        if (testsData) {
+            setTests(testsData.result!.items);
+        }
+    }, [testsData]);
 
-                const response = await Tests.getWithPagination(page, PAGE_SIZE, user?.id);
-
-                setTests(response.data.result!.items);
-
-                if (!user) {
-                    await refresh();
-                }
-            } 
-            catch (error: any) {
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
-                });
-            } 
-            finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [page]);
-
-    if (isLoading) {
-        return <Typography>Загрузка...</Typography>;
-    }
-
-    if (!tests) {
-        return <Typography>Что-то пошло не так</Typography>;
-    }
+    useEffect(() => {
+        setQueryParams(prev => ({
+            ...prev,
+            page: page,
+            orderBy: orderBy
+        }));
+    }, [page, orderBy])
 
     const handleStartDecideTestDialogOpen = (testId: string) => {
         setTestId(testId);
@@ -76,7 +71,13 @@ export function GlobalTests() {
         if (!testData)
             return;
 
-        if (!user) {
+        if (testData.tasks.length === 0) {
+            toast.warn("Эта викторина пока пустая и не содержит задач для решения");
+
+            return;
+        }
+
+        if (!isAuthenticated) {
             navigate("/login");
             return;
         }
@@ -91,25 +92,6 @@ export function GlobalTests() {
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (!/[1-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {
-            e.preventDefault();
-        }
-    };
-
-    const handleFilter = async (testName: string, testTheme: string, userName: string, orderBy: string) => {
-        try {
-            const response = await Tests.getWithPagination(page, PAGE_SIZE, user?.id, testName, testTheme, userName, orderBy);
-
-            setTests(response.data.result!.items);
-        }
-        catch (error: any) {
-            error.response.data.responseErrors.forEach((e: { message: string }) => {
-                toast.error(e.message);
-            });
-        }
-    }
-
     const handleShowSolvingHistoriesSelect = (testId: string) => {
         const testData = tests.find(i => i.id === testId);
 
@@ -119,37 +101,123 @@ export function GlobalTests() {
         navigate("/tests/solvingHistories", { state: { testData } });
     }
 
+    const handleFiltering = () => {
+        setQueryParams(prev => ({
+            ...prev,
+            page: page,
+            searchTestName: testName,
+            searchTestTheme: testTheme,
+            searchUserName: userName,
+            orderBy: orderBy
+        }));
+    }
+
+    const handleSaveTest = async (testId: string) => {
+        try {
+            const test = tests.find(i => i.id == testId);
+
+            if (!test)
+                return;
+
+            if (test.isSaved) {
+                await deleteSavedTest({ testId: testId }).unwrap();
+            }
+            else {
+                await saveTest({ testId: testId }).unwrap();
+            }
+        } 
+        catch (err) {
+            console.error('Failed: ', err);
+            
+            toast.error("Произошла ошибка");
+        }
+    };
+
     return (
-        <div style={{alignItems: "flex-end",  display: 'flex', flexDirection: "column"}}>
-            <GlobalFilterBlock
-                onFilter={(testName: string, testTheme: string, userName: string, orderBy: string) => handleFilter(testName, testTheme, userName, orderBy)}
-            />
-
-            <div style={{margin: "20px", width: "calc(100% - 40px)", display: "flex", height: "50px"}}>
-                <ToggleButtonGroup
-                    exclusive
-                    aria-label="text alignment"
-                >
-                    <ToggleButton value="left" aria-label="left aligned" onClick={() => setPage(page > 1 ? page - 1 : 1)}>
-                        <ArrowBackIosIcon />
-                    </ToggleButton>
-
-                    <TextField 
-                        sx={{ 
-                            '& .MuiInputBase-root': { height: 50, width: 50 }
-                        }}
-                        value={page}
+        <div style={{alignItems: "flex-start",  display: 'flex', flexDirection: "column"}}>
+            <Box component="section" sx={{ p: 1, pr: 4, borderRadius: 3, bgcolor: "#616161",
+                margin: '20px',
+                width: 'calc(100% - 40px)',
+                height: 'calc(100% - 40px)',
+                boxSizing: 'border-box',
+                position: 'relative',
+            }}>
+                <div>
+                    <Typography variant="h6" style={{ marginBottom: '10px' }}>Поиск по названию</Typography>
+                    
+                    <TextField
                         variant="outlined"
-                        onKeyDown={handleKeyDown}
-                        onChange={(e) => setPage(number.parse(e.target.value))}
-                        style={{ height: "10px", textAlign: "center" }} 
+                        placeholder="Поиск..."
+                        onChange={(e) => setTestName(e.target.value)}
+                        InputProps={{
+                            startAdornment: (
+                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
+                                    <SearchIcon />
+                                </Button>
+                            ),
+                        }}
+                        fullWidth
+                        sx={{m: 0, wight: '450p'}}
                     />
 
-                    <ToggleButton value="right" aria-label="right aligned" onClick={() => setPage(page + 1)}>
-                        <ArrowForwardIosIcon />
-                    </ToggleButton>
-                </ToggleButtonGroup>
-            </div>
+                    
+                    <Typography variant="h6" style={{ marginBottom: '10px', marginTop: "20px" }}>Поиск по теме</Typography>
+
+                    <TextField
+                        variant="outlined"
+                        placeholder="Поиск..."
+                        onChange={(e) => setTestTheme(e.target.value)}
+                        InputProps={{
+                            startAdornment: (
+                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
+                                    <SearchIcon />
+                                </Button>
+                            ),
+                        }}
+                        fullWidth
+                        sx={{m: 0, wight: '450p'}}
+                    />
+
+                    <Typography variant="h6" style={{ marginBottom: '10px', marginTop: "20px" }}>Поиск по имени пользователя</Typography>
+
+                    <TextField
+                        variant="outlined"
+                        placeholder="Поиск..."
+                        onChange={(e) => setUserName(e.target.value)}
+                        InputProps={{
+                            startAdornment: (
+                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
+                                    <SearchIcon />
+                                </Button>
+                            ),
+                        }}
+                        fullWidth
+                        sx={{m: 0, wight: '450p'}}
+                    />
+                </div>
+
+                <Typography variant="h6" style={{ marginBottom: '10px', marginTop: "10px" }}>Сортировать по свойству</Typography>
+
+                <Autocomplete
+                    disablePortal
+                    options={["Название", "Тема"]}
+                    sx={{ width: '450p' }}
+                    renderInput={(params) => <TextField {...params} label="Свойство" />}
+                    onChange={(event, value) => {
+                        setOrderBy(value || "");
+                    }}
+                    disabled={isFetching}
+                />
+            </Box>
+
+            <Pagination 
+                onChange={(event, value) => setPage(value)} 
+                count={Math.ceil((testsData?.result?.totalCount ?? 1) / PAGE_SIZE)}
+                variant="outlined" 
+                color="primary" 
+                sx={{margin: "10px"}}
+                disabled={isFetching}
+            />
 
             <Box
                 sx={{
@@ -158,14 +226,25 @@ export function GlobalTests() {
                     whiteSpace: 'nowrap',
                     overflowX: 'hidden',
                     overflowY: "auto",
-                    p: 1
+                    gap: 1,
+                    p: 1,
+                    display: "flex",
+                    flexDirection: "column"
                 }}
                 >
-                {tests.map((card) => (
+                {isLoading || !testsData || error 
+                ? 
+                Array.from({ length: 5 }).map((_, index) => (
+                    <GlobalTestCardSkeleton key={index} />
+                ))
+                :
+                tests.map((card, index) => (
                     <GlobalTestCard
+                        key={index}
                         test={card}
                         onStartDecide={handleStartDecideTestDialogOpen}
-                        onShowSolvingHistories={handleShowSolvingHistoriesSelect}>
+                        onShowSolvingHistories={handleShowSolvingHistoriesSelect}
+                        onSavingTest={handleSaveTest}>
                     </GlobalTestCard>
                 ))}
             </Box>

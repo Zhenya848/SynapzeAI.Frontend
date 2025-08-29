@@ -1,17 +1,23 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import EmailIcon from '@mui/icons-material/Email';
-import { useAuth } from "../../components/context/auth/useAuth";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import BadgeIcon from '@mui/icons-material/Badge';
 import { useNavigate } from "react-router-dom";
-import { DialogWindow } from "../../components/DialogWindow";
+import { DialogWindow } from "../../widgets/DialogWindow";
 import SaveIcon from '@mui/icons-material/Save';
-import { Accounts } from "../../api/Endpoints/accounts";
+import { useSelector } from "react-redux";
+import { logout, selectUser, setCredentials } from "../../features/accounts/auth.slice";
+import { useAppDispatch } from "../../app/store";
+import { useLogoutMutation, useRefreshMutation, useUpdateUserMutation } from "../../features/accounts/api";
 
 export function AccountPage() {
-    const { user, refresh, logout } = useAuth();
-    const [isLoading, setIsLoading] = useState(true);
+    const dispatch = useAppDispatch();
+    const user = useSelector(selectUser);
+
+    const [refresh] = useRefreshMutation();
+    const [updateUser] = useUpdateUserMutation();
+    const [logoutUser] = useLogoutMutation();
 
     const [isUpdateUserDataDialogOpen, setIsUpdateUserDataDialogOpen] = useState(false);
 
@@ -19,43 +25,29 @@ export function AccountPage() {
 
     const navigate = useNavigate();
 
+    const refreshUser = async () => {
+        const response = await refresh().unwrap();
+        dispatch(setCredentials({ accessToken: response.result!.accessToken, user: response.result!.user }))
+    }
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-
-                if (!user) {
-                    const refreshResult = await refresh();
-
-                    if (refreshResult == null) {
-                        setIsLoading(false);
-                        return;
-                    }
-                }
-            } 
-            catch (error: any) {
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
-                });
-            } 
-            finally {
-                setIsLoading(false);
+        const fetch = async () => {
+            if (!user) {
+                await refreshUser();
             }
-        };
+        }
 
-        fetchData();
-    }, []);
+        fetch();
+    }, [])
 
     if (!user) {
         return <Typography>401 unauthorized</Typography>;
     }
 
-    if (isLoading) {
-        return <Typography>Загрузка...</Typography>;
-    }
+    const handleLogout = async () => {
+        await logoutUser();
+        dispatch(logout());
 
-    const handleLogout = () => {
-        logout();
         navigate("/login");
     }
 
@@ -64,18 +56,14 @@ export function AccountPage() {
 
     const handleOptionUpdateUserDataDialogSelect = async () => {
         try {
-            setIsLoading(true);
+            await updateUser({ userId: user.id, userName: newUserName }).unwrap();
 
-            await Accounts.updateUser(user.id, newUserName);
-            await refresh();
+            await refreshUser();
         }
         catch (error: any) {
-            error.response.data.responseErrors.forEach((e: { message: string }) => {
+            error.data.responseErrors.forEach((e: { message: string }) => {
                 toast.error(e.message);
             });
-        }
-        finally {
-            setIsLoading(false)
         }
     }
 
@@ -98,35 +86,17 @@ export function AccountPage() {
                             Имя пользователя: {user.userName}
                         </Typography>
                     </div>
-
-                    <div style={{ display: 'flex', justifyContent: "left", marginTop: "10px" }}> 
-                        <BadgeIcon style={{marginRight: "10px"}}/>
-
-                        <Typography variant="h5"> 
-                            Имя пользователя в системе: {user.uniqueUserName}
-                        </Typography>
-                    </div>
                 </Box>
             </div>
 
             <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
-                <Box sx={{width: "auto", textAlign: "left"}}>
-                    <div style={{ display: 'flex', justifyContent: "left" }}> 
-                        <EmailIcon style={{marginRight: "10px"}}/>
+                <div style={{ display: 'flex', justifyContent: "left", marginTop: "10px" }}> 
+                    <BadgeIcon style={{marginRight: "10px"}}/>
 
-                        <Typography variant="h5"> 
-                            Всего решённых викторин: {10}
-                        </Typography>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: "left", marginTop: "10px" }}> 
-                        <BadgeIcon style={{marginRight: "10px"}}/>
-
-                        <Typography variant="h5"> 
-                            Процент правильных ответов: {25}%
-                        </Typography>
-                    </div>
-                </Box>
+                    <Typography variant="h5"> 
+                        Имя пользователя в системе: {user.uniqueUserName}
+                    </Typography>
+                </div>
             </div>
 
             <Button variant="contained" onClick={handleUpdateUserDataDialogOpen} color="primary" disableElevation style={{ width: "100%", color: 'white' }}>

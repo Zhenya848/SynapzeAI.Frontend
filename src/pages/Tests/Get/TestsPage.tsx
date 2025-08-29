@@ -1,86 +1,43 @@
-import { Box, Button, Typography } from "@mui/material"
-import { FilterBlock } from "../../../components/FilterBlocks/FilterBlock"
-import { TestCard } from "../../../components/Tests/TestCard"
+import { Box, Button } from "@mui/material"
+import { FilterBlock } from "../../../entities/test/components/FilterBlock"
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
-import { handleSearch } from "../../../models/FilterHandles/handleSearch";
-import { handleSort } from "../../../models/FilterHandles/handleSort";
+import { handleSearch } from "../../../features/tests/FilterHandles/handleSearch";
+import { handleSort } from "../../../features/tests/FilterHandles/handleSort";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../components/context/auth/useAuth";
-import { Tests } from "../../../api/Endpoints/tests";
-import { TestDto } from "../../../models/Api/Tests/TestDto";
+import { Test } from "../../../entities/test/Test";
 import { toast } from "react-toastify";
-import AddTestSelectionPanel from "../../../components/SelectionPanel/AddTestSelectionPanel";
-import StartDecideSelectionPanel from "../../../components/SelectionPanel/StartDecideSelectionPanel";
-import { DialogWindow } from "../../../components/DialogWindow";
+import AddTestSelectionPanel from "../../../entities/test/components/AddTestSelectionPanel";
+import StartDecideSelectionPanel from "../../../entities/test/components/StartDecideSelectionPanel";
+import { DialogWindow } from "../../../widgets/DialogWindow";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { TestCard } from "../../../entities/test/components/TestCard";
+import { useAddSavedTestMutation, useDeleteSavedTestMutation, useDeleteTestMutation, useGetTestsQuery } from "../../../features/tests/api";
+import { TestCardSkeleton } from "../../../entities/test/components/TestCardSkeleton";
 
 export function GetTests() {
     const navigate = useNavigate();
 
+    const [tests, setTests] = useState<Test[]>([]);
+    const [sortedTests, setSortedTests] = useState<Test[]>([]);
+
     const [testId, setTestId] = useState<string | undefined>();
  
     const [isCreateTestDialogOpen, setIsCreateTestDialogOpen] = useState(false);
-
     const [isDeleteTestDialogOpen, setIsDeleteTestDialogOpen] = useState(false);
-
     const [isStartDecideTestDialogOpen, setIsStartDecideTestDialogOpen] = useState(false);
-
-    const [tests, setTests] = useState<TestDto[] | undefined>(undefined);
-    const [sortedTests, setSortedTests] = useState<TestDto[] | undefined>(undefined);
-
-    const [isLoading, setIsLoading] = useState(true);
-
-    const { user, refresh } = useAuth();
+    
+    const { data: testsData, isLoading, error } = useGetTestsQuery();
+    const [deleteTest] = useDeleteTestMutation();
+    const [saveTest] = useAddSavedTestMutation();
+    const [deleteSavedTest] = useDeleteSavedTestMutation();
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-                let userId: string;
-
-                if (!user) {
-                    const refreshResult = await refresh();
-
-                    if (refreshResult == null) {
-                        setIsLoading(false);
-                        return;
-                    }
-
-                    userId = refreshResult.user.id;
-                }
-                else
-                    userId = user.id
-
-                const response = await Tests.getTests(userId);
-
-                setTests(response.data.result!);
-                setSortedTests(response.data.result!);
-            } 
-            catch (error: any) {
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
-                });
-            } 
-            finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    if (!user) {
-        return <Typography>401 unauthorized</Typography>;
-    }
-
-    if (isLoading) {
-        return <Typography>Загрузка...</Typography>;
-    }
-
-    if (!tests || !sortedTests) {
-        return <Typography>Что-то пошло не так</Typography>;
-    }
+        if (testsData) {
+            setTests(testsData.result!);
+            setSortedTests(testsData.result!);
+        }
+    }, [testsData])
     
     const handleCreateTestDialogOpen = () => setIsCreateTestDialogOpen(true);
     const handleCreateTestDialogClose = () => setIsCreateTestDialogOpen(false);
@@ -113,10 +70,16 @@ export function GetTests() {
     const handleOptionStartDecideTestDialogSelect = (option: string) => {
         handleStartDecideTestDialogClose();
 
-        const testData = tests.find(t => t.id === testId);
+        const testData = sortedTests.find(t => t.id === testId);
 
         if (!testData)
             return;
+
+        if (testData.tasks.length === 0) {
+            toast.warn("Эта викторина пока пустая и не содержит задач для решения");
+
+            return;
+        }
 
         switch (option) {
             case "intervalMode":
@@ -132,10 +95,10 @@ export function GetTests() {
         const fetchData = async () => {
             try {
                 if (testId)
-                    await Tests.delete(user.id, testId)
+                    await deleteTest({ testId: testId }).unwrap();
             }
             catch (error: any) {
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
+                error.data.responseErrors.forEach((e: { message: string }) => {
                     toast.error(e.message);
                 });
             } 
@@ -143,24 +106,55 @@ export function GetTests() {
 
         fetchData();
 
-        setTests(tests.filter(card => card.id !== testId));
-        setSortedTests(sortedTests.filter(card => card.id !== testId));
-
         handleDeleteDialogClose();
     };
 
-    const handleChangeSelect = (testData: TestDto) => {
+    const handleChangeSelect = (testData: Test) => {
         navigate("/tests/update", { state: { testData: testData } });
     }
 
     const handleShowSolvingHistoriesSelect = (testId: string) => {
-        const testData = tests.find(i => i.id === testId);
+        const testData = sortedTests.find(i => i.id === testId);
 
         if (!testData)
             return;
 
         navigate("/tests/solvingHistories", { state: { testData } });
     }
+
+    const handleCopyLink = async (testId: string) => {
+        try {
+            await navigator.clipboard.writeText("http://localhost:5173/tests/decide/" + testId);
+
+            toast.info("Ссылка на викторину скопирована!");
+        } 
+        catch (err) {
+            console.error('Failed to copy: ', err);
+            
+            toast.error("Произошла ошибка при копировании ссылки");
+        }
+    };
+
+    const handleSaveTest = async (testId: string) => {
+        try {
+            const test = sortedTests.find(i => i.id == testId);
+
+            if (!test)
+                return;
+
+            if (test.isSaved) {
+                await deleteSavedTest({ testId: testId }).unwrap();
+            }
+            else {
+                await saveTest({ testId: testId }).unwrap();
+            }
+        } 
+        catch (err) {
+            console.error('Failed: ', err);
+            
+            toast.error("Произошла ошибка");
+        }
+    };
 
     return (
         <div style={{alignItems: "flex-end",  display: 'flex', flexDirection: "column"}}>
@@ -185,16 +179,28 @@ export function GetTests() {
                     whiteSpace: 'nowrap',
                     overflowX: 'hidden',
                     overflowY: "auto",
-                    p: 1
+                    gap: 1,
+                    p: 1,
+                    display: "flex",
+                    flexDirection: "column"
                 }}
                 >
-                {sortedTests.map((card) => (
+                {isLoading || !testsData || error 
+                ? 
+                Array.from({ length: 5 }).map((_, index) => (
+                    <TestCardSkeleton key={index} />
+                ))
+                :
+                sortedTests.map((card, index) => (
                     <TestCard 
+                        key={index}
                         test={card}
                         onDelete={handleDeleteDialogOpen}
                         onUpdate={handleChangeSelect}
                         onStartDecide={handleStartDecideTestDialogOpen}
-                        onShowSolvingHistories={handleShowSolvingHistoriesSelect}>
+                        onShowSolvingHistories={handleShowSolvingHistoriesSelect}
+                        onCopyLink={handleCopyLink}
+                        onSavingTest={handleSaveTest}>
                     </TestCard>
                 ))}
             </Box>
@@ -215,7 +221,7 @@ export function GetTests() {
                 open={isDeleteTestDialogOpen}
                 onClose={handleDeleteDialogClose}
                 onConfirm={handleOptionDeleteDialogSelect}
-                title = "Вы точно хотите удалить тест?"
+                title = "Вы точно хотите удалить викторину?"
                 confirmText = "Удалить"
                 cancelText = "Отмена"
                 dialogContentChildren={

@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { toast } from "react-toastify";
-import { useAuth } from "../../components/context/auth/useAuth";
+import { useLoginMutation } from "../../features/accounts/api";
+import { useAppDispatch } from "../../app/store";
+import { setCredentials } from "../../features/accounts/auth.slice";
+
 export function LoginPage() {
-    const { login, isLoading } = useAuth();
+    const [login, {isLoading}] = useLoginMutation();
+    const dispatch = useAppDispatch();
 
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState(false);
@@ -32,15 +36,22 @@ export function LoginPage() {
         }
         
         if (isValid) {
-            const loginResult = await login(email, password);
+            try {
+                const response = await login({ email: email, password: password }).unwrap();
 
-            if (loginResult)
+                dispatch(setCredentials({ accessToken: response.result!.accessToken, user: response.result!.user }));
                 navigate("/accountInfo");
+            }
+            catch (error: any) {
+                error.data.responseErrors.forEach((e: { message: string }) => {
+                    toast.error(e.message);
+                });
+            }
         }
     }
 
     return (
-        <div className="flex flex-col h-full w-full py-6 px-10 justify-center items-start gap-4">
+        <div className="flex flex-col h-full w-full py-6 justify-center items-start gap-4">
             <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-9">
                 <form className="flex flex-col w-full items-center gap-7" onSubmit={(e) => handleSubmit(e)}>
                     <TextField 

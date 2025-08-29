@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { SolvingHistories } from "../../api/Endpoints/solvingHistories";
-import { toast } from "react-toastify";
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Button, InputAdornment, Table, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
-import { SolvingHistoryCard } from "../../components/SolvingHistories/SolvingHistoryCard";
-import { TestDto } from "../../models/Api/Tests/TestDto";
-import { VerdictIntervalTaskCard } from "../../components/Tasks/VerdictIntervalTaskCard";
-import { calculatePriorityNumber } from "../../models/Tasks/CalculatePriorityNumber";
-import { SolvingHistoryDto } from "../../models/Api/SolvingHistories/SolvingHistoryDto";
-import { number } from "framer-motion";
+import { useLocation } from "react-router-dom";
+import { Autocomplete, Box, Button, Pagination, TextField,  Typography } from "@mui/material";
+import { SolvingHistoryCard } from "../../entities/solvingHistory/components/SolvingHistoryCard";
+import { Test } from "../../entities/test/Test";
+import { VerdictIntervalTaskCard } from "../../entities/task/components/VerdictIntervalTaskCard";
+import { calculatePriorityNumber } from "../../features/tasks/CalculatePriorityNumber";
+import { SolvingHistory } from "../../entities/solvingHistory/SolvingHistory";
+import { useGetSolvingHistoriesWithPaginationQuery } from "../../features/solvingHistories/api";
 import SearchIcon from '@mui/icons-material/Search';
-import { SolvingHistoriesFilterBlock } from "../../components/FilterBlocks/SolvingHistoriesFilterBlock";
+import { SolvingHistoryCardSkeleton } from "../../entities/solvingHistory/components/SolvingHistoryCardSkeleton";
 
 enum TestMode {
     OrdinaryMode,
@@ -20,68 +16,56 @@ enum TestMode {
 }
 
 export function GetSolvingHistories() {
-    const navigate = useNavigate();
     const location = useLocation();
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [solvingHistories, setSolvingHistories] = useState<SolvingHistoryDto[]>([]);
+    const [solvingHistories, setSolvingHistories] = useState<SolvingHistory[]>([]);
 
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 5;
 
+    const [userName, setUserName] = useState<string| undefined>(undefined);
+    const [userEmail, setUserEmail] = useState<string| undefined>(undefined);
+    const [orderBy, setOrderBy] = useState<string| undefined>(undefined);
+
     const [testMode, setTestMode] = useState<TestMode>(TestMode.OrdinaryMode);
 
-    const test: TestDto = location.state?.testData;
+    const test: Test = location.state?.testData;
+
+    const [queryParams, setQueryParams] = useState({
+        page: 1,
+        pageSize: PAGE_SIZE,
+        testId: test.id,
+        searchUserName: undefined as string | undefined,
+        searchUserEmail: undefined as string | undefined,
+        orderBy: undefined as string | undefined
+    });
+
+    const { data: solvingHistoriesData, isLoading, isFetching, error } = useGetSolvingHistoriesWithPaginationQuery(queryParams);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
+        if (solvingHistoriesData) {
+            setSolvingHistories(solvingHistoriesData.result!.items);
+        }
+    }, [solvingHistoriesData])
 
-                if (!test)
-                    return;
-
-                const solvingHistoriesResponse = await SolvingHistories.getWithPagination(page, PAGE_SIZE, test.id);
-                setSolvingHistories(solvingHistoriesResponse.data.result!.items);
-            } 
-            catch (error: any) {
-                console.log(error);
-
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
-                });
-            } 
-            finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [page])
-
-    if (isLoading) {
-        return <Typography>Загрузка...</Typography>;
-    }
+    useEffect(() => {
+        setQueryParams(prev => ({
+            ...prev,
+            page: page,
+            orderBy: orderBy
+        }));
+    }, [page, orderBy])
 
     const changeTestMode = (testMode: TestMode) => setTestMode(testMode);
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (!/[1-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {
-            e.preventDefault();
-        }
-    };
-
-    const handleFilter = async (userName: string, email: string, orderBy: string) => {
-        try {
-            const response = await SolvingHistories.getWithPagination(page, PAGE_SIZE, test.id, userName, email, orderBy)
-
-            setSolvingHistories(response.data.result!.items);
-        }
-        catch (error: any) {
-            error.response.data.responseErrors.forEach((e: { message: string }) => {
-                toast.error(e.message);
-            });
-        }
+    const handleFiltering = () => {
+        setQueryParams(prev => ({
+            ...prev,
+            page: page,
+            searchUserName: userName,
+            searchUserEmail: userEmail,
+            orderBy: orderBy
+        }));
     }
 
     return (
@@ -114,57 +98,100 @@ export function GetSolvingHistories() {
                 </Button>
             </div>
 
-            <SolvingHistoriesFilterBlock onFilter={handleFilter}>
-                
-            </SolvingHistoriesFilterBlock>
-
-            <div style={{margin: "20px", width: "calc(100% - 40px)", display: "flex", height: "50px"}}>
-                <ToggleButtonGroup
-                    exclusive
-                    aria-label="text alignment"
-                >
-                    <ToggleButton value="left" aria-label="left aligned" onClick={() => setPage(page > 1 ? page - 1 : 1)}>
-                        <ArrowBackIosIcon />
-                    </ToggleButton>
-
-                    <TextField 
-                        sx={{ 
-                            '& .MuiInputBase-root': { height: 50, width: 50 }
-                        }}
-                        value={page}
+            <Box component="section" sx={{ p: 1, pr: 4, borderRadius: 3, bgcolor: "#616161",
+                margin: '20px',
+                width: 'calc(100% - 40px)',
+                height: 'calc(100% - 40px)',
+                boxSizing: 'border-box',
+                position: 'relative',
+            }}> 
+                <div>
+                    <Typography variant="h6" style={{ marginBottom: '10px' }}>Поиск по названию</Typography>
+                    
+                    <TextField
                         variant="outlined"
-                        onKeyDown={handleKeyDown}
-                        onChange={(e) => setPage(number.parse(e.target.value))}
-                        style={{ height: "10px", textAlign: "center" }} 
+                        placeholder="Поиск по почтовому адресу..."
+                        onChange={(e) => setUserEmail(e.target.value)}
+                        InputProps={{
+                            startAdornment: (
+                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
+                                    <SearchIcon />
+                                </Button>
+                            ),
+                        }}
+                        fullWidth
+                        sx={{m: 0, wight: '450p'}}
+                        disabled={isFetching}
                     />
 
-                    <ToggleButton value="right" aria-label="right aligned" onClick={() => setPage(page + 1)}>
-                        <ArrowForwardIosIcon />
-                    </ToggleButton>
-                </ToggleButtonGroup>
+                    <TextField
+                        variant="outlined"
+                        placeholder="Поиск по имени пользователя..."
+                        onChange={(e) => setUserName(e.target.value)}
+                        InputProps={{
+                            startAdornment: (
+                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
+                                    <SearchIcon />
+                                </Button>
+                            ),
+                        }}
+                        fullWidth
+                        sx={{m: 0, wight: '450p', marginTop: "20px"}}
+                    />
+                </div>
+
+                <Typography variant="h6" style={{ marginBottom: '10px', marginTop: "10px" }}>Сортировать по свойству</Typography>
+                
+                <Autocomplete
+                    disablePortal
+                    options={["По успешности прохождения (сверху вниз)", "По успешности прохождения (снизу вверх)", "Время решения"]}
+                    sx={{ width: '450p' }}
+                    renderInput={(params) => <TextField {...params} label="Свойство" />}
+                    onChange={(event, value) => {
+                        setOrderBy(value || "");
+                    }}
+                    disabled={isFetching}
+                />
+            </Box>
+
+            <Pagination 
+                onChange={(event, value) => setPage(value)} 
+                count={Math.ceil((solvingHistoriesData?.result?.totalCount ?? 1) / PAGE_SIZE)}
+                variant="outlined" 
+                color="primary" 
+                sx={{margin: "20px"}}
+                disabled={isFetching}
+            />
+
+            <div style={{display: "flex", flexDirection: "column", gap: 1}}>
+                {testMode === TestMode.OrdinaryMode 
+                ?
+                (   
+                    isLoading || !solvingHistoriesData || error 
+                    ? 
+                    Array.from({ length: 5 }).map((_, index) => (
+                        <SolvingHistoryCardSkeleton key={index} />
+                    ))
+                    :
+                    solvingHistories.map((solvingHistory, index) => (
+                        <SolvingHistoryCard key={index} solvingHistory={solvingHistory}></SolvingHistoryCard>
+                    ))
+                )
+                : 
+                <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
+                    {test.tasks.map((task, index) => (
+                        <VerdictIntervalTaskCard
+                            key={index}
+                            nameCardInfo={task.taskName}
+                            message={task.taskMessage}
+                            taskStatistic={task.taskStatistic}
+                            progressValue={1 - calculatePriorityNumber(task.taskStatistic)}
+                            rightAnswer={task.rightAnswer ?? ""}
+                            answers={task.answers}>
+                        </VerdictIntervalTaskCard>
+                    ))}
+                </div>}
             </div>
-
-
-            {testMode === TestMode.OrdinaryMode 
-            ?
-            solvingHistories.map((solvingHistory, index) => (
-                <SolvingHistoryCard solvingHistory={solvingHistory}></SolvingHistoryCard>
-            ))
-            : 
-            <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
-                {test.tasks.map((task, index) => (
-                    <VerdictIntervalTaskCard
-                        imageUrl="https://pic.rutubelist.ru/playlist/bf544654-e5e5-11ef-b595-02420a00066a.jpg"
-                        audioUrl={task.audioPath}
-                        nameCardInfo={task.taskName}
-                        message={task.taskMessage}
-                        taskStatistic={task.taskStatistic}
-                        progressValue={1 - calculatePriorityNumber(task.taskStatistic)}
-                        rightAnswer={task.rightAnswer ?? ""}
-                        answers={task.answers}>
-                    </VerdictIntervalTaskCard>
-                ))}
-            </div>}
         </div>
     )
 }

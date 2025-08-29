@@ -1,24 +1,21 @@
-import { Button, Card, CardMedia, Checkbox, FormControlLabel, Switch, TextField, Typography} from "@mui/material";
+import { Button, FormControlLabel, Switch, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import SaveIcon from '@mui/icons-material/Save';
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { TestDto } from "../../../models/Api/Tests/TestDto";
-import { ChangedTask } from "../../../models/Tasks/ChangedTask";
-import { ChangeType } from "../../../models/Tasks/ChangeType";
-import { CreateTaskDto } from "../../../models/Api/Tasks/CreateTaskDto";
-import { UpdateTaskDto } from "../../../models/Api/Tasks/UpdateTaskDto";
-import { Tests } from "../../../api/Endpoints/tests";
-import { TaskCard } from "../../../components/Tasks/TaskCard";
-import { LimitTimeDto } from "../../../models/Api/Tests/LimitTimeDto";
-import { useAuth } from "../../../components/context/auth/useAuth";
-import { TaskDto } from "../../../models/Api/Tasks/TaskDto";
+import { Test } from "../../../entities/test/Test";
+import { ChangedTask } from "../../../features/tasks/model/ChangedTask";
+import { ChangeType } from "../../../features/tasks/model/ChangeType";
+import { CreateTaskDto } from "../../../entities/task/api/CreateTaskDto";
+import { UpdateTaskDto } from "../../../entities/task/api/UpdateTaskDto";
+import { TaskCard } from "../../../entities/task/components/TaskCard";
+import { LimitTime } from "../../../entities/valueObjects/LimitTime";
+import { Task } from "../../../entities/task/Task";
+import { useUpdateTestMutation } from "../../../features/tests/api";
 
 export function UpdateTest() {
-    const { user } = useAuth();
-
     const [testName, setTestName] = useState<string>("");
     const [testNameError, setTestNameError] = useState(false);
 
@@ -30,17 +27,17 @@ export function UpdateTest() {
 
     const [isPublished, setIsPublished] = useState(true);
 
-    const [testTasks, setTestTasks] = useState<TaskDto[]>([]);
+    const [testTasks, setTestTasks] = useState<Task[]>([]);
 
     const [changedTasks, setChangedTasks] = useState<ChangedTask[]>([]);
 
     const navigate = useNavigate();
     const location = useLocation();
 
-    const test: TestDto = location.state?.testData;
+    const test: Test = location.state?.testData;
     const chTasks: ChangedTask[] = location.state?.changedTasks;
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [updateTest] = useUpdateTestMutation();
 
     useEffect(() => {
         if (test) {
@@ -54,7 +51,7 @@ export function UpdateTest() {
 
         if (chTasks)
             setChangedTasks(chTasks);
-    }, []);
+    }, [chTasks, test]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {
@@ -63,16 +60,16 @@ export function UpdateTest() {
     };
 
     const generateTestData = () => {
-        const testData: TestDto = 
+        const testData: Test = 
         { 
             id: test.id,
-            uniqueUserName: user?.uniqueUserName,
+            uniqueUserName: test.uniqueUserName,
             testName: testName, 
             theme: testTheme, 
-            limitTime: (testSeconds && testMinutes ? { seconds: Number.parseInt(testSeconds), minutes: Number.parseInt(testMinutes) } as LimitTimeDto : null), 
+            limitTime: (testSeconds || testMinutes ? { seconds: Number.parseInt(testSeconds ?? 0), minutes: Number.parseInt(testMinutes ?? 0) } as LimitTime : null),
             isPublished: isPublished,
             tasks: testTasks
-        } as TestDto
+        } as Test
 
         return testData;
     }
@@ -82,13 +79,13 @@ export function UpdateTest() {
     }
 
     const handleCreateTask = () => {
-        const testData: TestDto = generateTestData();
+        const testData: Test = generateTestData();
 
         navigate("/tasks/create", { state: {testData, changedTasks} });
     }
 
     const handleUpdateTask = (taskId: string) => {
-        const testData: TestDto = generateTestData();
+        const testData: Test = generateTestData();
 
         navigate("/tasks/update", { state: {testData, taskId, changedTasks} });
     }
@@ -141,22 +138,26 @@ export function UpdateTest() {
         const seconds = testSeconds ? Number.parseInt(testSeconds) : undefined;
         const minutes = testMinutes ? Number.parseInt(testMinutes) : undefined;
 
-        if (test && user) {
+        if (test) {
             try {
-                setIsLoading(true);
-                await Tests.update(user.id, test.id, user.uniqueUserName, testName, testTheme, isPublished, seconds, minutes, createdTasks, updatedTasks, deletedTasks);
-                
+                await updateTest({ 
+                    testId: test.id, 
+                    testName: testName,
+                    theme: testTheme,
+                    isPublished: isPublished,
+                    seconds: seconds,
+                    minutes: minutes,
+                    tasksToCreate: createdTasks,
+                    tasksToUpdate: updatedTasks,
+                    taskIdsToDelete: deletedTasks
+                }).unwrap();
+
                 navigate("/tests");
             } 
             catch (error: any) {
-                console.log(error)
-
-                error.response.data.responseErrors.forEach((e: { message: string }) => {
+                error.data.responseErrors.forEach((e: { message: string }) => {
                     toast.error(e.message);
                 });
-            } 
-            finally {
-                setIsLoading(false);
             }
         }
     }
@@ -230,11 +231,10 @@ export function UpdateTest() {
             </div>
 
             <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left" }}>
-                {testTasks.map((task) => (
+                {testTasks.map((task, index) => (
                     <TaskCard 
+                        key={index}
                         taskId={task.id}
-                        imageUrl="https://pic.rutubelist.ru/playlist/bf544654-e5e5-11ef-b595-02420a00066a.jpg"
-                        audioUrl={task.audioPath ?? ""}
                         nameCardInfo={task.taskName}
                         message={task.taskMessage}
                         rightAnswer={task.rightAnswer ?? ""}

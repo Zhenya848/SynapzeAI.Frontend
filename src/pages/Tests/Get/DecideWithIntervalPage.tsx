@@ -1,21 +1,21 @@
-import { Box, Button, Card, CardMedia, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import BuildIcon from '@mui/icons-material/Build';
-import ProgressBoxes from "../../../components/ProgressBoxes";
+import ProgressBoxes from "../../../widgets/ProgressBoxes";
 import ClearIcon from '@mui/icons-material/Clear';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { TaskStatisticDto } from "../../../models/Api/Tasks/TaskStatisticDto";
-import { StatisticTask } from "../../../models/Tasks/StatisticTask";
-import { TestDto } from "../../../models/Api/Tests/TestDto";
+import { TaskStatistic } from "../../../entities/taskStatistic/TaskStatistic";
+import { StatisticTask } from "../../../features/tasks/model/StatisticTask";
+import { Test } from "../../../entities/test/Test";
 import { motion } from "framer-motion";
-import { PauseDialog } from "../../../components/Tasks/Timer/PauseDialog";
+import { PauseDialog } from "../../../entities/task/components/Timer/PauseDialog";
 import PauseIcon from '@mui/icons-material/Pause';
-import { calculatePriorityNumber } from "../../../models/Tasks/CalculatePriorityNumber";
-import { Stopwatch } from "../../../components/Tasks/Stopwatch/Stopwatch";
-import { StopwatchHandle } from "../../../components/Tasks/Stopwatch/StopwatchHandle";
+import { calculatePriorityNumber } from "../../../features/tasks/CalculatePriorityNumber";
+import { Stopwatch } from "../../../entities/task/components/Stopwatch/Stopwatch";
+import { StopwatchHandle } from "../../../entities/task/components/Stopwatch/StopwatchHandle";
 
 export function DecideWithIntervalPage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -36,7 +36,7 @@ export function DecideWithIntervalPage() {
 
   const stopwatchRef = useRef<StopwatchHandle>(null);
 
-  const test: TestDto = location.state?.testData;
+  const test: Test = location.state?.testData;
 
   const wrongAnswerAnimationDuration = 0.8;
 
@@ -58,15 +58,15 @@ export function DecideWithIntervalPage() {
     setSelectedAnswer("");
     stopwatchRef.current?.reset();
 
-    const taskStatistic: TaskStatisticDto = priorityTasks[currentTaskIndex].taskStatistic;
+    const taskStatistic: TaskStatistic = priorityTasks[currentTaskIndex].taskStatistic;
 
-    const newTaskStatistic: TaskStatisticDto = 
+    const newTaskStatistic: TaskStatistic = 
     { 
         rightAnswersCount: taskStatistic.rightAnswersCount + (isRightAnswer ? 1 : 0),
         errorsCount: taskStatistic.errorsCount + (isRightAnswer ? 0 : 1),
         avgTimeSolvingSec: (taskStatistic.avgTimeSolvingSec + (stopwatchRef.current?.getExpiredTime() ?? 0)) / (taskStatistic.avgTimeSolvingSec === 0 ? 1 : 2),
         lastReviewTime: new Date()
-    } as TaskStatisticDto
+    } as TaskStatistic
 
     setPriorityTasks(prev => {
       const priorityTaskIndex = prev.findIndex(a => a.taskIndex === currentTaskIndex);
@@ -114,7 +114,7 @@ export function DecideWithIntervalPage() {
     const cleanedPriorityTasks: StatisticTask[] = test.tasks.map((task, index) => ({
         taskIndex: index,
         priorityNumber: 1,
-        taskStatistic: {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatisticDto,
+        taskStatistic: {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatistic,
     }));
 
     setPriorityTasks(cleanedPriorityTasks);
@@ -153,7 +153,7 @@ export function DecideWithIntervalPage() {
       const initialPriorityTasks: StatisticTask[] = test.tasks.map((task, index) => ({
           taskIndex: index,
           priorityNumber: calculatePriorityNumber(task.taskStatistic),
-          taskStatistic: task.taskStatistic ?? {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatisticDto,
+          taskStatistic: task.taskStatistic ?? {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatistic,
       }));
 
       setPriorityTasks(initialPriorityTasks);
@@ -162,7 +162,6 @@ export function DecideWithIntervalPage() {
   useEffect(() => {
     setCurrentTaskIndex(getHighestPriorityTaskIndex(priorityTasks) ?? 0)
   }, [priorityTasks]);
-
 
   return (
     <Box sx={{
@@ -196,14 +195,6 @@ export function DecideWithIntervalPage() {
             }}>
                 {test.tasks[currentTaskIndex].taskName}
             </Typography>
-
-            <Card sx={{ 
-                maxWidth: 600,
-                margin: '10px auto',
-                width: "calc(100% - 20px)"
-            }}>
-                <CardMedia component="img" height="140" image="https://pic.rutubelist.ru/playlist/bf544654-e5e5-11ef-b595-02420a00066a.jpg" alt="image" />
-            </Card>
 
             <Typography 
                 variant="h5" 
