@@ -40,7 +40,7 @@ export function Header() {
                         <NavLink to="/tests">Мои викторины</NavLink>
                         <NavLink to="/global">Глобальные</NavLink>
                         <NavLink to="/tests/saved">Сохраненные</NavLink>
-                        <NavLink to="/">Цены</NavLink>
+                        <NavLink to="/prices">Цены</NavLink>
                     </div>
                 }
                 

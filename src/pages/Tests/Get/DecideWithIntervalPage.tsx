@@ -16,6 +16,7 @@ import PauseIcon from '@mui/icons-material/Pause';
 import { calculatePriorityNumber } from "../../../features/tasks/CalculatePriorityNumber";
 import { Stopwatch } from "../../../entities/task/components/Stopwatch/Stopwatch";
 import { StopwatchHandle } from "../../../entities/task/components/Stopwatch/StopwatchHandle";
+import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 
 export function DecideWithIntervalPage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -37,6 +38,17 @@ export function DecideWithIntervalPage() {
   const stopwatchRef = useRef<StopwatchHandle>(null);
 
   const test: Test = location.state?.testData;
+
+  const setUser = useSetUser();
+
+  useEffect(() => {
+    if (!test) {
+      navigate("/tests");
+      return;
+    }
+
+    setUser();
+  }, []);
 
   const wrongAnswerAnimationDuration = 0.8;
 

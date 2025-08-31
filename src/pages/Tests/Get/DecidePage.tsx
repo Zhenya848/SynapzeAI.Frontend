@@ -15,6 +15,7 @@ import { CountdownTimer } from "../../../entities/task/components/Timer/Countdow
 import { CountdownTimerHandle } from "../../../entities/task/components/Timer/CountdownTimerHandle";
 import { PauseDialog } from "../../../entities/task/components/Timer/PauseDialog";
 import { useGetTestMutation } from "../../../features/tests/api";
+import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 
 export function DecidePage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -39,6 +40,8 @@ export function DecidePage() {
 
   const [getTest, {isLoading}] = useGetTestMutation();
 
+  const setUser = useSetUser();
+
   useEffect(() => {
     const fetchData = async () => {
       if (testId) {
@@ -54,12 +57,21 @@ export function DecidePage() {
         }
       }
       else {
+        if (!testData) {
+          navigate("/tests");
+          return;
+        }
+
         setTest(testData);
       }
     };
 
     fetchData();
-  }, [getTest, testData, testId])
+  }, [getTest, navigate, testData, testId])
+
+  useEffect(() => {
+    setUser();
+  }, []);
 
   if (isLoading || !test) {
     return (

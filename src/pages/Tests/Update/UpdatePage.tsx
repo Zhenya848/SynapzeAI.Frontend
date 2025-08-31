@@ -14,6 +14,7 @@ import { TaskCard } from "../../../entities/task/components/TaskCard";
 import { LimitTime } from "../../../entities/valueObjects/LimitTime";
 import { Task } from "../../../entities/task/Task";
 import { useUpdateTestMutation } from "../../../features/tests/api";
+import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 
 export function UpdateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -38,6 +39,17 @@ export function UpdateTest() {
     const chTasks: ChangedTask[] = location.state?.changedTasks;
 
     const [updateTest] = useUpdateTestMutation();
+
+    const setUser = useSetUser();
+
+    useEffect(() => {
+        if (!test) {
+            navigate("/tests");
+            return;
+        }
+
+        setUser();
+    }, []);
 
     useEffect(() => {
         if (test) {

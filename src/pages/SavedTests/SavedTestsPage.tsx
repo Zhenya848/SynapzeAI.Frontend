@@ -8,6 +8,7 @@ import { useAddSavedTestMutation, useDeleteSavedTestMutation, useGetSavedTestsWi
 import { Test } from "../../entities/test/Test";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { GetCookies } from "../../shared/helpers/api/GetCookies";
 
 export function SavedTestsPage() {
     const navigate = useNavigate();
@@ -17,6 +18,8 @@ export function SavedTestsPage() {
     const [isStartDecideTestDialogOpen, setIsStartDecideTestDialogOpen] = useState(false);
 
     const [tests, setTests] = useState<Test[]>([]);
+
+    const isRefreshToken = GetCookies("refreshToken");
 
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 5;
@@ -35,15 +38,20 @@ export function SavedTestsPage() {
         orderBy: undefined as string | undefined
     });
 
-    const { data: testsData, isLoading, isFetching, error } = useGetSavedTestsWithPaginationQuery(queryParams);
+    const { data: testsData, isLoading, isFetching, error } = useGetSavedTestsWithPaginationQuery(queryParams, {skip: !isRefreshToken});
     const [saveTest] = useAddSavedTestMutation();
     const [deleteSavedTest] = useDeleteSavedTestMutation();
 
     useEffect(() => {
+        if (!isRefreshToken) {
+            navigate("/login");
+            return;
+        }
+
         if (testsData) {
             setTests(testsData.result!.items);
         }
-    }, [testsData]);
+    }, [isRefreshToken, navigate, testsData]);
 
     useEffect(() => {
         setQueryParams(prev => ({

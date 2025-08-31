@@ -14,6 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { TestCard } from "../../../entities/test/components/TestCard";
 import { useAddSavedTestMutation, useDeleteSavedTestMutation, useDeleteTestMutation, useGetTestsQuery } from "../../../features/tests/api";
 import { TestCardSkeleton } from "../../../entities/test/components/TestCardSkeleton";
+import { GetCookies } from "../../../shared/helpers/api/GetCookies";
 
 export function GetTests() {
     const navigate = useNavigate();
@@ -26,18 +27,25 @@ export function GetTests() {
     const [isCreateTestDialogOpen, setIsCreateTestDialogOpen] = useState(false);
     const [isDeleteTestDialogOpen, setIsDeleteTestDialogOpen] = useState(false);
     const [isStartDecideTestDialogOpen, setIsStartDecideTestDialogOpen] = useState(false);
+
+    const isRefreshToken = GetCookies("refreshToken");
     
-    const { data: testsData, isLoading, error } = useGetTestsQuery();
+    const { data: testsData, isLoading, error } = useGetTestsQuery(undefined, {skip: !isRefreshToken});
     const [deleteTest] = useDeleteTestMutation();
     const [saveTest] = useAddSavedTestMutation();
     const [deleteSavedTest] = useDeleteSavedTestMutation();
 
     useEffect(() => {
+        if (!isRefreshToken) {
+            navigate("/login")
+            return;
+        }
+
         if (testsData) {
             setTests(testsData.result!);
             setSortedTests(testsData.result!);
         }
-    }, [testsData])
+    }, [isRefreshToken, navigate, testsData])
     
     const handleCreateTestDialogOpen = () => setIsCreateTestDialogOpen(true);
     const handleCreateTestDialogClose = () => setIsCreateTestDialogOpen(false);

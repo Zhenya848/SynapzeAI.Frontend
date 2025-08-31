@@ -5,11 +5,12 @@ import StartDecideSelectionPanel from "../../entities/test/components/StartDecid
 import { Test } from "../../entities/test/Test";
 import { GlobalTestCard } from "../../entities/test/components/GlobalTestCard";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated } from "../../features/accounts/auth.slice";
+import { selectIsAuthenticated, selectUser } from "../../features/accounts/auth.slice";
 import { useAddSavedTestMutation, useDeleteSavedTestMutation, useGetWithPaginationQuery } from "../../features/tests/api";
 import SearchIcon from '@mui/icons-material/Search';
 import { GlobalTestCardSkeleton } from "../../entities/test/components/GlobalTestCardSkeleton";
 import { toast } from "react-toastify";
+import { useSetUser } from "../../shared/helpers/api/useSetUser";
 
 export function GlobalTests() {
     const navigate = useNavigate();
@@ -42,6 +43,8 @@ export function GlobalTests() {
     const { data: testsData, isLoading, isFetching, error } = useGetWithPaginationQuery(queryParams);
     const [saveTest] = useAddSavedTestMutation();
     const [deleteSavedTest] = useDeleteSavedTestMutation();
+    
+    const setUser = useSetUser();
 
     useEffect(() => {
         if (testsData) {
@@ -56,6 +59,10 @@ export function GlobalTests() {
             orderBy: orderBy
         }));
     }, [page, orderBy])
+
+    useEffect(() => {
+        setUser();
+    }, []);
 
     const handleStartDecideTestDialogOpen = (testId: string) => {
         setTestId(testId);

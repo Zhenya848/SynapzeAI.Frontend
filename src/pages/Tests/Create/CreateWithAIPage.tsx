@@ -1,5 +1,5 @@
 import { Button, Card, CardMedia, FormControlLabel, Input, Slider, Switch, TextField, Typography } from "@mui/material";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { FileExtensions } from "../../../shared/extensions/FileExtensions";
 import { generateTestWithAI } from "../../../features/AI/GenerateTestWithAI";
 import { useCreateTestMutation } from "../../../features/tests/api";
+import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 
 export function CreateTestWithAI() {
     const navigate = useNavigate();
@@ -29,6 +30,12 @@ export function CreateTestWithAI() {
     const [isLoading, setIsLoading] = useState(false);
 
     const [createTest] = useCreateTestMutation();
+
+    const setUser = useSetUser();
+
+    useEffect(() => {
+        setUser();
+    }, []);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {

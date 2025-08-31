@@ -1,32 +1,14 @@
 import { Box, Typography } from "@mui/material";
 import { VerdictTaskCard } from "../../task/components/VerdictTaskCard";
 import { SolvingHistory } from "../SolvingHistory";
+import { GetNumberSecondsWordRus } from "../../../shared/helpers/GetNumberSecondsWordRus";
+import { formatCustomDate } from "../../../shared/helpers/FormatCustomDate";
 
 interface ISolvingHistoryTaskInfo {
     solvingHistory: SolvingHistory
 }
 
 export function SolvingHistoryCard({ solvingHistory }: ISolvingHistoryTaskInfo) {
-    function formatCustomDate(dateInput: Date | string) {
-        const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
-
-        const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
-        const months = [
-            'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-            'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
-        ];
-
-        const day = date.getDate();
-        const month = months[date.getMonth()];
-        const year = date.getFullYear();
-        const weekDay = days[date.getDay()];
-        
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-
-        return `${day} ${month} ${year}, ${weekDay}, ${hours}:${minutes}`;
-    }
-
     return (
         <Box sx={{
             p: 1,
@@ -39,7 +21,7 @@ export function SolvingHistoryCard({ solvingHistory }: ISolvingHistoryTaskInfo) 
         }}>
             <Typography variant="h5">Пользователь: {solvingHistory.uniqueUserName}, почта: {solvingHistory.userEmail}</Typography>
             <Typography variant="h5" style={{marginTop: "20px"}}>Последнее время решения: {formatCustomDate(solvingHistory.solvingDate)}</Typography>
-            <Typography variant="h5" style={{marginTop: "20px"}}>Продолжительность: {solvingHistory.solvingTimeSeconds} секунд</Typography>
+            <Typography variant="h5" style={{marginTop: "20px"}}>Продолжительность: {solvingHistory.solvingTimeSeconds} {GetNumberSecondsWordRus(solvingHistory.solvingTimeSeconds)}</Typography>
 
             <Box sx={{ display: 'flex', gap: 2, marginTop: "20px", width: '100%', overflowX: "auto", }}>
                 {solvingHistory.taskHistories.map((taskHistory) => (
