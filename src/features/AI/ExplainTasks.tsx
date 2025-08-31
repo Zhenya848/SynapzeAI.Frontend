@@ -9,7 +9,7 @@ export async function explainTasks(taskHistories: TaskHistory[]): Promise<AIMess
         const aiMessageForTaskJsonFormat: AIMessageForTask[] = [{ taskSerialNumber: 1, aiMessage: "YourText"}] as AIMessageForTask[];
 
         const request = `История решения задач представлена в формате json: ${JSON.stringify(taskHistories)}. ` +
-            "Цель: проанализировать каждую задачу и ответ пользователя к ней " +
+            "Цель: проанализировать каждую задачу и ответ пользователя к ней, где возможно объяснить почему тот или иной ответ верный / неверный " +
             `и вернуть сообщение в формате json: ${JSON.stringify(aiMessageForTaskJsonFormat)}. `;
 
         const response = await sendToAI(request);

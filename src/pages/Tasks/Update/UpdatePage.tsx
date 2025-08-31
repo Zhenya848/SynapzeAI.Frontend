@@ -9,6 +9,7 @@ import { ChangedTask } from "../../../features/tasks/model/ChangedTask";
 import { ChangeType } from "../../../features/tasks/model/ChangeType";
 import { TagInput } from "../../../widgets/TagInput";
 import { Task } from "../../../entities/task/Task";
+import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 
 export function UpdateTask() {
     const [taskName, setTaskName] = useState<string>("");
@@ -22,6 +23,17 @@ export function UpdateTask() {
     const test: Test = location.state?.testData;
     const taskId: string = location.state?.taskId;
     const chTasks: ChangedTask[] = location.state?.changedTasks;
+
+    const setUser = useSetUser();
+
+    useEffect(() => {
+        if (!test || !taskId) {
+            navigate("/tests");
+            return;
+        }
+
+        setUser();
+    }, []);
 
     useEffect(() => {
         if (test) {

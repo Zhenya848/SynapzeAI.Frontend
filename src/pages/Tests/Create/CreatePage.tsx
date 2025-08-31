@@ -11,6 +11,7 @@ import { CreateTaskDto } from "../../../entities/task/api/CreateTaskDto";
 import { TaskCard } from "../../../entities/task/components/TaskCard";
 import { Task } from "../../../entities/task/Task";
 import { useCreateTestMutation } from "../../../features/tests/api";
+import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 
 export function CreateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -30,6 +31,8 @@ export function CreateTest() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const setUser = useSetUser();
+
     const test: Test = location.state?.testData;
 
     useEffect(() => {
@@ -42,6 +45,10 @@ export function CreateTest() {
             setIsPublished(test.isPublished);
         }
     }, [test]);
+    
+    useEffect(() => {
+        setUser();
+    }, []);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete") {

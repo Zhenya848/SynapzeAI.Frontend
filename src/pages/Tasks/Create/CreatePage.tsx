@@ -3,12 +3,13 @@ import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Test } from "../../../entities/test/Test";
 import { ChangedTask } from "../../../features/tasks/model/ChangedTask";
 import { ChangeType } from "../../../features/tasks/model/ChangeType";
 import { TagInput } from "../../../widgets/TagInput";
 import { Task } from "../../../entities/task/Task";
+import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 
 export function CreateTask() {
     const [taskName, setTaskName] = useState<string>("");
@@ -21,6 +22,17 @@ export function CreateTask() {
 
     const test: Test = location.state?.testData;
     const chTasks: ChangedTask[] = location.state?.changedTasks;
+
+    const setUser = useSetUser();
+
+    useEffect(() => {
+        if (!test) {
+            navigate("/tests");
+            return;
+        }
+
+        setUser();
+    }, []);
 
     const handleCancel = () => {
         const testData = test;

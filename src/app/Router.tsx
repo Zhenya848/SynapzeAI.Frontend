@@ -18,6 +18,7 @@ import { GetSolvingHistories } from "../pages/SolvingHistories/SolvingHistoriesP
 import { GlobalTests } from "../pages/Global/GlobalPage";
 import { SavedTestsPage } from "../pages/SavedTests/SavedTestsPage";
 import { MainPage } from "../pages/Main/MainPage";
+import { PricesPage } from "../pages/Prices/PricesPage";
 
 export const router = createBrowserRouter([
     {
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
         {
           path: "/",
           element: <MainPage />
+        },
+        {
+          path: "/prices",
+          element: <PricesPage />
         },
         {
           path: "/global",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Autocomplete, Box, Button, Pagination, TextField,  Typography } from "@mui/material";
 import { SolvingHistoryCard } from "../../entities/solvingHistory/components/SolvingHistoryCard";
 import { Test } from "../../entities/test/Test";
@@ -9,6 +9,7 @@ import { SolvingHistory } from "../../entities/solvingHistory/SolvingHistory";
 import { useGetSolvingHistoriesWithPaginationQuery } from "../../features/solvingHistories/api";
 import SearchIcon from '@mui/icons-material/Search';
 import { SolvingHistoryCardSkeleton } from "../../entities/solvingHistory/components/SolvingHistoryCardSkeleton";
+import { GetCookies } from "../../shared/helpers/api/GetCookies";
 
 enum TestMode {
     OrdinaryMode,
@@ -30,6 +31,10 @@ export function GetSolvingHistories() {
     const [testMode, setTestMode] = useState<TestMode>(TestMode.OrdinaryMode);
 
     const test: Test = location.state?.testData;
+    
+    const navigate = useNavigate();
+
+    const isRefreshToken = GetCookies("refreshToken");
 
     const [queryParams, setQueryParams] = useState({
         page: 1,
@@ -40,9 +45,21 @@ export function GetSolvingHistories() {
         orderBy: undefined as string | undefined
     });
 
-    const { data: solvingHistoriesData, isLoading, isFetching, error } = useGetSolvingHistoriesWithPaginationQuery(queryParams);
+    const { data: solvingHistoriesData, isLoading, isFetching, error } = useGetSolvingHistoriesWithPaginationQuery(
+        queryParams, 
+        {skip: !isRefreshToken || !test});
 
     useEffect(() => {
+        if (!test) {
+            navigate("/tests")
+            return;
+        }
+
+        if (!isRefreshToken) {
+            navigate("/login")
+            return;
+        }
+
         if (solvingHistoriesData) {
             setSolvingHistories(solvingHistoriesData.result!.items);
         }

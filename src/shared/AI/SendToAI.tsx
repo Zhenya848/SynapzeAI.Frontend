@@ -2,7 +2,7 @@ export async function sendToAI(request: string, filePath?: string) {
     return await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-            Authorization: `Bearer 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`,
+            Authorization: `Bearer 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`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({

@@ -26,7 +26,7 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
             borderRadius: 3,
             bgcolor: getBgColor(isRightAnswer),
             margin: '20px',
-            minWidth: '320px',
+            width: '520px',
             boxSizing: 'border-box'
         }}>
             {rightAnswer && <Typography sx={{textAlign: 'center'}}>{userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase() ? "Верно!" : "Неверно!"}</Typography>}

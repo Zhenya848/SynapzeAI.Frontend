@@ -7,9 +7,13 @@ import { useEffect, useState } from "react";
 import { TaskHistory } from "../entities/taskHistory/TaskHistory";
 import { toast } from "react-toastify";
 import { Test } from "../entities/test/Test";
+import PsychologyIcon from '@mui/icons-material/Psychology';
 import { explainTasks } from "../features/AI/ExplainTasks";
 import { VerdictTaskCard } from "../entities/task/components/VerdictTaskCard";
 import { useCreateSolvingHistoryMutation, useUpdateAIMessagesForTasksMutation } from "../features/solvingHistories/api";
+import { GetCookies } from "../shared/helpers/api/GetCookies";
+import { useSelector } from "react-redux";
+import { selectUser } from "../features/accounts/auth.slice";
 
 export function VerdictPage() {
     const navigate = useNavigate();
@@ -24,6 +28,9 @@ export function VerdictPage() {
 
     const [isLoading, setIsLoading] = useState(false);
 
+    const isRefreshToken = GetCookies("refreshToken");
+    const user = useSelector(selectUser);
+
     const [createSolvingHistory] = useCreateSolvingHistoryMutation();
     const [updateAIMessagesForTasks] = useUpdateAIMessagesForTasksMutation();
 
@@ -32,8 +39,10 @@ export function VerdictPage() {
             try {
                 setIsLoading(true);
 
-                if (!test || test.tasks.length < 1 || !expiredTime)
+                if (!test || test.tasks.length < 1 || !expiredTime || (isRefreshToken && !user)) {
+                    navigate("/tests");
                     return;
+                }
 
                 const taskHistories: TaskHistory[] = test.tasks.map((task, index) => ({
                     serialNumber: task.serialNumber,
@@ -66,7 +75,7 @@ export function VerdictPage() {
         };
 
         fetchData();
-    }, [answerHistory, createSolvingHistory, expiredTime, test]);
+    }, [answerHistory, createSolvingHistory, expiredTime, navigate, test]);
 
     if (isLoading) {
         return (
@@ -94,7 +103,8 @@ export function VerdictPage() {
             if (!test)
                 return;
 
-            const aiMessagesForTasks = await explainTasks(taskHistories);
+            const tasksToExplain = taskHistories.filter(t => !t.rightAnswer || t.userAnswer !== t.rightAnswer)
+            const aiMessagesForTasks = await explainTasks(tasksToExplain);
 
             if (!aiMessagesForTasks)
                 return;
@@ -138,7 +148,7 @@ export function VerdictPage() {
 
             <div style={{display: 'flex', width: "100%", marginTop: "10px", gap: 10}}>
                 <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-                <Button variant="contained" color="secondary" onClick={handleExplain} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Анализ с AI</Button>
+                <Button variant="contained" color="secondary" onClick={handleExplain} sx={{ width: "100%", color: 'white'}} startIcon={<PsychologyIcon />}>Анализ с AI</Button>
                 <Button variant="contained" color="primary" onClick={handleRetry} sx={{ width: "100%", color: 'white'}} startIcon={<ReplayIcon />}>Заново</Button>
             </div>
         </div>

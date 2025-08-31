@@ -21,8 +21,10 @@ export function VerdictIntervalPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                if (!test || test.tasks.length < 1)
+                if (!test || test.tasks.length < 1) {
+                    navigate("/tests");
                     return;
+                }
 
                 const tasks: UpdateTaskStatisticDto[] = statisticTasks.map((task, index) => ({
                     taskId: test.tasks[index].id,
@@ -42,7 +44,7 @@ export function VerdictIntervalPage() {
         };
 
         fetchData();
-    }, [statisticTasks, test, updateTasksStatistics]);
+    }, [navigate, statisticTasks, test, updateTasksStatistics]);
 
     if (isLoading) {
         return (

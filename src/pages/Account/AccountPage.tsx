@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { logout, selectUser, setCredentials } from "../../features/accounts/auth.slice";
 import { useAppDispatch } from "../../app/store";
 import { useLogoutMutation, useRefreshMutation, useUpdateUserMutation } from "../../features/accounts/api";
+import { GetCookies } from "../../shared/helpers/api/GetCookies";
 
 export function AccountPage() {
     const dispatch = useAppDispatch();
@@ -23,6 +24,8 @@ export function AccountPage() {
 
     const [newUserName, setNewUserName] = useState("");
 
+    const isRefreshToken = GetCookies("refreshToken");
+
     const navigate = useNavigate();
 
     const refreshUser = async () => {
@@ -31,6 +34,11 @@ export function AccountPage() {
     }
 
     useEffect(() => {
+        if (!isRefreshToken) {
+            navigate("/login");
+            return;
+        }
+
         const fetch = async () => {
             if (!user) {
                 await refreshUser();

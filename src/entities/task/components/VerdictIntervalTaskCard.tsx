@@ -3,6 +3,7 @@ import { CardInfo } from "../../../widgets/CardInfo";
 import { TaskStatistic } from "../../taskStatistic/TaskStatistic";
 import { textStyle } from "../../../shared/styles/FilledBoxStyles/TextStyle";
 import { fillStyle } from "../../../shared/styles/FilledBoxStyles/FillStyle";
+import { formatCustomDate } from "../../../shared/helpers/FormatCustomDate";
 
 interface IVerdictTaskCardInfo {
     nameCardInfo: string;
@@ -24,7 +25,7 @@ export function VerdictIntervalTaskCard({nameCardInfo, message, taskStatistic, p
             borderRadius: 3,
             bgcolor: "#636363",
             margin: '20px',
-            maxWidth: '520px',
+            width: '540px',
             boxSizing: 'border-box',
             position: 'relative',
             overflow: 'hidden'
@@ -38,10 +39,10 @@ export function VerdictIntervalTaskCard({nameCardInfo, message, taskStatistic, p
                 
                 {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
 
-                <CardInfo title="Последнее время решения" value={taskStatistic?.lastReviewTime.toString() ?? 'none'} />
+                <CardInfo title="Последнее время решения" value={taskStatistic ? formatCustomDate(taskStatistic.lastReviewTime) : 'none'} />
                 <CardInfo title="Верных ответов: " value={taskStatistic?.rightAnswersCount.toString() ?? '0'} />
                 <CardInfo title="Неверных ответов: " value={taskStatistic?.errorsCount.toString() ?? '0'} />
-                <CardInfo title="Среднее время решения" value={taskStatistic?.avgTimeSolvingSec.toString() ?? '0'}/>
+                <CardInfo title="Среднее время решения" value={taskStatistic ? (Math.round(taskStatistic.avgTimeSolvingSec * 10) / 10).toString() + " сек." : "0 сек."}/>
             </Box>
 
             <div style={fillStyle(progressValue)} />
