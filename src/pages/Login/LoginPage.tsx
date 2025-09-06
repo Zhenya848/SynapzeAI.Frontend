@@ -10,8 +10,7 @@ export function LoginPage() {
     const [login, {isLoading}] = useLoginMutation();
     const dispatch = useAppDispatch();
 
-    const [email, setEmail] = useState("");
-    const [emailError, setEmailError] = useState(false);
+    const [telegram, setTelegram] = useState("");
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
 
@@ -20,13 +19,6 @@ export function LoginPage() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         let isValid = true;
-
-        if (email.includes("@") == false) {
-            setEmailError(true);
-            toast.error("Некорректная почта");
-
-            isValid = false;
-        }
 
         if (password.length < 1) {
             setPasswordError(true);
@@ -37,7 +29,7 @@ export function LoginPage() {
         
         if (isValid) {
             try {
-                const response = await login({ email: email, password: password }).unwrap();
+                const response = await login({ telegram: telegram, password: password }).unwrap();
 
                 dispatch(setCredentials({ accessToken: response.result!.accessToken, user: response.result!.user }));
                 navigate("/accountInfo");
@@ -55,10 +47,9 @@ export function LoginPage() {
             <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-9">
                 <form className="flex flex-col w-full items-center gap-7" onSubmit={(e) => handleSubmit(e)}>
                     <TextField 
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setTelegram(e.target.value)}
                         variant="standard"
-                        error={emailError}
-                        label="Email"
+                        label="Telegram"
                         fullWidth 
                     />
 
@@ -66,7 +57,7 @@ export function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                         variant="standard"
                         error={passwordError}
-                        label="Password"
+                        label="Пароль"
                         fullWidth 
                     />
 

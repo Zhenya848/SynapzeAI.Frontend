@@ -83,7 +83,7 @@ export function AccountPage() {
                         <EmailIcon style={{marginRight: "10px"}}/>
 
                         <Typography variant="h5"> 
-                            Почта: {user.email}
+                            Telegram: {user.telegram}
                         </Typography>
                     </div>
 

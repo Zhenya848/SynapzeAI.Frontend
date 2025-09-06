@@ -1,6 +1,6 @@
 export type User = {
     id: string;
-    email: string;
+    telegram: string;
     userName: string;
     uniqueUserName: string;
 }

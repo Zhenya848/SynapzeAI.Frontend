@@ -1,6 +1,22 @@
 import { Box, Button, Card, Divider, Stack, Typography } from "@mui/material";
+import { useCreatePaymentMutation } from "../../features/payment/api";
+import { toast } from "react-toastify";
 
 export function PricesPage() {
+    const [createPayment] = useCreatePaymentMutation();
+
+    const handleCreatePayment = async (amount: number) => {
+        try {
+            const response = await createPayment({amount: amount}).unwrap();
+
+            window.open(response.result!);
+        }
+        catch (error) {
+            toast.error("Не удалось создать платеж");
+            console.error(error);
+        }
+    }
+
     return (
         <div style={{display: "flex", gap: 100, padding: 100}}>
             <Card variant="outlined" sx={{ maxWidth: 360 }}>
@@ -22,7 +38,7 @@ export function PricesPage() {
                 </Box>
                 <Divider />
                 <Box sx={{ p: 2 }}>
-                    <Button variant="contained">
+                    <Button onClick={() => handleCreatePayment(0)} variant="contained">
                         Приобрести
                     </Button>
                 </Box>
@@ -48,7 +64,7 @@ export function PricesPage() {
                 </Box>
                 <Divider />
                 <Box sx={{ p: 2 }}>
-                    <Button variant="contained">
+                    <Button onClick={() => handleCreatePayment(0)} variant="contained">
                         Приобрести
                     </Button>
                 </Box>
@@ -73,7 +89,7 @@ export function PricesPage() {
                 </Box>
                 <Divider />
                 <Box sx={{ p: 2 }}>
-                    <Button variant="contained">
+                    <Button onClick={() => handleCreatePayment(0)} variant="contained">
                         Приобрести
                     </Button>
                 </Box>

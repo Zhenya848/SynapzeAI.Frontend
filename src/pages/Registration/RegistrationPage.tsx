@@ -1,43 +1,61 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, TextField } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, TextField, Typography } from "@mui/material";
 import { toast } from "react-toastify";
-import { useLoginMutation, useRegisterMutation } from "../../features/accounts/api";
+import { useLoginMutation, useRegisterMutation, useVerifyUserMutation } from "../../features/accounts/api";
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
 
 export function RegistrationPage() {
     const [userName, setUserName] = useState("");
     const [userNameError, setUserNameError] = useState(false);
-    const [email, setEmail] = useState("");
-    const [emailError, setEmailError] = useState(false);
+    const [telegram, setTelegram] = useState("");
     const [password, setPassword] = useState("");
     const [repeatedPassword, setRepeatedPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
+    const [code, setCode] = useState("");
+    const [codeError, setCodeError] = useState(false);
 
     const dispatch = useAppDispatch();
 
     const [register] = useRegisterMutation();
     const [login] = useLoginMutation();
+    const [verify] = useVerifyUserMutation();
 
     const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    useEffect(() => {
+        const fetch = async () => {
+            try {
+                if (code.length === 5) {
+                    setCodeError(false);
+                    setCode("");
+
+                    await verify({ telegram: telegram, code: code }).unwrap();
+                    await handleLogin();
+                }
+            }
+            catch (error: any) {
+                setCodeError(true);
+
+                error.data.responseErrors.forEach((e: { message: string }) => {
+                    toast.error(e.message);
+                });
+            }
+        }
+
+        fetch();
+    }, [code])
+
+    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         let isValid = true;
 
         if (userName.length < 1) {
             setUserNameError(true);
             toast.error("Имя пользователя не может быть пустым");
-
-            isValid = false;
-        }
-
-        if (email.includes("@") == false) {
-            setEmailError(true);
-            toast.error("Некорректная почта");
 
             isValid = false;
         }
@@ -55,17 +73,12 @@ export function RegistrationPage() {
 
             isValid = false;
         }
-        
+
         if (isValid) {
             try {
                 setIsLoading(true);
 
-                await register({ userName: userName, email: email, password: password }).unwrap();
-                const loginResponse = await login({ email: email, password: password }).unwrap();
-
-                dispatch(setCredentials({ accessToken: loginResponse.result!.accessToken, user: loginResponse.result!.user }));
-
-                navigate("/accountInfo");
+                await register({ userName: userName, telegram: telegram, password: password }).unwrap();
             }
             catch (error: any) {
                 error.data.responseErrors.forEach(e => {
@@ -78,10 +91,29 @@ export function RegistrationPage() {
         }
     }
 
+    const handleLogin = async () => {
+        try {
+            const loginResponse = await login({ telegram: telegram, password: password }).unwrap();
+            dispatch(setCredentials({ accessToken: loginResponse.result!.accessToken, user: loginResponse.result!.user }));
+
+            navigate("/accountInfo");
+        }
+        catch (error: any) {
+            console.error(error);
+
+            error.data.responseErrors.forEach(e => {
+                toast.error(e.message)
+            });
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <div className="flex flex-col h-full w-full py-6 justify-center items-start gap-4">
-            <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-9">
-                <form className="flex flex-col w-full items-center gap-7" onSubmit={(e) => handleSubmit(e)}>
+            <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-5">
+                <form className="flex flex-col w-full items-center gap-5" onSubmit={(e) => handleRegister(e)}>
                     <TextField 
                     onChange={(e) => setUserName(e.target.value)}
                         variant="standard"
@@ -91,10 +123,9 @@ export function RegistrationPage() {
                     />
 
                     <TextField 
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setTelegram(e.target.value)}
                         variant="standard"
-                        error={emailError}
-                        label="Email"
+                        label="Telegram"
                         fullWidth 
                     />
 
@@ -115,6 +146,26 @@ export function RegistrationPage() {
 
                     <Button type="submit" disabled = {isLoading}>Зарегистрироваться</Button>
                 </form>
+
+                <div style={{display: "flex", gap: 5, marginTop: "10px"}}>
+                    <Typography style={{ color: "grey" }}>Шаг1. Откройте </Typography>
+                    <Link to="https://t.me/synapze_ai_bot" style={{ textDecoration: 'underline', color: "steelblue" }}>
+                        бота
+                    </Link>
+                    <Typography style={{ color: "grey" }}>и введите любое сообщение</Typography>
+                </div>
+
+                <Typography style={{ color: "grey" }}>Шаг 2. Нажмите зарегистрироваться и ждите код</Typography>
+                <Typography style={{ color: "grey" }}>Шаг 3. Введите код подтверждения ниже: </Typography>
+
+                <TextField 
+                onChange={(e) => setCode(e.target.value)}
+                    variant="standard"
+                    label="Код подтверждения"
+                    error={codeError}
+                    value={code}
+                    fullWidth 
+                />
             </div>
         </div>
     )

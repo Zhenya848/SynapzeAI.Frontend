@@ -16,10 +16,10 @@ export const solvingHistoriesApi = baseApi.injectEndpoints({
             invalidatesTags: ["Tests"]
         }),
 
-        getSolvingHistoriesWithPagination: builder.query<Envelope<PageList<SolvingHistory>>, { page: number, pageSize: number, testId: string, searchUserName?: string, searchUserEmail?: string, orderBy?: string }>({
-            query: ({ page, pageSize, testId, searchUserName, searchUserEmail, orderBy }) => ({
+        getSolvingHistoriesWithPagination: builder.query<Envelope<PageList<SolvingHistory>>, { page: number, pageSize: number, testId: string, searchUserName?: string, searchUserTelegram?: string, orderBy?: string }>({
+            query: ({ page, pageSize, testId, searchUserName, searchUserTelegram, orderBy }) => ({
                 url: TESTS_SERVICE_API_URL + `${testId}/history`,
-                body: { page, pageSize, searchUserName, searchUserEmail, orderBy },
+                body: { page, pageSize, searchUserName, searchUserTelegram, orderBy },
                 method: "POST"
             })
         }),
