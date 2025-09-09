@@ -19,7 +19,7 @@ export function SolvingHistoryCard({ solvingHistory }: ISolvingHistoryTaskInfo) 
             boxSizing: 'border-box',
             textAlign: 'center'
         }}>
-            <Typography variant="h5">Пользователь: {solvingHistory.uniqueUserName}, почта: {solvingHistory.userEmail}</Typography>
+            <Typography variant="h5">Пользователь: {solvingHistory.uniqueUserName}, telegram: {solvingHistory.userTelegram}</Typography>
             <Typography variant="h5" style={{marginTop: "20px"}}>Последнее время решения: {formatCustomDate(solvingHistory.solvingDate)}</Typography>
             <Typography variant="h5" style={{marginTop: "20px"}}>Продолжительность: {solvingHistory.solvingTimeSeconds} {GetNumberSecondsWordRus(solvingHistory.solvingTimeSeconds)}</Typography>
 

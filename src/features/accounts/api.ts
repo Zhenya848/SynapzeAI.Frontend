@@ -4,20 +4,21 @@ import { Envelope } from "../api/model/Envelope";
 
 export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        register: builder.mutation<void, { userName: string, email: string, password: string }>({
-            query: ({ userName, email, password }) => ({
+        register: builder.mutation<Envelope<void>, { userName: string, telegram: string, password: string }>({
+            query: ({ userName, telegram, password }) => ({
                 url: USER_SERVICE_API_URL + "registration",
-                body: { userName, email, password },
+                body: { userName, telegram, password },
                 method: "POST"
             })
         }),
 
-        login: builder.mutation<Envelope<LoginResponse>, { email: string, password: string }>({
-            query: ({ email, password }) => ({
+        login: builder.mutation<Envelope<LoginResponse>, { telegram: string, password: string }>({
+            query: ({ telegram, password }) => ({
                 url: USER_SERVICE_API_URL + "login",
-                body: { email, password },
+                body: { telegram, password },
                 method: "POST"
-            })
+            }),
+            invalidatesTags: ["Tests"]
         }),
 
         refresh: builder.mutation<Envelope<LoginResponse>, void>({
@@ -40,6 +41,14 @@ export const authApi = baseApi.injectEndpoints({
                 body: { userName },
                 method: "PUT"
             })
+        }),
+
+        verifyUser: builder.mutation<void, { telegram: string, code: string }>({
+            query: ({ telegram, code }) => ({
+                url: USER_SERVICE_API_URL + "users/verify",
+                body: { telegram, code },
+                method: "POST"
+            })
         })
     })
 });
@@ -49,4 +58,6 @@ export const {
     useLoginMutation,
     useRefreshMutation,
     useLogoutMutation,
-    useUpdateUserMutation } = authApi;
+    useUpdateUserMutation,
+    useVerifyUserMutation
+ } = authApi;

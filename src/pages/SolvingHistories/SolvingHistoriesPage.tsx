@@ -25,7 +25,7 @@ export function GetSolvingHistories() {
     const PAGE_SIZE = 5;
 
     const [userName, setUserName] = useState<string| undefined>(undefined);
-    const [userEmail, setUserEmail] = useState<string| undefined>(undefined);
+    const [userTelegram, setUserTelegram] = useState<string| undefined>(undefined);
     const [orderBy, setOrderBy] = useState<string| undefined>(undefined);
 
     const [testMode, setTestMode] = useState<TestMode>(TestMode.OrdinaryMode);
@@ -41,7 +41,7 @@ export function GetSolvingHistories() {
         pageSize: PAGE_SIZE,
         testId: test.id,
         searchUserName: undefined as string | undefined,
-        searchUserEmail: undefined as string | undefined,
+        searchUserTelegram: undefined as string | undefined,
         orderBy: undefined as string | undefined
     });
 
@@ -80,7 +80,7 @@ export function GetSolvingHistories() {
             ...prev,
             page: page,
             searchUserName: userName,
-            searchUserEmail: userEmail,
+            searchUserTelegram: userTelegram,
             orderBy: orderBy
         }));
     }
@@ -127,8 +127,8 @@ export function GetSolvingHistories() {
                     
                     <TextField
                         variant="outlined"
-                        placeholder="Поиск по почтовому адресу..."
-                        onChange={(e) => setUserEmail(e.target.value)}
+                        placeholder="Поиск по telegram..."
+                        onChange={(e) => setUserTelegram(e.target.value)}
                         InputProps={{
                             startAdornment: (
                                 <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>

@@ -5,7 +5,7 @@ export type SolvingHistory = {
     testId: string;
 
     uniqueUserName: string;
-    userEmail: string;
+    userTelegram: string;
     
     taskHistories: TaskHistory[]
     solvingDate: Date

@@ -3,13 +3,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useState } from "react";
 
 interface IFilterBlockInfo {
-    onFilter: (userName: string, email: string, orderBy: string) => void;
+    onFilter: (userName: string, telegram: string, orderBy: string) => void;
 }
 
 export function SolvingHistoriesFilterBlock({ onFilter }: IFilterBlockInfo) 
 {
     const [userName, setUserName] = useState("");
-    const [userEmail, setUserEmail] = useState("");
+    const [userTelegram, setUserTelegram] = useState("");
     const [orderBy, setOrderBy] = useState("");
 
     return (
@@ -27,11 +27,11 @@ export function SolvingHistoriesFilterBlock({ onFilter }: IFilterBlockInfo)
                 
                 <TextField
                     variant="outlined"
-                    placeholder="Поиск по почтовому адресу..."
-                    onChange={(e) => setUserEmail(e.target.value)}
+                    placeholder="Поиск по telegram..."
+                    onChange={(e) => setUserTelegram(e.target.value)}
                     InputProps={{
                         startAdornment: (
-                            <Button color="inherit" onClick={() => onFilter(userName, userEmail, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
+                            <Button color="inherit" onClick={() => onFilter(userName, userTelegram, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
                                 <SearchIcon />
                             </Button>
                         ),
@@ -46,7 +46,7 @@ export function SolvingHistoriesFilterBlock({ onFilter }: IFilterBlockInfo)
                     onChange={(e) => setUserName(e.target.value)}
                     InputProps={{
                         startAdornment: (
-                            <Button color="inherit" onClick={() => onFilter(userName, userEmail, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
+                            <Button color="inherit" onClick={() => onFilter(userName, userTelegram, orderBy)} variant="outlined" sx={{marginRight: "10px"}}>
                                 <SearchIcon />
                             </Button>
                         ),
@@ -65,7 +65,7 @@ export function SolvingHistoriesFilterBlock({ onFilter }: IFilterBlockInfo)
                 renderInput={(params) => <TextField {...params} label="Свойство" />}
                 onChange={(event, value) => {
                     setOrderBy(value || "");
-                    onFilter(userName, userEmail, value || "");
+                    onFilter(userName, userTelegram, value || "");
                 }}
             />
         </Box>

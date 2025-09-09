@@ -3,7 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useState } from "react";
 
 interface IFilterBlockInfo {
-    onFilter: (testName: string, testTheme: string, userEmail: string, orderBy: string) => void;
+    onFilter: (testName: string, testTheme: string, userTelegram: string, orderBy: string) => void;
 }
 
 export function GlobalFilterBlock({ onFilter }: IFilterBlockInfo) 
