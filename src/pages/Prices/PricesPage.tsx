@@ -5,9 +5,9 @@ import { toast } from "react-toastify";
 export function PricesPage() {
     const [createPayment] = useCreatePaymentMutation();
 
-    const handleCreatePayment = async (amount: number) => {
+    const handleCreatePayment = async (productId: string) => {
         try {
-            const response = await createPayment({amount: amount}).unwrap();
+            const response = await createPayment({productId: productId}).unwrap();
 
             window.open(response.result!);
         }
@@ -26,19 +26,19 @@ export function PricesPage() {
                     sx={{ justifyContent: 'space-between', alignItems: 'center' }}
                     >
                     <Typography gutterBottom variant="h5" component="div">
-                        Базовая
+                        Базовый пакет
                     </Typography>
                     <Typography gutterBottom variant="h6" component="div">
-                        190₽ / месяц
+                        190₽
                     </Typography>
                     </Stack>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        10 викторин с AI в месяц, возможность сохранять викторины других пользователей
+                        10 викторин
                     </Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ p: 2 }}>
-                    <Button onClick={() => handleCreatePayment(0)} variant="contained">
+                    <Button onClick={() => handleCreatePayment("10_generations")} variant="contained">
                         Приобрести
                     </Button>
                 </Box>
@@ -54,17 +54,16 @@ export function PricesPage() {
                         Расширенная
                     </Typography>
                     <Typography gutterBottom variant="h6" component="div">
-                        490₽ / месяц
+                        490₽
                     </Typography>
                     </Stack>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        30 викторин с AI в месяц, возможность публиковать викторины, копировать ссылки на викторины
-                        и смотреть историю прохождений
+                        30 викторин
                     </Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ p: 2 }}>
-                    <Button onClick={() => handleCreatePayment(0)} variant="contained">
+                    <Button onClick={() => handleCreatePayment("30_generations")} variant="contained">
                         Приобрести
                     </Button>
                 </Box>
@@ -80,16 +79,16 @@ export function PricesPage() {
                             Продвинутая
                         </Typography>
                         <Typography gutterBottom variant="h6" component="div">
-                            990₽ / месяц
+                            990₽
                         </Typography>
                     </Stack>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        безлимит на викторины
+                        50 викторин
                     </Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ p: 2 }}>
-                    <Button onClick={() => handleCreatePayment(0)} variant="contained">
+                    <Button onClick={() => handleCreatePayment("50_generations")} variant="contained">
                         Приобрести
                     </Button>
                 </Box>
