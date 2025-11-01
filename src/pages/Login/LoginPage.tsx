@@ -5,12 +5,14 @@ import { toast } from "react-toastify";
 import { useLoginMutation } from "../../features/accounts/api";
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
+import { getErrorMessages } from "../../shared/utils/getErrorMessages";
 
 export function LoginPage() {
     const [login, {isLoading}] = useLoginMutation();
     const dispatch = useAppDispatch();
 
     const [telegram, setTelegram] = useState("");
+    const [telegramError, setTelegramError] = useState(false);
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
 
@@ -26,6 +28,13 @@ export function LoginPage() {
 
             isValid = false;
         }
+
+        if (telegram.length < 1) {
+            setTelegramError(true);
+            toast.error("Telegram не может быть пустым");
+
+            isValid = false;
+        }
         
         if (isValid) {
             try {
@@ -35,8 +44,8 @@ export function LoginPage() {
                 navigate("/accountInfo");
             }
             catch (error: any) {
-                error.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
+                getErrorMessages(error).map(error => {
+                    toast.error(error);
                 });
             }
         }
@@ -49,6 +58,7 @@ export function LoginPage() {
                     <TextField 
                     onChange={(e) => setTelegram(e.target.value)}
                         variant="standard"
+                        error={telegramError}
                         label="Telegram"
                         fullWidth 
                     />

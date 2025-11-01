@@ -132,7 +132,14 @@ export function VerdictPage() {
         <div style={{margin: "10px", alignItems: "center", display: "flex", flexDirection: "column"}}>
             <Typography variant="h4">Викотрина пройдена!</Typography>
 
-            <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
+            <div style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: "left", 
+                width: "100%", 
+                marginTop: "10px",
+                alignItems: "stretch"
+            }}>
                 {taskHistories.map((taskHistory, index) => (
                     <VerdictTaskCard
                         key={index}

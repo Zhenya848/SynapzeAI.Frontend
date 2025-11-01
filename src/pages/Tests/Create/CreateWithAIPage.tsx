@@ -8,6 +8,7 @@ import { FileExtensions } from "../../../shared/extensions/FileExtensions";
 import { generateTestWithAI } from "../../../features/AI/GenerateTestWithAI";
 import { useCreateTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
+import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
 
 export function CreateTestWithAI() {
     const navigate = useNavigate();
@@ -131,8 +132,8 @@ export function CreateTestWithAI() {
             navigate("/tests");
         } 
         catch (error: any) {
-            error.data.responseErrors.forEach((e: { message: string }) => {
-                toast.error(e.message);
+            getErrorMessages(error).map(error => {
+                toast.error(error);
             });
         } 
         finally {

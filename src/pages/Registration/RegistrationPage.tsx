@@ -5,11 +5,13 @@ import { toast } from "react-toastify";
 import { useLoginMutation, useRegisterMutation, useVerifyUserMutation } from "../../features/accounts/api";
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
+import { getErrorMessages } from "../../shared/utils/getErrorMessages";
 
 export function RegistrationPage() {
     const [userName, setUserName] = useState("");
     const [userNameError, setUserNameError] = useState(false);
     const [telegram, setTelegram] = useState("");
+    const [telegramError, setTelegramError] = useState(false);
     const [password, setPassword] = useState("");
     const [repeatedPassword, setRepeatedPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
@@ -40,8 +42,8 @@ export function RegistrationPage() {
             catch (error: any) {
                 setCodeError(true);
 
-                error.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
+                getErrorMessages(error).map(error => {
+                    toast.error(error);
                 });
             }
         }
@@ -56,6 +58,13 @@ export function RegistrationPage() {
         if (userName.length < 1) {
             setUserNameError(true);
             toast.error("Имя пользователя не может быть пустым");
+
+            isValid = false;
+        }
+
+        if (telegram.length < 1) {
+            setTelegramError(true);
+            toast.error("Telegram не может быть пустым");
 
             isValid = false;
         }
@@ -79,10 +88,13 @@ export function RegistrationPage() {
                 setIsLoading(true);
 
                 await register({ userName: userName, telegram: telegram, password: password }).unwrap();
+                toast.info("Мы отправили код подтверждения на указанный telegram");
             }
             catch (error: any) {
-                error.data.responseErrors.forEach(e => {
-                    toast.error(e.message)
+                console.log(error);
+
+                getErrorMessages(error).map(error => {
+                    toast.error(error);
                 });
             }
             finally {
@@ -101,8 +113,8 @@ export function RegistrationPage() {
         catch (error: any) {
             console.error(error);
 
-            error.data.responseErrors.forEach(e => {
-                toast.error(e.message)
+            getErrorMessages(error).map(error => {
+                toast.error(error);
             });
         }
         finally {
@@ -125,6 +137,7 @@ export function RegistrationPage() {
                     <TextField 
                     onChange={(e) => setTelegram(e.target.value)}
                         variant="standard"
+                        error={telegramError}
                         label="Telegram"
                         fullWidth 
                     />

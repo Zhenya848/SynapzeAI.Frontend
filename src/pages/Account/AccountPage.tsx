@@ -11,6 +11,7 @@ import { logout, selectUser, setCredentials } from "../../features/accounts/auth
 import { useAppDispatch } from "../../app/store";
 import { useLogoutMutation, useRefreshMutation, useUpdateUserMutation } from "../../features/accounts/api";
 import { GetCookies } from "../../shared/helpers/api/GetCookies";
+import { getErrorMessages } from "../../shared/utils/getErrorMessages";
 
 export function AccountPage() {
     const dispatch = useAppDispatch();
@@ -69,8 +70,8 @@ export function AccountPage() {
             await refreshUser();
         }
         catch (error: any) {
-            error.data.responseErrors.forEach((e: { message: string }) => {
-                toast.error(e.message);
+            getErrorMessages(error).map(error => {
+                toast.error(error);
             });
         }
     }

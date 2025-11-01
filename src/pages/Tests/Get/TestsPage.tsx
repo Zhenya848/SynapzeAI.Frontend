@@ -132,7 +132,7 @@ export function GetTests() {
 
     const handleCopyLink = async (testId: string) => {
         try {
-            await navigator.clipboard.writeText("http://localhost:5173/tests/decide/" + testId);
+            await navigator.clipboard.writeText("https://synapzeai.ru/tests/decide/" + testId);
 
             toast.info("Ссылка на викторину скопирована!");
         } 
