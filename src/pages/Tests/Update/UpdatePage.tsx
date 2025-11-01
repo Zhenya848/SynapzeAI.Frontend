@@ -15,6 +15,7 @@ import { LimitTime } from "../../../entities/valueObjects/LimitTime";
 import { Task } from "../../../entities/task/Task";
 import { useUpdateTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
+import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
 
 export function UpdateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -167,8 +168,8 @@ export function UpdateTest() {
                 navigate("/tests");
             } 
             catch (error: any) {
-                error.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
+                getErrorMessages(error).map(error => {
+                    toast.error(error);
                 });
             }
         }
@@ -242,7 +243,12 @@ export function UpdateTest() {
                 <p style={{marginRight: "20px"}}><Button variant="contained" color="success" onClick={handleCreateTask} sx={{ color: 'white'}} startIcon={<AddIcon />}>Добавить</Button></p>
             </div>
 
-            <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left" }}>
+            <div style={{ 
+                alignItems: "stretch", 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: "left"
+            }}>
                 {testTasks.map((task, index) => (
                     <TaskCard 
                         key={index}

@@ -1,7 +1,6 @@
 import { Button, Card, CardContent, CardMedia, TextField, Typography} from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import SaveIcon from '@mui/icons-material/Save';
-import AudioFileIcon from '@mui/icons-material/AudioFile';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Test } from "../../../entities/test/Test";
@@ -10,10 +9,13 @@ import { ChangeType } from "../../../features/tasks/model/ChangeType";
 import { TagInput } from "../../../widgets/TagInput";
 import { Task } from "../../../entities/task/Task";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
+import { toast } from "react-toastify";
 
 export function UpdateTask() {
     const [taskName, setTaskName] = useState<string>("");
+    const [taskNameError, setTaskNameError] = useState(false);
     const [taskMessage, setTaskMessage] = useState<string>("");
+    const [taskMessageError, setTaskMessageError] = useState(false);
     const [taskRightAnswer, setTaskRightAnswer] = useState<string>("");
     const [taskAnswers, setTaskAnswers] = useState<string[]>();
 
@@ -65,7 +67,23 @@ export function UpdateTask() {
     };
 
     const handleConfirm = () => {
-        if (test) {
+        let isValid = true;
+
+        if (taskName.length < 1) {
+            setTaskNameError(true);
+            toast.error("Название задачи не может быть пустым");
+
+            isValid = false;
+        }
+
+        if (taskMessage.length < 1) {
+            setTaskMessageError(true);
+            toast.error("Сообщение задачи не может быть пустым");
+
+            isValid = false;
+        }
+
+        if (isValid && test) {
             const task = {
                 id: taskId,
                 taskName: taskName,
@@ -107,35 +125,9 @@ export function UpdateTask() {
     return (
         <div style={{margin: "10px"}}>
             <div style={{ display: 'flex', alignItems: "flex-start" }}>
-                <div>
-                    <Card sx={{ maxWidth: 400 }}>
-                        <CardMedia
-                            component="img"
-                            height="140"
-                            image="https://i.pinimg.com/originals/0b/ae/97/0bae97a138f2cd95c739ef87685cfc92.jpg"
-                            alt="image"
-                        />
-
-                        <Button variant="contained" disableElevation style={{ width: "100%" }}>
-                            Редактировать фото
-                        </Button>
-                    </Card>
-
-                    <Card sx={{ marginTop: "10px", maxWidth: 400 }}>
-                        <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <AudioFileIcon sx={{ fontSize: 60 }} color="primary" />
-                            <Typography variant="body1" sx={{ wordBreak: "break-word" }}></Typography>
-                        </CardContent>
-
-                        <Button variant="contained" color="secondary" disableElevation style={{ width: "100%", color: 'white' }}>
-                            Редактировать аудио
-                        </Button>
-                    </Card>
-                </div>
-
                 <div style={{width: "100%", marginLeft: "10px"}}>
-                    <TextField id="outlined-basic" label="Название" value={taskName} onChange={(e) => setTaskName(e.target.value)} variant="outlined" style={{ width: "100%" }} />
-                    <TextField id="outlined-basic" label="Сообщение" value={taskMessage} onChange={(e) => setTaskMessage(e.target.value)}  variant="outlined" style={{ width: "100%", marginTop: "20px" }} />
+                    <TextField id="outlined-basic" label="Название" value={taskName} error={taskNameError} onChange={(e) => setTaskName(e.target.value)} variant="outlined" style={{ width: "100%" }} />
+                    <TextField id="outlined-basic" label="Сообщение" value={taskMessage} error={taskMessageError} onChange={(e) => setTaskMessage(e.target.value)}  variant="outlined" style={{ width: "100%", marginTop: "20px" }} />
                     <TextField id="outlined-basic" label="Правильный ответ" value={taskRightAnswer} onChange={(e) => setTaskRightAnswer(e.target.value)}  variant="outlined" style={{ width: "100%", marginTop: "20px" }} />
 
                     <Typography variant="h6" style={{ marginTop: "20px" }}>Варианты ответа для пользователя</Typography>

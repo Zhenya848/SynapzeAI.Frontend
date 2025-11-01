@@ -28,13 +28,27 @@ export async function generateTestWithAI(
             `Сложность: ${Difficulty === null ? "на выбор" : `${Difficulty}%`}, ` +
             `поле limitTime: ${(Seconds !== null && Minutes !== null) || IsTimeLimited ? "добавлять" : "не добавлять"}, ` +
             `${(Seconds !== null && Minutes !== null) ? `секунд: ${Seconds}, минут: ${Minutes}, ` : ""}` +
-            `количество задач: ${TasksCount !== null ? TasksCount : "не ограничено"}, ` +
+            `количество задач для теста: РОВНО ${TasksCount !== null ? TasksCount : "не ограничено"}, больше или меньше нельзя!!! ` +
             `Процент открытых задач: ${PercentOfOpenTasks}. ` +
             `Задачи не обязательно должны иметь answers или rightAnswer, если это задачи открытого типа. Спецсимволы не используй.`;
 
+        console.log(request);
+
         const response = await sendToAI(request, FilePath ?? undefined);
+
+        if (response.ok === false) {
+            console.error(response);
+            toast.error("Не удалось сгенерировать викторину");
+
+            return;
+        }
+
+        console.log(response);
+
         const data: AIResponse = await response.json();
         const message = data.choices ? data.choices[0].message.content : "none";
+
+        console.log(message);
 
         const test = tryGetTypeFromString(message, false) as Test;
 
@@ -42,7 +56,5 @@ export async function generateTestWithAI(
     }
     catch (error) {
         console.error(error);
-
-        toast.error("Не удалось сгенерировать викторину");
     }
 }

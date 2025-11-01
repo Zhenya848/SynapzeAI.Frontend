@@ -195,7 +195,7 @@ export function GetSolvingHistories() {
                     ))
                 )
                 : 
-                <div style={{ alignItems: "flex-start", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
+                <div style={{ alignItems: "stretch", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
                     {test.tasks.map((task, index) => (
                         <VerdictIntervalTaskCard
                             key={index}

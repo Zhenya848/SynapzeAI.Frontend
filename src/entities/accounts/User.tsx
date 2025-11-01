@@ -3,4 +3,5 @@ export type User = {
     telegram: string;
     userName: string;
     uniqueUserName: string;
+    balance: number;
 }

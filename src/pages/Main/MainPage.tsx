@@ -11,9 +11,13 @@ import TelegramIcon from '@mui/icons-material/Telegram';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import VkIcon from '@mui/icons-material/ContactSupport';
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export function MainPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+  })
 
   return (
     <div style={{margin: "20px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 15}}>
