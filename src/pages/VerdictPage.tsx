@@ -10,7 +10,7 @@ import { Test } from "../entities/test/Test";
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import { explainTasks } from "../features/AI/ExplainTasks";
 import { VerdictTaskCard } from "../entities/task/components/VerdictTaskCard";
-import { useCreateSolvingHistoryMutation, useUpdateAIMessagesForTasksMutation } from "../features/solvingHistories/api";
+import { useCreateSolvingHistoryMutation, useUpdateSolvingHistoryMutation } from "../features/solvingHistories/api";
 import { GetCookies } from "../shared/helpers/api/GetCookies";
 import { useSelector } from "react-redux";
 import { selectUser } from "../features/accounts/auth.slice";
@@ -32,7 +32,7 @@ export function VerdictPage() {
     const user = useSelector(selectUser);
 
     const [createSolvingHistory] = useCreateSolvingHistoryMutation();
-    const [updateAIMessagesForTasks] = useUpdateAIMessagesForTasksMutation();
+    const [updateSolvingHistory] = useUpdateSolvingHistoryMutation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,8 +49,7 @@ export function VerdictPage() {
                     taskName: task.taskName,
                     taskMessage: task.taskMessage,
                     rightAnswer: task.rightAnswer,
-                    userAnswer: answerHistory.find(i => i.taskIndex === index)?.answer ?? "none",
-                    messageAI: ""
+                    userAnswer: answerHistory.find(i => i.taskIndex === index)?.answer ?? "none"
                 }))
                 
                 const response = await createSolvingHistory({ 
@@ -75,7 +74,7 @@ export function VerdictPage() {
         };
 
         fetchData();
-    }, [answerHistory, createSolvingHistory, expiredTime, navigate, test]);
+    }, [answerHistory, createSolvingHistory, expiredTime, isRefreshToken, navigate, test, user]);
 
     if (isLoading) {
         return (
@@ -96,7 +95,7 @@ export function VerdictPage() {
         navigate("/tests/decide", { state: { testData } });
     }
 
-    const handleExplain = async () => {
+    const handleUpdate = async () => {
         try {
             setIsLoading(true);
 
@@ -104,18 +103,26 @@ export function VerdictPage() {
                 return;
 
             const tasksToExplain = taskHistories.filter(t => !t.rightAnswer || t.userAnswer !== t.rightAnswer)
-            const aiMessagesForTasks = await explainTasks(tasksToExplain);
+            const tasks = await explainTasks(tasksToExplain);
 
-            if (!aiMessagesForTasks)
+            if (!tasks)
                 return;
 
-            await updateAIMessagesForTasks({
+            await updateSolvingHistory({
                 solvingHistoryId: solvingHistoryId, 
-                aiMessagesForTasks: aiMessagesForTasks 
+                tasks: tasks
             });
 
             setTaskHistories(prev => {
-                return prev.map((item, idx) => ({ ...item, messageAI: aiMessagesForTasks.find(v => v.taskSerialNumber === item.serialNumber)?.aiMessage ?? ""}));
+                return prev.map((item, idx) => {
+                    const task = tasks.find(v => v.serialNumber === item.serialNumber);
+
+                    return {
+                        ...item, 
+                        message: task?.message ?? "", 
+                        points: task?.points
+                    }
+                })
             });
         }
         catch (error: any) {
@@ -148,14 +155,14 @@ export function VerdictPage() {
                         userAnswer={taskHistory.userAnswer}
                         rightAnswer={taskHistory.rightAnswer ?? ""}
                         answers={taskHistory.answers}
-                        comment={taskHistory.messageAI}>
+                        comment={taskHistory.message}>
                     </VerdictTaskCard>
                 ))}
             </div>
 
             <div style={{display: 'flex', width: "100%", marginTop: "10px", gap: 10}}>
                 <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-                <Button variant="contained" color="secondary" onClick={handleExplain} sx={{ width: "100%", color: 'white'}} startIcon={<PsychologyIcon />}>Анализ с AI</Button>
+                <Button variant="contained" color="secondary" onClick={handleUpdate} sx={{ width: "100%", color: 'white'}} startIcon={<PsychologyIcon />}>Анализ с AI</Button>
                 <Button variant="contained" color="primary" onClick={handleRetry} sx={{ width: "100%", color: 'white'}} startIcon={<ReplayIcon />}>Заново</Button>
             </div>
         </div>

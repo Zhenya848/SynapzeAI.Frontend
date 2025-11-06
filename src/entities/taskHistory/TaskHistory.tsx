@@ -7,5 +7,6 @@ export type TaskHistory = {
     answers?: string[]
     userAnswer: string
 
-    messageAI?: string
+    message?: string
+    points?: number
 }
