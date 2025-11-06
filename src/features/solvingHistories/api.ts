@@ -1,4 +1,4 @@
-import { AIMessageForTask } from "../../entities/solvingHistory/api/AIMessageForTask";
+import { UpdateTaskHistoryDto } from "../../entities/solvingHistory/api/UpdateTaskHistoryDto";
 import { SolvingHistory } from "../../entities/solvingHistory/SolvingHistory";
 import { TaskHistory } from "../../entities/taskHistory/TaskHistory";
 import { baseApi, TESTS_SERVICE_API_URL } from "../../shared/api";
@@ -24,10 +24,10 @@ export const solvingHistoriesApi = baseApi.injectEndpoints({
             })
         }),
 
-        updateAIMessagesForTasks: builder.mutation<void, { solvingHistoryId: string, aiMessagesForTasks: AIMessageForTask[] }>({
-            query: ({ solvingHistoryId, aiMessagesForTasks }) => ({
+        updateSolvingHistory: builder.mutation<void, { solvingHistoryId: string, tasks: UpdateTaskHistoryDto[] }>({
+            query: ({ solvingHistoryId, tasks }) => ({
                 url: TESTS_SERVICE_API_URL + `history/update/${solvingHistoryId}`,
-                body: { aiMessagesForTasks },
+                body: { tasks },
                 method: "PUT"
             }),
             invalidatesTags: ["Tests"]
@@ -38,5 +38,5 @@ export const solvingHistoriesApi = baseApi.injectEndpoints({
 export const { 
     useCreateSolvingHistoryMutation,
     useGetSolvingHistoriesWithPaginationQuery,
-    useUpdateAIMessagesForTasksMutation 
+    useUpdateSolvingHistoryMutation 
 } = solvingHistoriesApi;

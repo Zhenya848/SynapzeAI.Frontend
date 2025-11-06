@@ -1,4 +1,4 @@
-import { Box, Card, CardMedia, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { CardInfo } from "../../../widgets/CardInfo";
 
 interface IVerdictTaskCardInfo {
@@ -11,13 +11,14 @@ interface IVerdictTaskCardInfo {
     answers?: string[]
 
     comment?: string
+    points?: number
 }
 
 function getBgColor(isRightAnswer: boolean | string | undefined) {
     return isRightAnswer != undefined ? (isRightAnswer ? "#17a023" : "#8b171c") : "#616161"
 }
 
-export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer, answers, comment}: IVerdictTaskCardInfo) {
+export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer, answers, comment, points}: IVerdictTaskCardInfo) {
     const isRightAnswer = rightAnswer && userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase()
 
     return (
@@ -42,6 +43,7 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                 <CardInfo title="Ответ пользователя" value={userAnswer} />
 
                 {comment && <CardInfo title="Комментарий к задаче" value={comment} />}
+                {points && <CardInfo title="Правильность ответа" value={points.toString() + " / 100"} />}
             </Box>
         </Box>
     )
