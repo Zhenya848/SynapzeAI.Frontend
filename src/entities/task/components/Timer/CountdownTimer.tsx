@@ -5,15 +5,16 @@ import { Typography } from "@mui/material";
 interface ICountdownTimerInfo {
     seconds: number;
     minutes: number;
-    onTimeOut?: any
+    onTimeOut?: () => void;
 }
 
-export const CountdownTimer = forwardRef<CountdownTimerHandle, ICountdownTimerInfo>(({ seconds, minutes, onTimeOut } : ICountdownTimerInfo, ref) => {
+export const CountdownTimer = forwardRef<CountdownTimerHandle, ICountdownTimerInfo>(({ seconds, minutes, onTimeOut } 
+  : ICountdownTimerInfo, ref) => {
   const [timeLeft, setTimeLeft] = useState(seconds + minutes * 60);
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    let interval = 0;
+    let interval: NodeJS.Timeout | undefined = undefined;
     
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {

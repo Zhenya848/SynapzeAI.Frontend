@@ -63,7 +63,7 @@ export function SolvingHistoriesFilterBlock({ onFilter }: IFilterBlockInfo)
                 options={["По успешности прохождения (сверху вниз)", "По успешности прохождения (снизу вверх)", "Время решения"]}
                 sx={{ width: '450p' }}
                 renderInput={(params) => <TextField {...params} label="Свойство" />}
-                onChange={(event, value) => {
+                onChange={(_event, value) => {
                     setOrderBy(value || "");
                     onFilter(userName, userTelegram, value || "");
                 }}

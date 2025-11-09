@@ -10,16 +10,40 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 
 interface ITestCardInfo {
-    test: Test,
-    onDelete?: any,
-    onUpdate?: any,
-    onStartDecide?: any,
-    onShowSolvingHistories?: any,
-    onCopyLink?: any,
-    onSavingTest?: any
+    test: Test;
+    onDelete?: (testId: string) => void;
+    onUpdate?: (test: Test) => void;
+    onStartDecide?: (testId: string) => void;
+    onShowSolvingHistories?: (testId: string) => void;
+    onCopyLink?: (testId: string) => void;
+    onSavingTest?: (testId: string) => void;
 }
 
 export function TestCard({test, onDelete, onUpdate, onStartDecide, onShowSolvingHistories, onCopyLink, onSavingTest}: ITestCardInfo) {
+    const handleStartDecide = () => {
+        onStartDecide?.(test.id);
+    };
+
+    const handleUpdate = () => {
+        onUpdate?.(test);
+    };
+
+    const handleShowSolvingHistories = () => {
+        onShowSolvingHistories?.(test.id);
+    };
+
+    const handleDelete = () => {
+        onDelete?.(test.id);
+    };
+
+    const handleCopyLink = () => {
+        onCopyLink?.(test.id);
+    };
+
+    const handleSavingTest = () => {
+        onSavingTest?.(test.id);
+    };
+
     return (
         <Box 
             component="section" 
@@ -52,7 +76,13 @@ export function TestCard({test, onDelete, onUpdate, onStartDecide, onShowSolving
                 </div>
 
                 <div style={{boxSizing: 'border-box', width: "100%"}}>
-                    <CardInfo title="Огранич. по времени" value={(test.limitTime ? `Секунд: ${test.limitTime?.seconds},${'\u00A0'.repeat(2)}Минут: ${test.limitTime?.minutes}` : "нет")} />
+                    <CardInfo 
+                        title="Огранич. по времени" 
+                        value={(test.limitTime 
+                            ? `Секунд: ${test.limitTime?.seconds},${'\u00A0'.repeat(2)}Минут: ${test.limitTime?.minutes}` 
+                            : "нет")} 
+                    />
+
                     <div style={{marginTop: "20px"}}><CardInfo title="Опубликовано" value={(test.isPublished ? "Да" : "Нет")} /></div>
                 </div>
             </Box>
@@ -69,25 +99,63 @@ export function TestCard({test, onDelete, onUpdate, onStartDecide, onShowSolving
                 }}
             >
                 <div style={{maxWidth:"250px", width: "100%", boxSizing: 'border-box'}}>
-                    <p style={{textAlign: 'center'}}><Button variant="contained" color="success" onClick={() => onStartDecide(test.id)} sx={{ color: 'white'}} startIcon={<PlayArrowIcon />}>Решать</Button></p>
-                    <p style={{marginTop: "20px", textAlign: 'center'}}><Button onClick={() => onUpdate(test)} variant="outlined" startIcon={<BuildIcon />}>Редакт.</Button></p>
+                    <p style={{textAlign: 'center'}}>
+                        <Button 
+                            variant="contained" 
+                            color="success" 
+                            onClick={handleStartDecide} 
+                            sx={{ color: 'white'}} 
+                            startIcon={<PlayArrowIcon />}>
+                                Решать
+                        </Button>
+                    </p>
+
+                    <p style={{marginTop: "20px", textAlign: 'center'}}>
+                        <Button 
+                            onClick={handleUpdate} 
+                            variant="outlined" 
+                            startIcon={<BuildIcon />}>
+                                Редакт.
+                        </Button>
+                    </p>
                 </div>
 
                 <div style={{maxWidth:"250px", width: "100%", boxSizing: 'border-box'}}>
-                    <p style={{textAlign: 'center'}}><Button onClick={() => onShowSolvingHistories(test.id)} variant="contained" color="warning" sx={{ color: 'white'}} startIcon={<HistoryIcon />}>История</Button></p>
-                    <p style={{marginTop: "20px", textAlign: 'center'}}><Button onClick={() => onDelete(test.id)} variant="contained" color="error" startIcon={<DeleteIcon />}>Удалить</Button></p>
+                    <p style={{textAlign: 'center'}}>
+                        <Button 
+                            onClick={handleShowSolvingHistories} 
+                            variant="contained" 
+                            color="warning" 
+                            sx={{ color: 'white'}}
+                            startIcon={<HistoryIcon />}>
+                                История
+                        </Button>
+                    </p>
+
+                    <p style={{marginTop: "20px", textAlign: 'center'}}>
+                        <Button onClick={handleDelete} 
+                            variant="contained" 
+                            color="error" 
+                            startIcon={<DeleteIcon />}>
+                                Удалить
+                        </Button>
+                    </p>
                 </div>
 
                 <div style={{boxSizing: 'border-box', display: "flex", flexDirection: "column", gap: 20}}>
+                    {
+                    test.tasks.length > 0
+                    && 
                     <Button 
-                        onClick={() => onCopyLink(test.id)} 
+                        onClick={handleCopyLink} 
                         color="inherit"
                     >
-                        {test.tasks.length > 0 && <LinkIcon style={{ fontSize: 25 }} />}
+                        <LinkIcon style={{ fontSize: 25 }} />
                     </Button>
+                    }
 
                     <Button 
-                        onClick={() => onSavingTest(test.id)} 
+                        onClick={handleSavingTest} 
                         color="inherit"
                     >
                         {test.isSaved ? <BookmarkAddedIcon style={{ fontSize: 25 }} /> : <BookmarkBorderIcon style={{ fontSize: 25 }} />}

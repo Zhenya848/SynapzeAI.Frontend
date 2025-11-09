@@ -28,11 +28,9 @@ export async function generateTestWithAI(
             `Сложность: ${Difficulty === null ? "на выбор" : `${Difficulty}%`}, ` +
             `поле limitTime: ${(Seconds !== null && Minutes !== null) || IsTimeLimited ? "добавлять" : "не добавлять"}, ` +
             `${(Seconds !== null && Minutes !== null) ? `секунд: ${Seconds}, минут: ${Minutes}, ` : ""}` +
-            `количество задач для теста: РОВНО ${TasksCount !== null ? TasksCount : "не ограничено"}, больше или меньше нельзя!!! ` +
-            `Процент открытых задач: ${PercentOfOpenTasks}. ` +
-            `Задачи не обязательно должны иметь answers или rightAnswer, если это задачи открытого типа. Спецсимволы не используй.`;
-
-        console.log(request);
+            `количество задач для теста: ${TasksCount !== null ? TasksCount : "не ограничено"}. ` +
+            `Процент открытых задач по отношению к задачам на выбор ответа: ${PercentOfOpenTasks}. ` +
+            `Задачи не должны иметь answers и rightAnswer, если это задачи открытого типа. Спецсимволы не используй.`;
 
         const response = await sendToAI(request, FilePath ?? undefined);
 
@@ -43,12 +41,8 @@ export async function generateTestWithAI(
             return;
         }
 
-        console.log(response);
-
         const data: AIResponse = await response.json();
         const message = data.choices ? data.choices[0].message.content : "none";
-
-        console.log(message);
 
         const test = tryGetTypeFromString(message, false) as Test;
 

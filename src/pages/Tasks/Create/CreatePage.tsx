@@ -103,19 +103,60 @@ export function CreateTask() {
         <div style={{margin: "10px"}}>
             <div style={{ display: 'flex', alignItems: "flex-start" }}>
                 <div style={{width: "100%", marginLeft: "10px"}}>
-                    <TextField id="outlined-basic" label="Название" onChange={(e) => setTaskName(e.target.value)} error={taskNameError} variant="outlined" style={{ width: "100%" }} />
-                    <TextField id="outlined-basic" label="Сообщение" onChange={(e) => setTaskMessage(e.target.value)} error={taskMessageError}  variant="outlined" style={{ width: "100%", marginTop: "20px" }} />
-                    <TextField id="outlined-basic" label="Правильный ответ" onChange={(e) => setTaskRightAnswer(e.target.value)}  variant="outlined" style={{ width: "100%", marginTop: "20px" }} />
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Название" 
+                        onChange={(e) => setTaskName(e.target.value)} 
+                        error={taskNameError} 
+                        variant="outlined" 
+                        style={{ width: "100%" }} 
+                    />
+
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Сообщение" 
+                        onChange={(e) => setTaskMessage(e.target.value)} 
+                        error={taskMessageError} 
+                        variant="outlined" 
+                        style={{ width: "100%", marginTop: "20px" }} 
+                    />
+
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Правильный ответ" 
+                        onChange={(e) => setTaskRightAnswer(e.target.value)} 
+                        variant="outlined" 
+                        style={{ width: "100%", marginTop: "20px" }} 
+                    />
 
                     <Typography variant="h6" style={{ marginTop: "20px" }}>Варианты ответа для пользователя</Typography>
 
-                    <TagInput label="Варианты ответа" placeholderText="Введите варианты ответа, которые может выбрать пользователь" onChange={handleTagsChange}></TagInput>
+                    <TagInput 
+                        label="Варианты ответа" 
+                        placeholderText="Введите варианты ответа, которые может выбрать пользователь" 
+                        onChange={handleTagsChange}>
+                    </TagInput>
                 </div>
             </div>
 
             <div style={{display: 'flex', height: '46vh', alignItems: "flex-end", justifyItems: "flex-end"}}>
-                <Button variant="contained" color="success" onClick={handleConfirm} sx={{ width: "90%", color: 'white'}} startIcon={<CheckIcon />}>Создать</Button>
-                <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "90%", color: 'white', marginLeft: "20px"}} startIcon={<ClearIcon />}>Отмена</Button>
+                <Button 
+                    variant="contained" 
+                    color="success" 
+                    onClick={handleConfirm} 
+                    sx={{ width: "90%", color: 'white'}} 
+                    startIcon={<CheckIcon />}>
+                        Создать
+                </Button>
+
+                <Button 
+                    variant="contained" 
+                    color="error" 
+                    onClick={handleCancel} 
+                    sx={{ width: "90%", color: 'white', marginLeft: "20px"}} 
+                    startIcon={<ClearIcon />}>
+                        Отмена
+                </Button>
             </div>
         </div>
     )

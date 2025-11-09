@@ -42,7 +42,7 @@ export function FilterBlock({ onSort, onSearch }: IFilterBlockInfo)
                 options={["Название", "Время прохождения", "Тема"]}
                 sx={{ width: '450p' }}
                 renderInput={(params) => <TextField {...params} label="Свойство" />}
-                onChange={(event, value) => onSort(value || "")}
+                onChange={(_event, value) => onSort(value || "")}
             />
         </Box>
     );

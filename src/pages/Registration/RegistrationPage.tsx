@@ -6,6 +6,8 @@ import { useLoginMutation, useRegisterMutation, useVerifyUserMutation } from "..
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
 import { getErrorMessages } from "../../shared/utils/getErrorMessages";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 
 export function RegistrationPage() {
     const [userName, setUserName] = useState("");
@@ -39,10 +41,12 @@ export function RegistrationPage() {
                     await handleLogin();
                 }
             }
-            catch (error: any) {
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
                 setCodeError(true);
 
-                getErrorMessages(error).map(error => {
+                getErrorMessages(rtkError).map(error => {
                     toast.error(error);
                 });
             }
@@ -90,10 +94,10 @@ export function RegistrationPage() {
                 await register({ userName: userName, telegram: telegram, password: password }).unwrap();
                 toast.info("Мы отправили код подтверждения на указанный telegram");
             }
-            catch (error: any) {
-                console.log(error);
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
 
-                getErrorMessages(error).map(error => {
+                getErrorMessages(rtkError).map(error => {
                     toast.error(error);
                 });
             }
@@ -110,10 +114,10 @@ export function RegistrationPage() {
 
             navigate("/accountInfo");
         }
-        catch (error: any) {
-            console.error(error);
+        catch (error: unknown) {
+            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
 
-            getErrorMessages(error).map(error => {
+            getErrorMessages(rtkError).map(error => {
                 toast.error(error);
             });
         }
@@ -162,9 +166,14 @@ export function RegistrationPage() {
 
                 <div style={{display: "flex", gap: 5, marginTop: "10px"}}>
                     <Typography style={{ color: "grey" }}>Шаг1. Откройте </Typography>
-                    <Link to="https://t.me/synapze_ai_bot" style={{ textDecoration: 'underline', color: "steelblue" }}>
+                    <a 
+                        href="https://t.me/synapze_ai_bot" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'underline', color: "steelblue" }}
+                    >
                         бота
-                    </Link>
+                    </a>
                     <Typography style={{ color: "grey" }}>и введите любое сообщение</Typography>
                 </div>
 

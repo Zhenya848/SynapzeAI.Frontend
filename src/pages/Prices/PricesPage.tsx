@@ -30,7 +30,7 @@ export function PricesPage() {
             <Typography variant="h4">Тарифы пакетов</Typography>
 
             <div style={{display: "flex", gap: 100, marginTop: "50px", width: "100%", flexWrap: 'wrap', justifyContent: "center"}}>
-                {PricingPlans.map((plan, index) => (
+                {PricingPlans.map((plan) => (
                     <Card variant="outlined" sx={{ width: 276 }}>
                         <Box sx={{ p: 2 }}>
                             <Stack

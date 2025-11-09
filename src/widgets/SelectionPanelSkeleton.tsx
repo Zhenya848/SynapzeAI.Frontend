@@ -27,12 +27,12 @@ const LargeDarkDialog = styled(Dialog)(({ theme }) => ({
 
 type Props = {
     children: React.ReactNode;
-    onOpen: any;
-    onClose: any;
+    isOpen: boolean;
+    onClose: () => void;
     dialogTitle: string
 }
 
-export const SelectionPanelSkeleton = ({ children, onOpen, onClose, dialogTitle }: Props) => {
+export const SelectionPanelSkeleton = ({ children, isOpen: onOpen, onClose, dialogTitle }: Props) => {
   return (
     <div>
       <LargeDarkDialog open={onOpen} onClose={onClose}>

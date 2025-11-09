@@ -7,7 +7,7 @@ export const Stopwatch = forwardRef<StopwatchHandle>((_, ref) => {
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    let interval = 0;
+    let interval: NodeJS.Timeout | undefined = undefined;
     
     if (isActive) {
       interval = setInterval(() => {

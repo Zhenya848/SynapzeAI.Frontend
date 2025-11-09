@@ -1,12 +1,14 @@
 export async function sendToAI(request: string, filePath?: string) { 
+    const apiKey = import.meta.env.VITE_OPENROUTER_AI_API_KEY
+
     return await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-            Authorization: `Bearer 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`,
+            Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-lite',
+            model: 'google/gemini-2.5-flash',
             messages: [
                 {
                     role: 'user',

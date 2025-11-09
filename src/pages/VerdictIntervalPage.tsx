@@ -8,6 +8,9 @@ import { useEffect } from "react";
 import { UpdateTaskStatisticDto } from "../entities/taskStatistic/api/UpdateTaskStatisticDto";
 import { toast } from "react-toastify";
 import { useUpdateTasksStatisticsMutation } from "../features/tests/api";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { getErrorMessages } from "../shared/utils/getErrorMessages";
 
 export function VerdictIntervalPage() {
     const navigate = useNavigate();
@@ -36,9 +39,11 @@ export function VerdictIntervalPage() {
 
                 await updateTasksStatistics({ tasks: tasks }).unwrap();
             } 
-            catch (error: any) {
-                error.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+                getErrorMessages(rtkError).map(error => {
+                    toast.error(error);
                 });
             }
         };

@@ -13,6 +13,8 @@ import { Task } from "../../../entities/task/Task";
 import { useCreateTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 
 export function CreateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -62,7 +64,9 @@ export function CreateTest() {
         { 
             testName: testName, 
             theme: testTheme, 
-            limitTime: (testSeconds || testMinutes ? { seconds: Number.parseInt(testSeconds ?? 0), minutes: Number.parseInt(testMinutes ?? 0) } as LimitTime : null), 
+            limitTime: (testSeconds || testMinutes 
+                ? { seconds: Number.parseInt(testSeconds ?? 0), minutes: Number.parseInt(testMinutes ?? 0) } as LimitTime 
+                : null), 
             isPublished: isPublished,
             tasks: testTasks
         } as Test
@@ -132,8 +136,10 @@ export function CreateTest() {
 
             navigate("/tests");
         }
-        catch (error: any) {
-            getErrorMessages(error).map(error => {
+        catch (error: unknown) {
+            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+            getErrorMessages(rtkError).map(error => {
                 toast.error(error);
             });
         }
@@ -193,7 +199,8 @@ export function CreateTest() {
 
                     <FormControlLabel
                         value="end"
-                        control={<Switch color="primary"checked={isPublished} name="loading" onChange={() => handleSwitchIsPublished(isPublished === false)} />}
+                        control={<Switch color="primary"checked={isPublished} name="loading" onChange={() => 
+                            handleSwitchIsPublished(isPublished === false)} />}
                         label="Публичный доступ"
                         labelPlacement="end"
                         sx={{marginTop: "20px"}}
@@ -203,7 +210,17 @@ export function CreateTest() {
 
             <div style={{ display: "flex", marginTop: "40px"}}>
                 <Typography variant="h5" style={{ marginLeft: "20px", width: "100%" }}>Задачи</Typography>
-                <p style={{marginRight: "20px"}}><Button variant="contained" color="success" onClick={handleCreateTask} sx={{ color: 'white'}} startIcon={<AddIcon />}>Добавить</Button></p>
+
+                <p style={{marginRight: "20px"}}>
+                    <Button 
+                        variant="contained" 
+                        color="success" 
+                        onClick={handleCreateTask} 
+                        sx={{ color: 'white'}} 
+                        startIcon={<AddIcon />}>
+                            Добавить
+                    </Button>
+                </p>
             </div>
 
             <div style={{ alignItems: "stretch", display: 'flex', flexWrap: 'wrap', justifyContent: "left" }}>
@@ -222,8 +239,24 @@ export function CreateTest() {
             </div>
 
             <div style={{ display: "flex", margin: "40px", justifyContent: "center"}}>
-                <Button variant="contained" color="success" onClick={handleCreateTest} sx={{ width: "90%", color: 'white'}} disabled={isLoading} startIcon={<CheckIcon />}>Создать</Button>
-                <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "90%", color: 'white', marginLeft: "20px"}} startIcon={<ClearIcon />}>Отмена</Button>
+                <Button 
+                    variant="contained" 
+                    color="success" 
+                    onClick={handleCreateTest} 
+                    sx={{ width: "90%", color: 'white'}} 
+                    disabled={isLoading} 
+                    startIcon={<CheckIcon />}>
+                        Создать
+                </Button>
+
+                <Button 
+                    variant="contained" 
+                    color="error" 
+                    onClick={handleCancel} 
+                    sx={{ width: "90%", color: 'white', marginLeft: "20px"}} 
+                    startIcon={<ClearIcon />}>
+                        Отмена
+                </Button>
             </div> 
         </div>
     )

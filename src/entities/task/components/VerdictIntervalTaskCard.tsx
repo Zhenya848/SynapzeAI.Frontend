@@ -18,7 +18,8 @@ interface IVerdictTaskCardInfo {
     answers?: string[]
 }
 
-export function VerdictIntervalTaskCard({nameCardInfo, message, taskStatistic, progressValue: progressValue, rightAnswer, answers}: IVerdictTaskCardInfo) {
+export function VerdictIntervalTaskCard({nameCardInfo, message, taskStatistic, progressValue: progressValue, rightAnswer, answers}
+    : IVerdictTaskCardInfo) {
     return (
         <Box sx={{
             p: 1,
@@ -42,7 +43,11 @@ export function VerdictIntervalTaskCard({nameCardInfo, message, taskStatistic, p
                 <CardInfo title="Последнее время решения" value={taskStatistic ? formatCustomDate(taskStatistic.lastReviewTime) : 'none'} />
                 <CardInfo title="Верных ответов: " value={taskStatistic?.rightAnswersCount.toString() ?? '0'} />
                 <CardInfo title="Неверных ответов: " value={taskStatistic?.errorsCount.toString() ?? '0'} />
-                <CardInfo title="Среднее время решения" value={taskStatistic ? (Math.round(taskStatistic.avgTimeSolvingSec * 10) / 10).toString() + " сек." : "0 сек."}/>
+
+                <CardInfo 
+                    title="Среднее время решения" 
+                    value={taskStatistic ? (Math.round(taskStatistic.avgTimeSolvingSec * 10) / 10).toString() + " сек." : "0 сек."}
+                />
             </Box>
 
             <div style={fillStyle(progressValue)} />

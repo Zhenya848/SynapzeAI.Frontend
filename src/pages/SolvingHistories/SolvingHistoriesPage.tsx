@@ -164,7 +164,7 @@ export function GetSolvingHistories() {
                     options={["По успешности прохождения (сверху вниз)", "По успешности прохождения (снизу вверх)", "Время решения"]}
                     sx={{ width: '450p' }}
                     renderInput={(params) => <TextField {...params} label="Свойство" />}
-                    onChange={(event, value) => {
+                    onChange={(_event, value) => {
                         setOrderBy(value || "");
                     }}
                     disabled={isFetching}
@@ -172,7 +172,7 @@ export function GetSolvingHistories() {
             </Box>
 
             <Pagination 
-                onChange={(event, value) => setPage(value)} 
+                onChange={(_event, value) => setPage(value)} 
                 count={Math.ceil((solvingHistoriesData?.result?.totalCount ?? 1) / PAGE_SIZE)}
                 variant="outlined" 
                 color="primary" 
@@ -195,18 +195,25 @@ export function GetSolvingHistories() {
                     ))
                 )
                 : 
-                <div style={{ alignItems: "stretch", display: 'flex', flexWrap: 'wrap', justifyContent: "left", width: "100%", marginTop: "10px" }}>
-                    {test.tasks.map((task, index) => (
-                        <VerdictIntervalTaskCard
-                            key={index}
-                            nameCardInfo={task.taskName}
-                            message={task.taskMessage}
-                            taskStatistic={task.taskStatistic}
-                            progressValue={1 - calculatePriorityNumber(task.taskStatistic)}
-                            rightAnswer={task.rightAnswer ?? ""}
-                            answers={task.answers}>
-                        </VerdictIntervalTaskCard>
-                    ))}
+                <div style={{ 
+                    alignItems: "stretch", 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    justifyContent: "left", 
+                    width: "100%", 
+                    marginTop: "10px" 
+                }}>
+                        {test.tasks.map((task, index) => (
+                            <VerdictIntervalTaskCard
+                                key={index}
+                                nameCardInfo={task.taskName}
+                                message={task.taskMessage}
+                                taskStatistic={task.taskStatistic}
+                                progressValue={1 - calculatePriorityNumber(task.taskStatistic)}
+                                rightAnswer={task.rightAnswer ?? ""}
+                                answers={task.answers}>
+                            </VerdictIntervalTaskCard>
+                        ))}
                 </div>}
             </div>
         </div>

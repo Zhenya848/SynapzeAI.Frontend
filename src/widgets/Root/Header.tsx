@@ -2,24 +2,9 @@ import { AppBar, Chip } from '@mui/material';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../features/accounts/auth.slice';
-import { useEffect, useState } from 'react';
 import { MenuList } from './MenuList';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
-
-function useScreenSize() {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 650);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 650);
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return isMobile;
-}
+import { useScreenSize } from '../../shared/helpers/useScreenSize';
 
 export function Header() {
     const user = useSelector(selectUser);

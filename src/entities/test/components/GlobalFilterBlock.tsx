@@ -84,7 +84,7 @@ export function GlobalFilterBlock({ onFilter }: IFilterBlockInfo)
                 options={["Название", "Тема"]}
                 sx={{ width: '450p' }}
                 renderInput={(params) => <TextField {...params} label="Свойство" />}
-                onChange={(event, value) => {
+                onChange={(_event, value) => {
                     setOrderBy(value || "");
                     onFilter(testName, testTheme, userName, value ?? "");
                 }}

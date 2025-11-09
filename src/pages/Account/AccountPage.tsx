@@ -12,6 +12,8 @@ import { useAppDispatch } from "../../app/store";
 import { useLogoutMutation, useRefreshMutation, useUpdateUserMutation } from "../../features/accounts/api";
 import { GetCookies } from "../../shared/helpers/api/GetCookies";
 import { getErrorMessages } from "../../shared/utils/getErrorMessages";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 
 export function AccountPage() {
     const dispatch = useAppDispatch();
@@ -63,21 +65,28 @@ export function AccountPage() {
     const handleUpdateUserDataDialogClose = () => setIsUpdateUserDataDialogOpen(false);
     const handleUpdateUserDataDialogOpen = () => setIsUpdateUserDataDialogOpen(true);
 
-    const handleOptionUpdateUserDataDialogSelect = async () => {
+    const handleOptionUpdateUserDataDialogSelect = async (): Promise<void> => {
         try {
             await updateUser({ userId: user.id, userName: newUserName }).unwrap();
-
             await refreshUser();
-        }
-        catch (error: any) {
-            getErrorMessages(error).map(error => {
-                toast.error(error);
+        } 
+        catch (error: unknown) {
+            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+            const errorMessages = getErrorMessages(rtkError);
+
+            errorMessages.forEach((errorMessage: string) => {
+                toast.error(errorMessage);
             });
         }
-    }
+    };
 
     return (
-        <Box sx={{margin: "20px", width: "calc(100% - 40px)", gap: "10px", display: "flex", '@media (max-width: 1030px)': { flexDirection: 'column', gap: "40px" }}}>
+        <Box sx={{
+                margin: "20px", 
+                width: "calc(100% - 40px)", 
+                gap: "10px", 
+                display: "flex", 
+                '@media (max-width: 1030px)': { flexDirection: 'column', gap: "40px" }}}>
             <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
                 <Box sx={{width: "auto", textAlign: "left"}}>
                     <div style={{ display: 'flex', justifyContent: "left" }}> 
@@ -108,8 +117,13 @@ export function AccountPage() {
                 </div>
             </div>
 
-            <Button variant="contained" onClick={handleUpdateUserDataDialogOpen} color="primary" disableElevation style={{ width: "100%", color: 'white' }}>
-                Редактировать информацию
+            <Button 
+                variant="contained" 
+                onClick={handleUpdateUserDataDialogOpen} 
+                color="primary" 
+                disableElevation 
+                style={{ width: "100%", color: 'white' }}>
+                    Редактировать информацию
             </Button>
 
             <Button variant="contained" onClick={handleLogout} color="error" disableElevation style={{ width: "100%", color: 'white' }}>
@@ -117,7 +131,7 @@ export function AccountPage() {
             </Button>
 
             <DialogWindow
-                open={isUpdateUserDataDialogOpen}
+                isOpen={isUpdateUserDataDialogOpen}
                 onClose={handleUpdateUserDataDialogClose}
                 onConfirm={handleOptionUpdateUserDataDialogSelect}
                 title = "Изменение пользовательских данных"

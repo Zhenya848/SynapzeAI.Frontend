@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardMedia } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { CardInfo } from "../../../widgets/CardInfo";
 import BuildIcon from '@mui/icons-material/Build';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -10,13 +10,25 @@ interface ITaskCardInfo {
     message: string,
     rightAnswer?: string,
 
-    answers?: string[]
+    answers?: string[],
 
-    onDelete?: any,
-    onUpdate?: any
+    onDelete?: (taskId: string) => void,
+    onUpdate?: (taskId: string) => void;
 }
 
 export function TaskCard({taskId, nameCardInfo, message, rightAnswer, answers, onDelete, onUpdate}: ITaskCardInfo) {
+    const handleUpdate = () => {
+        if (onUpdate) {
+            onUpdate(taskId);
+        }
+    };
+
+    const handleDelete = () => {
+        if (onDelete) {
+            onDelete(taskId);
+        }
+    };
+
     return (
         <Box sx={{
             p: 1,
@@ -36,8 +48,22 @@ export function TaskCard({taskId, nameCardInfo, message, rightAnswer, answers, o
                 
                 {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
 
-                <Button variant="outlined" sx={{ width: "100%", marginTop: "auto" }} onClick={() => onUpdate(taskId)} startIcon={<BuildIcon />}>Редактировать</Button>
-                <Button variant="contained" sx={{ width: "100%" }} onClick={() => onDelete(taskId)} color="error" startIcon={<DeleteIcon />}>Удалить</Button>
+                <Button 
+                    variant="outlined" 
+                    sx={{ width: "100%", marginTop: "auto" }} 
+                    onClick={handleUpdate} 
+                    startIcon={<BuildIcon />}>
+                        Редактировать
+                </Button>
+
+                <Button 
+                    variant="contained" 
+                    sx={{ width: "100%" }} 
+                    onClick={handleDelete} 
+                    color="error" 
+                    startIcon={<DeleteIcon />}>
+                        Удалить
+                </Button>
             </Box>
         </Box>
     )

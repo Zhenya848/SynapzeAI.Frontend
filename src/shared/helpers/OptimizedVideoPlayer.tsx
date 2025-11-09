@@ -2,7 +2,13 @@ import { Card, CardMedia } from "@mui/material";
 import { useCallback, useEffect, useRef } from "react";
 import { useInView } from "react-intersection-observer";
 
-export const OptimizedVideoPlayer = ({ videoSrc, height = 400, maxWidth = 1400 }) => {
+interface OptimizedVideoPlayerPrompts {
+  videoSrc: string | undefined, 
+  height?: number, 
+  maxWidth?: number
+}
+
+export const OptimizedVideoPlayer = ({ videoSrc, height = 400, maxWidth = 1400 }: OptimizedVideoPlayerPrompts) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { ref: inViewRef, inView } = useInView({

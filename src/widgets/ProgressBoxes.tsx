@@ -5,7 +5,7 @@ import { fillStyle } from "../shared/styles/FilledBoxStyles/FillStyle";
 interface IProgressBoxesInfo {
     totalQuestions: number, 
     errorBoxes?: number[]
-    onChoose?: any,
+    onChoose?: (index: number) => void,
     progressValues?: number[]
     currentIndex?: number
 }
@@ -27,8 +27,6 @@ const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose, progressValues
 
         return isBackground ? 'transparent' : '1px solid #999999'
     }
-
-    console.log(currentIndex);
 
     const boxStyle = (index: number) => ({
         position: 'relative' as const,
@@ -72,7 +70,6 @@ const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose, progressValues
                     <div style={fillStyle(value)} />
                 </button>
             ))}
-
         </Box>
     );
 }

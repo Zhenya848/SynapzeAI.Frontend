@@ -17,6 +17,9 @@ import { calculatePriorityNumber } from "../../../features/tasks/CalculatePriori
 import { Stopwatch } from "../../../entities/task/components/Stopwatch/Stopwatch";
 import { StopwatchHandle } from "../../../entities/task/components/Stopwatch/StopwatchHandle";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../features/accounts/auth.slice";
+import { toast } from "react-toastify";
 
 export function DecideWithIntervalPage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -40,6 +43,8 @@ export function DecideWithIntervalPage() {
   const test: Test = location.state?.testData;
 
   const setUser = useSetUser();
+
+  const user = useSelector(selectUser);
 
   useEffect(() => {
     if (!test) {
@@ -76,7 +81,8 @@ export function DecideWithIntervalPage() {
     { 
         rightAnswersCount: taskStatistic.rightAnswersCount + (isRightAnswer ? 1 : 0),
         errorsCount: taskStatistic.errorsCount + (isRightAnswer ? 0 : 1),
-        avgTimeSolvingSec: (taskStatistic.avgTimeSolvingSec + (stopwatchRef.current?.getExpiredTime() ?? 0)) / (taskStatistic.avgTimeSolvingSec === 0 ? 1 : 2),
+        avgTimeSolvingSec: (taskStatistic.avgTimeSolvingSec + (stopwatchRef.current?.getExpiredTime() ?? 0)) / 
+          (taskStatistic.avgTimeSolvingSec === 0 ? 1 : 2),
         lastReviewTime: new Date()
     } as TaskStatistic
 
@@ -119,11 +125,17 @@ export function DecideWithIntervalPage() {
 
   const handleUpdateTest = () => {
     const testData = test;
+
+    if (testData.userId !== user?.id) {
+      toast.warn("Редактировать задачи могут только авторы этой викторины");
+      return;
+    }
+
     navigate("/tests/update", { state: { testData } })
   }
 
   const handleReset = () => {
-    const cleanedPriorityTasks: StatisticTask[] = test.tasks.map((task, index) => ({
+    const cleanedPriorityTasks: StatisticTask[] = test.tasks.map((_task, index) => ({
         taskIndex: index,
         priorityNumber: 1,
         taskStatistic: {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatistic,
@@ -165,7 +177,8 @@ export function DecideWithIntervalPage() {
       const initialPriorityTasks: StatisticTask[] = test.tasks.map((task, index) => ({
           taskIndex: index,
           priorityNumber: calculatePriorityNumber(task.taskStatistic),
-          taskStatistic: task.taskStatistic ?? {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatistic,
+          taskStatistic: task.taskStatistic 
+            ?? {rightAnswersCount: 0, errorsCount: 0, avgTimeSolvingSec: 0, lastReviewTime: new Date()} as TaskStatistic
       }));
 
       setPriorityTasks(initialPriorityTasks);
@@ -222,35 +235,34 @@ export function DecideWithIntervalPage() {
             {test.tasks[currentTaskIndex].answers && test.tasks[currentTaskIndex].answers.length > 0 && isHideAnswers === false
                 ? 
                 <Box
-                    sx={{
-                        gap: 1,
-                        margin: "20px",
-                        width: "calc(100% - 40px)",
-                        display: "flex",
-                    }}
+                  sx={{
+                      gap: 1,
+                      margin: "20px",
+                      width: "calc(100% - 40px)",
+                      display: "flex",
+                  }}>
+                  {test.tasks[currentTaskIndex].answers.map((answer) => (
+                    <motion.div
+                      animate={isWrongAnswerAnimation && answer === selectedAnswer
+                        ? { x: [-5, 5, -5, 5, 0] } 
+                        : {}}
+                      transition={{ duration: wrongAnswerAnimationDuration }}
+                      style={{ width: '100%' }}
                     >
-                        {test.tasks[currentTaskIndex].answers.map((answer) => (
-                          <motion.div
-                            animate={isWrongAnswerAnimation && answer === selectedAnswer
-                              ? { x: [-5, 5, -5, 5, 0] } 
-                              : {}}
-                            transition={{ duration: wrongAnswerAnimationDuration }}
-                            style={{ width: '100%' }}
-                          >
-                              <Button
-                                  variant="contained" 
-                                  color={getAnswerButtonColor(answer)}
-                                  onClick={() => handleAnswerChange(answer)}
-                                  sx={{
-                                      color: 'white',
-                                      width: "100%",
-                                      wordBreak: 'break-all',
-                                  }}
-                                  >
-                                  {answer}
-                              </Button>
-                          </motion.div>
-                        ))}
+                        <Button
+                            variant="contained" 
+                            color={getAnswerButtonColor(answer)}
+                            onClick={() => handleAnswerChange(answer)}
+                            sx={{
+                                color: 'white',
+                                width: "100%",
+                                wordBreak: 'break-all',
+                            }}
+                            >
+                            {answer}
+                        </Button>
+                    </motion.div>
+                  ))}
                 </Box>
                 : 
                 <TextField 
@@ -303,26 +315,138 @@ export function DecideWithIntervalPage() {
               height: "120px",
               overflowY: "auto",
           },
-        }}> 
-
-          <div style={{display: "flex", width: "100%"}}>
-            <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-              <Button variant="contained" color="success" onClick={handleFinish} sx={{width: "145px", color: 'white'}} startIcon={<PlayArrowIcon />}>Завершить</Button>
-              <Button variant="contained" color="inherit" onClick={handleReset} sx={{width: "145px", marginTop: "20px"}} startIcon={<RestartAltIcon />}>Сброс</Button>
-              <Button variant="contained" color="primary" onClick={handleChangeMode} sx={{width: "145px", marginTop: "20px", color: "white"}} startIcon={<ChangeCircleIcon />}>Сменить режим</Button>
+        }}>
+          <div style={{ display: "flex", width: "100%" }}>
+            <div style={{ 
+                width: "100%", 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center' 
+            }}>
+              <Button 
+                  variant="contained" 
+                  color="success" 
+                  onClick={handleFinish} 
+                  sx={{ 
+                      width: "145px", 
+                      color: 'white' 
+                  }} 
+                  startIcon={<PlayArrowIcon />}
+              >
+                Завершить
+              </Button>
+                  
+              <Button 
+                  variant="contained" 
+                  color="inherit" 
+                  onClick={handleReset} 
+                  sx={{ 
+                      width: "145px", 
+                      marginTop: "20px" 
+                  }} 
+                  startIcon={<RestartAltIcon />}
+              >
+                Сброс
+              </Button>
+                  
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handleChangeMode} 
+                sx={{ 
+                    width: "145px", 
+                    marginTop: "20px", 
+                    color: "white" 
+                }} 
+                startIcon={<ChangeCircleIcon />}
+              >
+                Сменить режим
+              </Button>
             </div>
 
-            <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-              <Button variant="contained" color="error" onClick={handleCancel} sx={{width: "145px", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-              <Button variant="contained" onClick={handlePause} color="warning"sx={{width: "145px", marginTop: "20px", color: "white"}} startIcon={<PauseIcon />}>Пауза</Button>
-              <Button  variant="outlined" onClick={handleUpdateTest} startIcon={<BuildIcon />} sx={{width: "145px", marginTop: "20px"}}>Изменить задачи</Button>
+            <div style={{ 
+              width: "100%", 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center' 
+            }}>
+              <Button 
+                variant="contained" 
+                color="error" 
+                onClick={handleCancel} 
+                sx={{ 
+                    width: "145px", 
+                    color: 'white' 
+                }} 
+                startIcon={<ClearIcon />}
+              >
+                Выйти
+              </Button>
+                  
+              <Button 
+                variant="contained" 
+                onClick={handlePause} 
+                color="warning"
+                sx={{ 
+                    width: "145px", 
+                    marginTop: "20px", 
+                    color: "white" 
+                }} 
+                startIcon={<PauseIcon />}
+              >
+                Пауза
+              </Button>
+                  
+              <Button  
+                variant="outlined" 
+                onClick={handleUpdateTest} 
+                startIcon={<BuildIcon />} 
+                sx={{ 
+                    width: "145px", 
+                    marginTop: "20px" 
+                }}
+              >
+                  Изменить задачи
+              </Button>
             </div>
           </div>
 
-          <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: "20px"}}>
-            <FormControlLabel control={<Checkbox checked={isWrongAnswerAnimationActive} onChange={(e) => setIsWrongAnswerAnimationActive(e.target.checked)} />} label="Показывать ответ после решения"/>
-            <FormControlLabel control={<Checkbox checked={isHideAnswers} onChange={(e) => setIsHideAnswers(e.target.checked)} />} label="Скрывать варианты ответа"/>
-            <FormControlLabel control={<Checkbox checked={isHideSolvingTime} onChange={(e) => setIsHideSolvingTime(e.target.checked)} />} label="Скрывать время решения"/>
+          <div style={{ 
+              width: "100%", 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              marginTop: "20px" 
+          }}>
+            <FormControlLabel 
+              control={
+                <Checkbox 
+                  checked={isWrongAnswerAnimationActive} 
+                  onChange={(e) => setIsWrongAnswerAnimationActive(e.target.checked)} 
+                />
+              }
+              label="Показывать ответ после решения"
+            />
+              
+            <FormControlLabel 
+              control={
+                <Checkbox 
+                  checked={isHideAnswers} 
+                  onChange={(e) => setIsHideAnswers(e.target.checked)} 
+                />
+              } 
+              label="Скрывать варианты ответа"
+            />
+              
+            <FormControlLabel 
+              control={
+                <Checkbox 
+                  checked={isHideSolvingTime} 
+                  onChange={(e) => setIsHideSolvingTime(e.target.checked)} 
+                />
+              } 
+              label="Скрывать время решения"
+            />
           </div>
 
           <div style={{

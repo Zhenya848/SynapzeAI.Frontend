@@ -9,6 +9,8 @@ import { generateTestWithAI } from "../../../features/AI/GenerateTestWithAI";
 import { useCreateTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 
 export function CreateTestWithAI() {
     const navigate = useNavigate();
@@ -131,8 +133,10 @@ export function CreateTestWithAI() {
             
             navigate("/tests");
         } 
-        catch (error: any) {
-            getErrorMessages(error).map(error => {
+        catch (error: unknown) {
+            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+            getErrorMessages(rtkError).map(error => {
                 toast.error(error);
             });
         } 
@@ -245,7 +249,7 @@ export function CreateTestWithAI() {
                     defaultValue={20}
                     step={1}
                     valueLabelFormat={valueLabelFormat}
-                    onChange={(event, newValue) => setDifficulty(newValue.toString())}
+                    onChange={(_event, newValue) => setDifficulty(newValue.toString())}
                     valueLabelDisplay="auto"
                     marks={difficultyMarks}
                     sx={{maxWidth: "82vw"}}
@@ -258,7 +262,7 @@ export function CreateTestWithAI() {
                     defaultValue={20}
                     step={1}
                     valueLabelFormat={valueLabelFormat}
-                    onChange={(event, newValue) => setPercentOfOpenTasks(newValue.toString())}
+                    onChange={(_event, newValue) => setPercentOfOpenTasks(newValue.toString())}
                     valueLabelDisplay="auto"
                     marks={taskMarks}
                     sx={{maxWidth: "82vw"}}
