@@ -5,7 +5,7 @@ import StartDecideSelectionPanel from "../../entities/test/components/StartDecid
 import { Test } from "../../entities/test/Test";
 import { GlobalTestCard } from "../../entities/test/components/GlobalTestCard";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated, selectUser } from "../../features/accounts/auth.slice";
+import { selectIsAuthenticated } from "../../features/accounts/auth.slice";
 import { useAddSavedTestMutation, useDeleteSavedTestMutation, useGetWithPaginationQuery } from "../../features/tests/api";
 import SearchIcon from '@mui/icons-material/Search';
 import { GlobalTestCardSkeleton } from "../../entities/test/components/GlobalTestCardSkeleton";
@@ -158,8 +158,13 @@ export function GlobalTests() {
                         onChange={(e) => setTestName(e.target.value)}
                         InputProps={{
                             startAdornment: (
-                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
-                                    <SearchIcon />
+                                <Button 
+                                    onClick={handleFiltering} 
+                                    color="inherit" 
+                                    variant="outlined" 
+                                    sx={{marginRight: "10px"}} 
+                                    disabled={isFetching}>
+                                        <SearchIcon />
                                 </Button>
                             ),
                         }}
@@ -176,8 +181,13 @@ export function GlobalTests() {
                         onChange={(e) => setTestTheme(e.target.value)}
                         InputProps={{
                             startAdornment: (
-                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
-                                    <SearchIcon />
+                                <Button 
+                                    onClick={handleFiltering} 
+                                    color="inherit" 
+                                    variant="outlined" 
+                                    sx={{marginRight: "10px"}} 
+                                    disabled={isFetching}>
+                                        <SearchIcon />
                                 </Button>
                             ),
                         }}
@@ -193,8 +203,13 @@ export function GlobalTests() {
                         onChange={(e) => setUserName(e.target.value)}
                         InputProps={{
                             startAdornment: (
-                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
-                                    <SearchIcon />
+                                <Button 
+                                    onClick={handleFiltering} 
+                                    color="inherit" 
+                                    variant="outlined" 
+                                    sx={{marginRight: "10px"}} 
+                                    disabled={isFetching}>
+                                        <SearchIcon />
                                 </Button>
                             ),
                         }}
@@ -210,7 +225,7 @@ export function GlobalTests() {
                     options={["Название", "Тема"]}
                     sx={{ width: '450p' }}
                     renderInput={(params) => <TextField {...params} label="Свойство" />}
-                    onChange={(event, value) => {
+                    onChange={(_event, value) => {
                         setOrderBy(value || "");
                     }}
                     disabled={isFetching}
@@ -218,7 +233,7 @@ export function GlobalTests() {
             </Box>
 
             <Pagination 
-                onChange={(event, value) => setPage(value)} 
+                onChange={(_event, value) => setPage(value)} 
                 count={Math.ceil((testsData?.result?.totalCount ?? 1) / PAGE_SIZE)}
                 variant="outlined" 
                 color="primary" 
@@ -257,7 +272,7 @@ export function GlobalTests() {
             </Box>
 
             <StartDecideSelectionPanel
-                onOpen={isStartDecideTestDialogOpen}
+                isOpen={isStartDecideTestDialogOpen}
                 onClose={handleStartDecideTestDialogClose}
                 onOptionSelect={handleOptionStartDecideTestDialogSelect}
             />

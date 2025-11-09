@@ -150,8 +150,13 @@ export function SavedTestsPage() {
                         onChange={(e) => setTestName(e.target.value)}
                         InputProps={{
                             startAdornment: (
-                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
-                                    <SearchIcon />
+                                <Button 
+                                    onClick={handleFiltering} 
+                                    color="inherit" 
+                                    variant="outlined" 
+                                    sx={{marginRight: "10px"}} 
+                                    disabled={isFetching}>
+                                        <SearchIcon />
                                 </Button>
                             ),
                         }}
@@ -168,8 +173,13 @@ export function SavedTestsPage() {
                         onChange={(e) => setTestTheme(e.target.value)}
                         InputProps={{
                             startAdornment: (
-                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
-                                    <SearchIcon />
+                                <Button 
+                                    onClick={handleFiltering} 
+                                    color="inherit" 
+                                    variant="outlined" 
+                                    sx={{marginRight: "10px"}} 
+                                    disabled={isFetching}>
+                                        <SearchIcon />
                                 </Button>
                             ),
                         }}
@@ -185,8 +195,13 @@ export function SavedTestsPage() {
                         onChange={(e) => setUserName(e.target.value)}
                         InputProps={{
                             startAdornment: (
-                                <Button onClick={handleFiltering} color="inherit" variant="outlined" sx={{marginRight: "10px"}} disabled={isFetching}>
-                                    <SearchIcon />
+                                <Button 
+                                    onClick={handleFiltering} 
+                                    color="inherit" 
+                                    variant="outlined" 
+                                    sx={{marginRight: "10px"}} 
+                                    disabled={isFetching}>
+                                        <SearchIcon />
                                 </Button>
                             ),
                         }}
@@ -202,7 +217,7 @@ export function SavedTestsPage() {
                     options={["Название", "Тема"]}
                     sx={{ width: '450p' }}
                     renderInput={(params) => <TextField {...params} label="Свойство" />}
-                    onChange={(event, value) => {
+                    onChange={(_event, value) => {
                         setOrderBy(value || "");
                     }}
                     disabled={isFetching}
@@ -210,7 +225,7 @@ export function SavedTestsPage() {
             </Box>
 
             <Pagination 
-                onChange={(event, value) => setPage(value)} 
+                onChange={(_event, value) => setPage(value)} 
                 count={Math.ceil((testsData?.result?.totalCount ?? 1) / PAGE_SIZE)}
                 variant="outlined" 
                 color="primary" 
@@ -249,7 +264,7 @@ export function SavedTestsPage() {
             </Box>
 
             <StartDecideSelectionPanel
-                onOpen={isStartDecideTestDialogOpen}
+                isOpen={isStartDecideTestDialogOpen}
                 onClose={handleStartDecideTestDialogClose}
                 onOptionSelect={handleOptionStartDecideTestDialogSelect}
             />

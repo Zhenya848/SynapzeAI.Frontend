@@ -23,7 +23,8 @@ const DarkDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const CancelButton = styled(Button)(({ theme }) => ({
+// eslint-disable-next-line no-empty-pattern
+const CancelButton = styled(Button)(({ }) => ({
   color: '#bdbdbd',
   padding: '10px 24px',
   fontSize: '1rem',
@@ -35,9 +36,9 @@ const CancelButton = styled(Button)(({ theme }) => ({
 }));
 
 interface IDialogWindowInfo {
-    open: any,
-    onClose: any,
-    onConfirm: any,
+    isOpen: boolean,
+    onClose: () => void,
+    onConfirm: () => void,
     title: string,
     confirmText: string,
     cancelText: string,
@@ -48,7 +49,7 @@ interface IDialogWindowInfo {
 }
 
 export const DialogWindow = ({ 
-  open, 
+  isOpen: open, 
   onClose, 
   onConfirm,
   title,

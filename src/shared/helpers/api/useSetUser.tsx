@@ -4,6 +4,9 @@ import { useRefreshMutation } from "../../../features/accounts/api";
 import { selectUser, setCredentials } from "../../../features/accounts/auth.slice";
 import { GetCookies } from "./GetCookies";
 import { useSelector } from "react-redux";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { getErrorMessages } from "../../utils/getErrorMessages";
 
 export const useSetUser = () => {
     const dispatch = useAppDispatch();
@@ -26,11 +29,11 @@ export const useSetUser = () => {
 
                 dispatch(setCredentials({ accessToken: refreshResult.result!.accessToken, user: refreshResult.result!.user }))
             }
-            catch (error: any) {
-                console.error("Can't refresh credentias. Errors: " + error);
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
 
-                error.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
+                getErrorMessages(rtkError).map(error => {
+                    toast.error(error);
                 });
             }
         }

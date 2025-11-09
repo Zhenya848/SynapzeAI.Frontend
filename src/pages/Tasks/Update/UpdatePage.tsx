@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardMedia, TextField, Typography} from "@mui/material";
+import { Button, TextField, Typography} from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import SaveIcon from '@mui/icons-material/Save';
 import { useEffect, useState } from "react";
@@ -126,19 +126,63 @@ export function UpdateTask() {
         <div style={{margin: "10px"}}>
             <div style={{ display: 'flex', alignItems: "flex-start" }}>
                 <div style={{width: "100%", marginLeft: "10px"}}>
-                    <TextField id="outlined-basic" label="Название" value={taskName} error={taskNameError} onChange={(e) => setTaskName(e.target.value)} variant="outlined" style={{ width: "100%" }} />
-                    <TextField id="outlined-basic" label="Сообщение" value={taskMessage} error={taskMessageError} onChange={(e) => setTaskMessage(e.target.value)}  variant="outlined" style={{ width: "100%", marginTop: "20px" }} />
-                    <TextField id="outlined-basic" label="Правильный ответ" value={taskRightAnswer} onChange={(e) => setTaskRightAnswer(e.target.value)}  variant="outlined" style={{ width: "100%", marginTop: "20px" }} />
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Название" 
+                        value={taskName} 
+                        error={taskNameError} 
+                        onChange={(e) => setTaskName(e.target.value)} 
+                        variant="outlined" 
+                        style={{ width: "100%" }} 
+                    />
+
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Сообщение" 
+                        value={taskMessage} 
+                        error={taskMessageError} 
+                        onChange={(e) => setTaskMessage(e.target.value)} 
+                        variant="outlined" 
+                        style={{ width: "100%", marginTop: "20px" }} 
+                    />
+
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Правильный ответ" 
+                        value={taskRightAnswer} 
+                        onChange={(e) => setTaskRightAnswer(e.target.value)} 
+                        variant="outlined" 
+                        style={{ width: "100%", marginTop: "20px" }} 
+                    />
 
                     <Typography variant="h6" style={{ marginTop: "20px" }}>Варианты ответа для пользователя</Typography>
 
-                    <TagInput label="Варианты ответа" placeholderText="Введите варианты ответа, которые может выбрать пользователь" currentTags={test.tasks.find(t => t.id === taskId)?.answers} onChange={handleTagsChange}></TagInput>
+                    <TagInput 
+                        label="Варианты ответа" 
+                        placeholderText="Введите варианты ответа, которые может выбрать пользователь" 
+                        currentTags={test.tasks.find(t => t.id === taskId)?.answers} onChange={handleTagsChange}>
+                    </TagInput>
                 </div>
             </div>
 
             <div style={{display: 'flex', height: '43vh', alignItems: "flex-end"}}>
-                <Button variant="contained" color="info" onClick={handleConfirm} sx={{ width: "90%", color: 'white'}} startIcon={<SaveIcon />}>Сохранить</Button>
-                <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "90%", color: 'white', marginLeft: "20px"}} startIcon={<ClearIcon />}>Отмена</Button>
+                <Button 
+                    variant="contained" 
+                    color="info" 
+                    onClick={handleConfirm} 
+                    sx={{ width: "90%", color: 'white'}} 
+                    startIcon={<SaveIcon />}>
+                        Сохранить
+                </Button>
+
+                <Button 
+                    variant="contained" 
+                    color="error" 
+                    onClick={handleCancel} 
+                    sx={{ width: "90%", color: 'white', marginLeft: "20px"}} 
+                    startIcon={<ClearIcon />}>
+                        Отмена
+                </Button>
             </div>
         </div>
     )

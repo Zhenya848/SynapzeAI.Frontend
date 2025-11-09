@@ -14,6 +14,9 @@ import { useCreateSolvingHistoryMutation, useUpdateSolvingHistoryMutation } from
 import { GetCookies } from "../shared/helpers/api/GetCookies";
 import { useSelector } from "react-redux";
 import { selectUser } from "../features/accounts/auth.slice";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { getErrorMessages } from "../shared/utils/getErrorMessages";
 
 export function VerdictPage() {
     const navigate = useNavigate();
@@ -63,9 +66,11 @@ export function VerdictPage() {
 
                 setTaskHistories(taskHistories);
             } 
-            catch (error: any) {
-                error.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+                getErrorMessages(rtkError).map(error => {
+                    toast.error(error);
                 });
             }
             finally {
@@ -113,21 +118,23 @@ export function VerdictPage() {
                 tasks: tasks
             });
 
-            setTaskHistories(prev => {
-                return prev.map((item, idx) => {
+            setTaskHistories(prev => 
+                prev.map(item => {
                     const task = tasks.find(v => v.serialNumber === item.serialNumber);
 
-                    return {
+                    return task ? {
                         ...item, 
-                        message: task?.message ?? "", 
-                        points: task?.points
-                    }
+                        message: task.message ?? "", 
+                        points: task.points
+                    } : item;
                 })
-            });
+            );
         }
-        catch (error: any) {
-            error.response.data.responseErrors.forEach((e: { message: string }) => {
-                toast.error(e.message);
+        catch (error: unknown) {
+            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+            getErrorMessages(rtkError).map(error => {
+                toast.error(error);
             });
         } 
         finally {
@@ -139,13 +146,14 @@ export function VerdictPage() {
         <div style={{margin: "10px", alignItems: "center", display: "flex", flexDirection: "column"}}>
             <Typography variant="h4">Викотрина пройдена!</Typography>
 
-            <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                justifyContent: "left", 
-                width: "100%", 
+            <Box sx={{ 
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 600px), 1fr))",
+                gap: 2,
+                width: "100%",
+                padding: 2,
                 marginTop: "10px",
-                alignItems: "stretch"
+                boxSizing: "border-box" 
             }}>
                 {taskHistories.map((taskHistory, index) => (
                     <VerdictTaskCard
@@ -153,17 +161,58 @@ export function VerdictPage() {
                         nameCardInfo={taskHistory.taskName}
                         message={taskHistory.taskMessage}
                         userAnswer={taskHistory.userAnswer}
-                        rightAnswer={taskHistory.rightAnswer ?? ""}
+                        rightAnswer={taskHistory.rightAnswer}
                         answers={taskHistory.answers}
-                        comment={taskHistory.message}>
-                    </VerdictTaskCard>
+                        comment={taskHistory.message}
+                        points={taskHistory.points}
+                    />
                 ))}
-            </div>
+            </Box>
 
-            <div style={{display: 'flex', width: "100%", marginTop: "10px", gap: 10}}>
-                <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
-                <Button variant="contained" color="secondary" onClick={handleUpdate} sx={{ width: "100%", color: 'white'}} startIcon={<PsychologyIcon />}>Анализ с AI</Button>
-                <Button variant="contained" color="primary" onClick={handleRetry} sx={{ width: "100%", color: 'white'}} startIcon={<ReplayIcon />}>Заново</Button>
+            <div style={{ 
+                display: 'flex', 
+                width: "100%", 
+                marginTop: "10px", 
+                gap: 10 
+            }}>
+                <Button 
+                    variant="contained" 
+                    color="error" 
+                    onClick={handleCancel} 
+                    sx={{ 
+                        width: "100%", 
+                        color: 'white'
+                    }} 
+                    startIcon={<ClearIcon />}
+                >
+                    Выйти
+                </Button>
+                
+                <Button 
+                    variant="contained" 
+                    color="secondary" 
+                    onClick={handleUpdate} 
+                    sx={{ 
+                        width: "100%", 
+                        color: 'white'
+                    }} 
+                    startIcon={<PsychologyIcon />}
+                >
+                    Анализ с AI
+                </Button>
+                
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={handleRetry} 
+                    sx={{ 
+                        width: "100%", 
+                        color: 'white'
+                    }} 
+                    startIcon={<ReplayIcon />}
+                >
+                    Заново
+                </Button>
             </div>
         </div>
     )

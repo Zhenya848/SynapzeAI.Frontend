@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { CardInfo } from "../../../widgets/CardInfo";
+import { getColor } from "../../../shared/styles/FilledBoxStyles/FillStyle";
 
 interface IVerdictTaskCardInfo {
     nameCardInfo: string;
@@ -14,37 +14,238 @@ interface IVerdictTaskCardInfo {
     points?: number
 }
 
-function getBgColor(isRightAnswer: boolean | string | undefined) {
-    return isRightAnswer != undefined ? (isRightAnswer ? "#17a023" : "#8b171c") : "#616161"
+function getBgColor(isRightAnswer: boolean | string | undefined, points: number | undefined) {
+    const color = points ? getColor(points / 100) : "#787878";
+
+    return isRightAnswer != undefined ? (isRightAnswer ? "#17a023" : "#8b171c") : color;
 }
 
 export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer, answers, comment, points}: IVerdictTaskCardInfo) {
-    const isRightAnswer = rightAnswer && userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase()
+    const isRightAnswer = rightAnswer && userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase();
 
     return (
         <Box sx={{
-            p: 1,
+            p: 2,
             borderRadius: 3,
-            bgcolor: getBgColor(isRightAnswer),
-            margin: '20px',
-            width: '520px',
-            boxSizing: 'border-box'
+            bgcolor: getBgColor(isRightAnswer, points),
+            boxSizing: "border-box",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            containerType: "inline-size"
         }}>
-            {rightAnswer && <Typography sx={{textAlign: 'center'}}>{userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase() ? "Верно!" : "Неверно!"}</Typography>}
+            {rightAnswer && (
+                <Typography 
+                    sx={{ 
+                        textAlign: 'center', 
+                        mb: 1,
+                        fontSize: "1.5rem",
+                        "@container (max-width: 480px)": {
+                            fontSize: "12px"
+                        }
+                    }}
+                >
+                    {userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase() ? "Верно!" : "Неверно!"}
+                </Typography>
+            )}
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px', margin: '20px' }}>
-                <CardInfo title="Название" value={nameCardInfo} />
-                
-                <CardInfo title="Сообщение" value={message} />
+            <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: 2,
+                flex: 1,
+                minWidth: 0
+            }}>
+                {/* Название */}
+                <Box sx={{ maxWidth: '97%' }}>
+                    <Typography sx={{ 
+                        color: "lightgrey", 
+                        whiteSpace: 'nowrap', 
+                        fontSize: "0.875rem",
+                        "@container (max-width: 480px)": {
+                            fontSize: "12px"
+                        }
+                    }}>
+                        Название
+                    </Typography>
+                    <Typography sx={{ 
+                        whiteSpace: 'pre-line', 
+                        wordBreak: 'break-word', 
+                        overflowWrap: 'anywhere', 
+                        maxWidth: '100%', 
+                        fontSize: "1.25rem",
+                        "@container (max-width: 480px)": {
+                            fontSize: "12px"
+                        }
+                    }}>
+                        {nameCardInfo}
+                    </Typography>
+                </Box>
 
-                {answers && answers.length > 0 && <CardInfo title="Варианты ответов" value={answers.join(", ")} />}
-                {rightAnswer && <CardInfo title="Правильный ответ" value={rightAnswer} />}
+                {/* Сообщение */}
+                <Box sx={{ maxWidth: '97%' }}>
+                    <Typography sx={{ 
+                        color: "lightgrey", 
+                        whiteSpace: 'nowrap', 
+                        fontSize: "0.875rem",
+                        "@container (max-width: 480px)": {
+                            fontSize: "12px"
+                        }
+                    }}>
+                        Сообщение
+                    </Typography>
+                    <Typography sx={{ 
+                        whiteSpace: 'pre-line', 
+                        wordBreak: 'break-word', 
+                        overflowWrap: 'anywhere', 
+                        maxWidth: '100%', 
+                        fontSize: "1.25rem",
+                        "@container (max-width: 480px)": {
+                            fontSize: "12px"
+                        }
+                    }}>
+                        {message}
+                    </Typography>
+                </Box>
 
-                <CardInfo title="Ответ пользователя" value={userAnswer} />
+                {/* Варианты ответов */}
+                {answers && answers.length > 0 && (
+                    <Box sx={{ maxWidth: '97%' }}>
+                        <Typography sx={{ 
+                            color: "lightgrey", 
+                            whiteSpace: 'nowrap', 
+                            fontSize: "0.875rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            Варианты ответов
+                        </Typography>
+                        <Typography sx={{ 
+                            whiteSpace: 'pre-line', 
+                            wordBreak: 'break-word', 
+                            overflowWrap: 'anywhere', 
+                            maxWidth: '100%', 
+                            fontSize: "1.25rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            {answers.join(", ")}
+                        </Typography>
+                    </Box>
+                )}
 
-                {comment && <CardInfo title="Комментарий к задаче" value={comment} />}
-                {points && <CardInfo title="Правильность ответа" value={points.toString() + " / 100"} />}
+                {/* Правильный ответ */}
+                {rightAnswer && (
+                    <Box sx={{ maxWidth: '97%' }}>
+                        <Typography sx={{ 
+                            color: "lightgrey", 
+                            whiteSpace: 'nowrap', 
+                            fontSize: "0.875rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            Правильный ответ
+                        </Typography>
+                        <Typography sx={{ 
+                            whiteSpace: 'pre-line', 
+                            wordBreak: 'break-word', 
+                            overflowWrap: 'anywhere', 
+                            maxWidth: '100%', 
+                            fontSize: "1.25rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            {rightAnswer}
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* Ответ пользователя */}
+                <Box sx={{ maxWidth: '97%' }}>
+                    <Typography sx={{ 
+                        color: "lightgrey", 
+                        whiteSpace: 'nowrap', 
+                        fontSize: "0.875rem",
+                        "@container (max-width: 480px)": {
+                            fontSize: "12px"
+                        }
+                    }}>
+                        Ответ пользователя
+                    </Typography>
+                    <Typography sx={{ 
+                        whiteSpace: 'pre-line', 
+                        wordBreak: 'break-word', 
+                        overflowWrap: 'anywhere', 
+                        maxWidth: '100%', 
+                        fontSize: "1.25rem",
+                        "@container (max-width: 480px)": {
+                            fontSize: "12px"
+                        }
+                    }}>
+                        {userAnswer}
+                    </Typography>
+                </Box>
+
+                {/* Комментарий */}
+                {comment && (
+                    <Box sx={{ maxWidth: '97%' }}>
+                        <Typography sx={{ 
+                            color: "lightgrey", 
+                            whiteSpace: 'nowrap', 
+                            fontSize: "0.875rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            Комментарий к задаче
+                        </Typography>
+                        <Typography sx={{ 
+                            whiteSpace: 'pre-line', 
+                            wordBreak: 'break-word', 
+                            overflowWrap: 'anywhere', 
+                            maxWidth: '100%', 
+                            fontSize: "1.25rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            {comment}
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* Правильность ответа */}
+                {points != null && (
+                    <Box sx={{ maxWidth: '97%' }}>
+                        <Typography sx={{ 
+                            color: "lightgrey", 
+                            whiteSpace: 'nowrap', 
+                            fontSize: "0.875rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            Правильность ответа
+                        </Typography>
+                        <Typography sx={{ 
+                            whiteSpace: 'pre-line', 
+                            wordBreak: 'break-word', 
+                            overflowWrap: 'anywhere', 
+                            maxWidth: '100%', 
+                            fontSize: "1.25rem",
+                            "@container (max-width: 480px)": {
+                                fontSize: "12px"
+                            }
+                        }}>
+                            {points.toString() + " / 100"}
+                        </Typography>
+                    </Box>
+                )}
             </Box>
         </Box>
-    )
+    );
 }

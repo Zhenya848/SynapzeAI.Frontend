@@ -16,6 +16,10 @@ import { Task } from "../../../entities/task/Task";
 import { useUpdateTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../features/accounts/auth.slice";
 
 export function UpdateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -43,8 +47,10 @@ export function UpdateTest() {
 
     const setUser = useSetUser();
 
+    const user = useSelector(selectUser);
+
     useEffect(() => {
-        if (!test) {
+        if (!test || !user || test.userId !== user.id) {
             navigate("/tests");
             return;
         }
@@ -79,7 +85,9 @@ export function UpdateTest() {
             uniqueUserName: test.uniqueUserName,
             testName: testName, 
             theme: testTheme, 
-            limitTime: (testSeconds || testMinutes ? { seconds: Number.parseInt(testSeconds ?? 0), minutes: Number.parseInt(testMinutes ?? 0) } as LimitTime : null),
+            limitTime: (testSeconds || testMinutes 
+                ? { seconds: Number.parseInt(testSeconds ?? 0), minutes: Number.parseInt(testMinutes ?? 0) } as LimitTime 
+                : null),
             isPublished: isPublished,
             tasks: testTasks
         } as Test
@@ -167,8 +175,10 @@ export function UpdateTest() {
 
                 navigate("/tests");
             } 
-            catch (error: any) {
-                getErrorMessages(error).map(error => {
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+                getErrorMessages(rtkError).map(error => {
                     toast.error(error);
                 });
             }

@@ -1,7 +1,5 @@
 export function tryGetTypeFromString<T>(value: string, isCollection: boolean): T | undefined {
     try {
-        console.log(value);
-
         const startIndex = value.indexOf(isCollection ? '[' : '{');
         const endIndex = value.lastIndexOf(isCollection ? ']' : '}');
 

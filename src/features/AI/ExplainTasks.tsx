@@ -9,14 +9,12 @@ export async function explainTasks(taskHistories: TaskHistory[]): Promise<Update
         const task: UpdateTaskHistoryDto[] = [{ serialNumber: 1, message: "YourText", points: 100}] as UpdateTaskHistoryDto[];
 
         const request = `История решения задач представлена в формате json: ${JSON.stringify(taskHistories)}. ` +
-            "Цель: проанализировать каждую задачу и ответ пользователя к ней, где возможно объяснить почему тот или иной ответ верный / неверный " +
+            "Цель: проанализировать каждую задачу и ответ пользователя к ней, объяснить почему тот или иной ответ верный / неверный " +
             `, вернуть сообщение в формате json: ${JSON.stringify(task)} и поставить оценку от 0 до 100 каждому ответу`;
 
         const response = await sendToAI(request);
         const data: AIResponse = await response.json();
         const message = data.choices ? data.choices[0].message.content : "none";
-
-        console.log(message);
 
         const aiMessagesForTasks = tryGetTypeFromString(message, true) as UpdateTaskHistoryDto[];
 

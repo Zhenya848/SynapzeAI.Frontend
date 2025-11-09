@@ -6,6 +6,8 @@ import { useLoginMutation } from "../../features/accounts/api";
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
 import { getErrorMessages } from "../../shared/utils/getErrorMessages";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 
 export function LoginPage() {
     const [login, {isLoading}] = useLoginMutation();
@@ -43,8 +45,10 @@ export function LoginPage() {
                 dispatch(setCredentials({ accessToken: response.result!.accessToken, user: response.result!.user }));
                 navigate("/accountInfo");
             }
-            catch (error: any) {
-                getErrorMessages(error).map(error => {
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+                getErrorMessages(rtkError).map(error => {
                     toast.error(error);
                 });
             }

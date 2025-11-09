@@ -1,11 +1,11 @@
 import { Box, Button, Card, CardMedia, Link, Typography } from "@mui/material";
-import image from '../../assets/image.png';
-import image2 from '../../assets/image2.png';
-import video from "../../assets/video.mp4"
-import video2 from "../../assets/video2.mp4";
-import video3 from "../../assets/video3.mp4";
-import video4 from "../../assets/video4.mp4";
-import video5 from "../../assets/video5.mp4";
+import image from '../../assets/images/image.png';
+import image2 from '../../assets/images/image2.png';
+import video from "../../assets/videos/video.mp4"
+import video2 from "../../assets/videos/video2.mp4";
+import video3 from "../../assets/videos/video3.mp4";
+import video4 from "../../assets/videos/video4.mp4";
+import video5 from "../../assets/videos/video5.mp4";
 import { OptimizedVideoPlayer } from "../../shared/helpers/OptimizedVideoPlayer";
 import TelegramIcon from '@mui/icons-material/Telegram';
 import YouTubeIcon from '@mui/icons-material/YouTube';

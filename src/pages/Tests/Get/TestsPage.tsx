@@ -15,6 +15,9 @@ import { TestCard } from "../../../entities/test/components/TestCard";
 import { useAddSavedTestMutation, useDeleteSavedTestMutation, useDeleteTestMutation, useGetTestsQuery } from "../../../features/tests/api";
 import { TestCardSkeleton } from "../../../entities/test/components/TestCardSkeleton";
 import { GetCookies } from "../../../shared/helpers/api/GetCookies";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
 
 export function GetTests() {
     const navigate = useNavigate();
@@ -105,9 +108,11 @@ export function GetTests() {
                 if (testId)
                     await deleteTest({ testId: testId }).unwrap();
             }
-            catch (error: any) {
-                error.data.responseErrors.forEach((e: { message: string }) => {
-                    toast.error(e.message);
+            catch (error: unknown) {
+                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+                getErrorMessages(rtkError).map(error => {
+                    toast.error(error);
                 });
             } 
         }
@@ -214,19 +219,19 @@ export function GetTests() {
             </Box>
 
             <AddTestSelectionPanel
-                onOpen={isCreateTestDialogOpen}
+                isOpen={isCreateTestDialogOpen}
                 onClose={handleCreateTestDialogClose}
                 onOptionSelect={handleOptionCreateTestDialogSelect}
             />
 
             <StartDecideSelectionPanel
-                onOpen={isStartDecideTestDialogOpen}
+                isOpen={isStartDecideTestDialogOpen}
                 onClose={handleStartDecideTestDialogClose}
                 onOptionSelect={handleOptionStartDecideTestDialogSelect}
             />
 
             <DialogWindow
-                open={isDeleteTestDialogOpen}
+                isOpen={isDeleteTestDialogOpen}
                 onClose={handleDeleteDialogClose}
                 onConfirm={handleOptionDeleteDialogSelect}
                 title = "Вы точно хотите удалить викторину?"

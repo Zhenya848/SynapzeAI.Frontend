@@ -35,12 +35,19 @@ const ContinueButton = styled(Button)(({ theme }) => ({
   marginLeft: theme.spacing(2),
 }));
 
+interface PauseDialogProps {
+  open: boolean;
+  onClose: () => void;
+  title?: string;
+  confirmText?: string;
+}
+
 export const PauseDialog = ({ 
   open, 
   onClose,
   title = "Прохождение на паузе",
   confirmText = "Продолжить"
-}) => {
+}: PauseDialogProps) => {
   return (
     <DarkDialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>

@@ -3,9 +3,15 @@ import { VibrantOptionButton } from "../../../shared/styles/VibrantOptionButton"
 import ConstructionIcon from '@mui/icons-material/Construction';
 import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic';
 
-const StartDecideSelectionPanel = ({onOpen, onClose, onOptionSelect}) => {
+interface StartDecideSelectionPanelProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onOptionSelect: (option: 'ordinaryMode' | 'intervalMode') => void;
+}
+
+const StartDecideSelectionPanel = ({isOpen: onOpen, onClose, onOptionSelect}: StartDecideSelectionPanelProps) => {
     return (
-        <SelectionPanelSkeleton onOpen={onOpen} onClose={onClose} dialogTitle="Выберите режим викторины">
+        <SelectionPanelSkeleton isOpen={onOpen} onClose={onClose} dialogTitle="Выберите режим викторины">
             <VibrantOptionButton
               onClick={() => onOptionSelect('ordinaryMode')}
               startIcon={<AutoAwesomeMosaicIcon />}

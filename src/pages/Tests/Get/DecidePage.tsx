@@ -16,6 +16,12 @@ import { CountdownTimerHandle } from "../../../entities/task/components/Timer/Co
 import { PauseDialog } from "../../../entities/task/components/Timer/PauseDialog";
 import { useGetTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
+import { useScreenSize } from "../../../shared/helpers/useScreenSize";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
+import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../../features/accounts/auth.slice";
 
 export function DecidePage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -42,6 +48,10 @@ export function DecidePage() {
 
   const setUser = useSetUser();
 
+  const isMobile = useScreenSize();
+
+  const user = useSelector(selectUser);
+
   useEffect(() => {
     const fetchData = async () => {
       if (testId) {
@@ -50,9 +60,11 @@ export function DecidePage() {
 
           setTest(response.result!);
         }
-        catch (error: any) {
-          error.data.responseErrors.forEach((e: { message: string }) => {
-              toast.error(e.message);
+        catch (error: unknown) {
+          const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
+
+          getErrorMessages(rtkError).map(error => {
+              toast.error(error);
           });
         }
       }
@@ -141,7 +153,7 @@ export function DecidePage() {
 
   const handleFinish = () => {
     const notFixedAnswersIndexes = answersHistory
-      .map((a, index) => a.isFixed == false ? a.taskIndex : null)
+      .map((a) => a.isFixed == false ? a.taskIndex : null)
       .filter(index => index !== null)
 
     console.log(notFixedAnswersIndexes)
@@ -163,6 +175,12 @@ export function DecidePage() {
 
   const handleUpdateTest = () => {
     const testData = test;
+
+    if (testData.userId !== user?.id) {
+      toast.warn("Редактировать задачи могут только авторы этой викторины");
+      return;
+    }
+
     navigate("/tests/update", { state: { testData } })
   }
 
@@ -192,16 +210,14 @@ export function DecidePage() {
   }
 
   function getNextButtonVisibility() {
-    return currentTaskIndex < test.tasks.length - 1 ? "visible" : "hidden";
+    return currentTaskIndex < (test?.tasks.length ?? 0) - 1 ? "visible" : "hidden";
   }
 
   return (
     <Box sx={{
       display: 'flex',
-      '@media (max-width: 900px)': {
-          flexDirection: 'column',
-          width: 'calc(100% - 40px)'
-      },
+      width: isMobile ? "calc(100% - 40px)" : "auto",
+      flexDirection: isMobile ? "column" : "row"
     }}>
         <ProgressBoxes 
           totalQuestions={test.tasks.length} 
@@ -226,9 +242,7 @@ export function DecidePage() {
               paddingBottom: 2,
               width: '100%',
               textAlign: 'center',
-              whiteSpace: 'pre-line',
               wordBreak: 'break-word',
-              overflowWrap: 'anywhere',
             }}>
               {test.tasks[currentTaskIndex].taskName}
             </Typography>
@@ -239,7 +253,7 @@ export function DecidePage() {
               marginTop: "20px",
               flex: 1,
               textAlign: 'center',
-              wordBreak: 'break-all',
+              wordBreak: "break-word",
             }}>
               {test.tasks[currentTaskIndex].taskMessage}
             </Typography>
@@ -248,10 +262,11 @@ export function DecidePage() {
               ? 
               <Box
                 sx={{
-                  gap: 1,
+                  gap: "10px",
                   margin: "20px",
                   width: "calc(100% - 40px)",
-                  display: "flex",
+                  display: "flex", 
+                  flexDirection: isMobile ? "column" : "row",
                 }}
               >
                 {test.tasks[currentTaskIndex].answers.map((answer) => (
@@ -266,7 +281,7 @@ export function DecidePage() {
                         backgroundColor: selectedAnswer === answer ? null : '#f5f5f5',
                       },
                       width: "100%",
-                      wordBreak: 'break-all',
+                      wordBreak: 'break-word',
                     }}
                   >
                     {answer}
@@ -323,6 +338,39 @@ export function DecidePage() {
           </Box>
         </Box>
 
+        {isMobile
+        ?
+        <Box component="section" sx={{ 
+          p: 1,
+          borderRadius: 3, 
+          minWidth: "320px",
+          maxWidth: '900px',
+          bgcolor: "#555555",
+          marginTop: "20px",
+          height: "350px",
+          display: 'flex',
+          flexDirection: "column",
+          width: '100%',
+          margin: "20px",
+          overflowY: "auto"
+        }}> 
+
+          <div style={{gap: "20px", display: "flex", flexDirection: "column"}}>
+            <Button variant="contained" color="success" onClick={handleFinish} sx={{width: "100%", color: 'white'}} startIcon={<PlayArrowIcon />}>Завершить</Button>
+            <Button variant="contained" color="inherit" onClick={handleStartAgain} sx={{width: "100%"}} startIcon={<RestartAltIcon />}>Заново</Button>
+            <Button variant="contained" color="primary" onClick={handleChangeMode} sx={{width: "100%", color: "white"}} startIcon={<ChangeCircleIcon />}>Сменить режим</Button>
+            <Button variant="contained" color="error" onClick={handleCancel} sx={{width: "100%", color: 'white'}} startIcon={<ClearIcon />}>Выйти</Button>
+            <Button variant="contained" onClick={handlePause} color="warning"sx={{width: "100%", color: "white"}} startIcon={<PauseIcon />}>Пауза</Button>
+            <Button  variant="outlined" onClick={handleUpdateTest} startIcon={<BuildIcon />} sx={{width: "100%"}}>Изменить задачи</Button>
+          </div>
+
+          <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: "20px"}}>
+            <FormControlLabel control={<Checkbox checked={isHideAnswers} onChange={(e) => setIsHideAnswers(e.target.checked)} />} label="Скрывать варианты ответа"/>
+          </div>
+
+          <CountdownTimer seconds={test.limitTime?.seconds ?? 0} minutes={test.limitTime?.minutes ?? 999} ref={timerRef} onTimeOut={navigateToVerdictPage}></CountdownTimer>
+        </Box>
+        :
         <Box component="section" sx={{ 
           p: 1,
           borderRadius: 3, 
@@ -332,17 +380,10 @@ export function DecidePage() {
           marginTop: "20px",
           height: '86vh',
           display: 'flex',
-          flexDirection: "column",
-          '@media (max-width: 900px)': {
-              width: '100%',
-              margin: "20px",
-              maxWidth: '900px',
-              height: "350px",
-              overflowY: "auto",
-          },
+          flexDirection: "column"
         }}> 
 
-          <div style={{display: "flex", width: "100%"}}>
+          <div style={{display: "flex", width: "100%"}}> 
             <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
               <Button variant="contained" color="success" onClick={handleFinish} sx={{width: "145px", color: 'white'}} startIcon={<PlayArrowIcon />}>Завершить</Button>
               <Button variant="contained" color="inherit" onClick={handleStartAgain} sx={{width: "145px", marginTop: "20px"}} startIcon={<RestartAltIcon />}>Заново</Button>
@@ -363,7 +404,7 @@ export function DecidePage() {
           <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', justifyContent: 'flex-end'}}>
             <CountdownTimer seconds={test.limitTime?.seconds ?? 0} minutes={test.limitTime?.minutes ?? 999} ref={timerRef} onTimeOut={navigateToVerdictPage}></CountdownTimer>
           </div>
-        </Box>
+        </Box>}
 
         <PauseDialog open={isPauseDialogOpen} onClose={handlePauseDialogClose}></PauseDialog>
     </Box>)

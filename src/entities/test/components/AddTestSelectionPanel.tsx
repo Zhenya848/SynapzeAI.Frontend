@@ -3,9 +3,15 @@ import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic';
 import { SelectionPanelSkeleton } from "../../../widgets/SelectionPanelSkeleton";
 import { VibrantOptionButton } from "../../../shared/styles/VibrantOptionButton";
 
-const AddTestSelectionPanel = ({onOpen, onClose, onOptionSelect}) => {
+interface AddTestSelectionPanelProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onOptionSelect: (option: 'ai' | 'ordinary') => void;
+}
+
+const AddTestSelectionPanel = ({isOpen: onOpen, onClose, onOptionSelect}: AddTestSelectionPanelProps) => {
     return (
-        <SelectionPanelSkeleton onOpen={onOpen} onClose={onClose} dialogTitle="Выберите способ создания викторины">
+        <SelectionPanelSkeleton isOpen={onOpen} onClose={onClose} dialogTitle="Выберите способ создания викторины">
             <VibrantOptionButton
               onClick={() => onOptionSelect('ai')}
               startIcon={<AutoAwesomeMosaicIcon />}
