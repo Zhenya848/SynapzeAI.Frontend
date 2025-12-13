@@ -44,9 +44,6 @@ export function PricesPage() {
                                 {plan.price}₽
                             </Typography>
                             </Stack>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                {plan.pack} викторины
-                            </Typography>
                         </Box>
                         <Divider />
                         <Box sx={{ p: 2 }}>

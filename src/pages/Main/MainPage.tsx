@@ -9,35 +9,37 @@ import video5 from "../../assets/videos/video5.mp4";
 import { OptimizedVideoPlayer } from "../../shared/helpers/OptimizedVideoPlayer";
 import TelegramIcon from '@mui/icons-material/Telegram';
 import YouTubeIcon from '@mui/icons-material/YouTube';
-import VkIcon from '@mui/icons-material/ContactSupport';
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useScreenSize } from "../../shared/helpers/useScreenSize";
+import { useSetUser } from "../../shared/helpers/api/useSetUser";
 
 export function MainPage() {
+  const isMobile = useScreenSize();
+  const setUser = useSetUser();
   const navigate = useNavigate();
 
   useEffect(() => {
-  })
+    setUser();
+  }, []);
 
   return (
-    <div style={{margin: "20px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 15}}>
-      <Typography 
-        variant="h2" 
+    <div style={{margin: "8px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 15}}>
+      <Typography
         textAlign={"center"}
-        sx={{width: "100%", display: "flex", justifyContent: "center"}}>
+        sx={{display: "flex", justifyContent: "center", maxWidth: '100%', fontSize: { xs: "28px", lg: "3.6rem" }}}>
           Удобная платформа для проверки знаний!
       </Typography>
 
       <Typography 
-        variant="h5"
         textAlign={"center"}
-        sx={{width: "83%", display: "flex", justifyContent: "center", color: "lightgray"}}>
+        sx={{width: "83%", display: "flex", justifyContent: "center", color: "lightgray", fontSize: { xs: "16px", lg: "1.5rem" }}}>
           Хотите проверить знания в определённой сфере себя или кого - то ещё? Сервис по генерации викторин на базе AI отлично справится с этой задачей!
       </Typography>
 
       <div style={{display: "flex", gap: 10}}>
         <Button onClick={() => navigate("/tests")} variant="contained">Попробовать бесплатно</Button>
-        <Button variant="outlined">Смотреть обзор</Button>
+        <Button onClick={() => navigate("/register")} variant="outlined">Регистрация</Button>
       </div>
 
       <div style={{marginTop: "100px"}}>
@@ -54,27 +56,27 @@ export function MainPage() {
         </Card>
       </div>
 
-      <Box sx={{width: "99vw", height: "100%", backgroundColor: "#06545b", margin: 0, marginTop: "-20px", padding: "80px"}}>
+      <Box sx={{width: "99vw", height: "100%", backgroundColor: "#06545b", margin: 0, marginTop: "-20px", padding: isMobile ? "16px" : "80px"}}>
         <Typography 
           variant="h5"
-          sx={{width: "83%", display: "flex", color: "lightgray"}}>
+          sx={{width: "83%", display: "flex", color: "lightgray", fontSize: { xs: "16px", lg: "1.5rem" }}}>
             Для преподавателей
         </Typography>
 
         <Typography 
           variant="h3"
-          sx={{width: "100%", display: "flex"}}>
+          sx={{width: "100%", display: "flex", fontSize: { xs: "25px", lg: "3rem" }}}>
             Просматривайте прогресс учеников
         </Typography>
 
         <Typography 
           variant="h6"
-          sx={{width: "83%", display: "flex"}}>
+          sx={{width: "83%", display: "flex", fontSize: { xs: "12px", lg: "1.2rem" }}}>
             Удобные фильтры позволяют увидеть нужные результаты участников викторин
         </Typography>
 
         <div style={{width: "100%", justifyContent: "center", display: "flex", marginTop: "80px"}}>
-          <Box sx={{backgroundColor: "#033b40", padding: 5, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(0, 184, 212, 0.6)'}}>
+          <Box sx={{backgroundColor: "#033b40", padding: isMobile ? 0.5 : 3, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(0, 184, 212, 0.6)'}}>
             <Card sx={{
               maxWidth: 1400,
               width: "100%", 
@@ -87,18 +89,18 @@ export function MainPage() {
 
         <Typography 
           variant="h3"
-          sx={{width: "100%", display: "flex", marginTop: "200px"}}>
+          sx={{width: "100%", display: "flex", marginTop: "200px", fontSize: { xs: "28px", lg: "3.6rem" }}}>
             Делитесь ссылками на викторины
         </Typography>
 
         <Typography 
           variant="h6"
-          sx={{width: "83%", display: "flex"}}>
+          sx={{width: "83%", display: "flex", fontSize: { xs: "12px", lg: "1.2rem" }}}>
             Копируйте ссылки на викторины одной кнопкой мыши и делитесь ими со всеми желающими!
         </Typography>
 
         <div style={{width: "100%", justifyContent: "center", display: "flex", marginTop: "80px"}}>
-          <Box sx={{backgroundColor: "#033b40", padding: 5, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(0, 184, 212, 0.6)'}}>
+          <Box sx={{backgroundColor: "#033b40", padding: isMobile ? 0.5 : 3, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(0, 184, 212, 0.6)'}}>
             <OptimizedVideoPlayer
               videoSrc={video}
             />
@@ -107,18 +109,18 @@ export function MainPage() {
 
         <Typography 
           variant="h3"
-          sx={{width: "100%", display: "flex", marginTop: "200px"}}>
+          sx={{width: "100%", display: "flex", marginTop: "200px", fontSize: { xs: "25px", lg: "3rem" }}}>
             Создание с помощью ИИ
         </Typography>
 
         <Typography 
           variant="h6"
-          sx={{width: "83%", display: "flex"}}>
+          sx={{width: "83%", display: "flex", fontSize: { xs: "12px", lg: "1.2rem" }}}>
             ИИ сможет помочь вам в создании викторины по любой теме, вы в свою очередь без проблем сможете отредактировать созданное
         </Typography>
 
         <div style={{width: "100%", justifyContent: "center", display: "flex", marginTop: "80px"}}>
-          <Box sx={{backgroundColor: "#033b40", padding: 5, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(0, 184, 212, 0.6)'}}>
+          <Box sx={{backgroundColor: "#033b40", padding: isMobile ? 0.5 : 3, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(0, 184, 212, 0.6)'}}>
             <OptimizedVideoPlayer
               videoSrc={video2}
             />
@@ -126,27 +128,47 @@ export function MainPage() {
         </div>
       </Box>
 
-      <Box sx={{width: "99vw", height: "100%", backgroundColor: "#0a5723", margin: 0, marginTop: "-20px", padding: "80px"}}>
+      <Box sx={{width: "99vw", height: "100%", backgroundColor: "#0a5723", margin: 0, marginTop: "-20px", padding: isMobile ? "16px" : "80px"}}>
           <Typography 
             variant="h5"
-            sx={{width: "83%", display: "flex", color: "lightgray"}}>
+            sx={{width: "83%", display: "flex", color: "lightgray", fontSize: { xs: "16px", lg: "1.5rem" }}}>
               Для учеников
           </Typography>
 
           <Typography 
             variant="h3"
-            sx={{width: "100%", display: "flex"}}>
+            sx={{width: "100%", display: "flex", fontSize: { xs: "25px", lg: "3rem" }}}>
+              Анализ ошибок с помощью AI
+          </Typography>
+
+          <Typography 
+            variant="h6"
+            sx={{width: "83%", display: "flex", fontSize: { xs: "12px", lg: "1.2rem" }}}>
+              AI проанализирует ваши ошибки и объяснит правильный ответ!
+          </Typography>
+
+          <div style={{width: "100%", justifyContent: "center", display: "flex", marginTop: "80px"}}>
+            <Box sx={{backgroundColor: "#054319", padding: isMobile ? 0.5 : 3, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(12, 202, 77, 0.6)'}}>
+              <OptimizedVideoPlayer
+                videoSrc={video5}
+              />
+            </Box>
+          </div>
+
+          <Typography 
+            variant="h3"
+            sx={{width: "100%", display: "flex", marginTop: "200px", fontSize: { xs: "25px", lg: "3rem" }}}>
               Режим "интервальных повторений"
           </Typography>
 
           <Typography 
             variant="h6"
-            sx={{width: "83%", display: "flex"}}>
-              Решайте задачи до тех пор, пока квадратики полностью не заполнятся зелёным!
+            sx={{width: "83%", display: "flex", fontSize: { xs: "12px", lg: "1.2rem" }}}>
+              Решайте задачи до тех пор, пока не запмоните всё!
           </Typography>
 
           <div style={{width: "100%", justifyContent: "center", display: "flex", marginTop: "80px"}}>
-            <Box sx={{backgroundColor: "#054319", padding: 5, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(12, 202, 77, 0.6)'}}>
+            <Box sx={{backgroundColor: "#054319", padding: isMobile ? 0.5 : 3, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(12, 202, 77, 0.6)'}}>
               <OptimizedVideoPlayer
                 videoSrc={video3}
               />
@@ -155,40 +177,20 @@ export function MainPage() {
 
           <Typography 
             variant="h3"
-            sx={{width: "100%", display: "flex", marginTop: "200px"}}>
+            sx={{width: "100%", display: "flex", marginTop: "200px", fontSize: { xs: "25px", lg: "3rem" }}}>
               Понравившиеся викторины
           </Typography>
 
           <Typography 
             variant="h6"
-            sx={{width: "83%", display: "flex"}}>
+            sx={{width: "83%", display: "flex", fontSize: { xs: "12px", lg: "1.2rem" }}}>
               Вы можете сохранять викторины, которые вам понравились!
           </Typography>
 
           <div style={{width: "100%", justifyContent: "center", display: "flex", marginTop: "80px"}}>
-            <Box sx={{backgroundColor: "#054319", padding: 5, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(12, 202, 77, 0.6)'}}>
+            <Box sx={{backgroundColor: "#054319", padding: isMobile ? 0.5 : 3, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(12, 202, 77, 0.6)'}}>
               <OptimizedVideoPlayer
                 videoSrc={video4}
-              />
-            </Box>
-          </div>
-
-          <Typography 
-            variant="h3"
-            sx={{width: "100%", display: "flex", marginTop: "200px"}}>
-              Анализ ошибок с помощью AI
-          </Typography>
-
-          <Typography 
-            variant="h6"
-            sx={{width: "83%", display: "flex"}}>
-              AI проанализирует ваши ошибки и объяснит правильный ответ!
-          </Typography>
-
-          <div style={{width: "100%", justifyContent: "center", display: "flex", marginTop: "80px"}}>
-            <Box sx={{backgroundColor: "#054319", padding: 5, borderRadius: 4, boxShadow: '0 0 20px 5px rgba(12, 202, 77, 0.6)'}}>
-              <OptimizedVideoPlayer
-                videoSrc={video5}
               />
             </Box>
           </div>
@@ -197,44 +199,44 @@ export function MainPage() {
       <Typography 
         variant="h3" 
         textAlign={"center"}
-        sx={{width: "100%", display: "flex", justifyContent: "center"}}>
-          Следи за новостями на официальных источниках!
+        sx={{width: "100%", display: "flex", justifyContent: "center", fontSize: { xs: "25px", lg: "3rem" }}}>
+          Соцсети
       </Typography>
 
-      <div style={{display: "flex", gap: 50}}>
+      <div style={{display: "flex", flexWrap: "wrap", gap: isMobile ? 20 : 50, justifyContent: "center"}}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TelegramIcon color="primary" fontSize="large" />
           <Link 
-            href="https://t.me/yourofficialchannel" 
+            href="https://t.me/EvgenijBe" 
             target="_blank"
             rel="noopener noreferrer"
-            variant="h5"
+            variant={isMobile ? "h6" : "h5"}
           >
-            Официальный Telegram-канал SynapzeAI
+            Написать в ЛС
           </Link>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <VkIcon color="primary" fontSize="large" />
+          <TelegramIcon color="primary" fontSize="large" />
           <Link 
-            href="https://t.me/yourofficialchannel" 
+            href="https://t.me/+UewO81O-GeJmZGVi" 
             target="_blank"
             rel="noopener noreferrer"
-            variant="h5"
+            variant={isMobile ? "h6" : "h5"}
           >
-           Наша Страница в ВК
+            канал разработчика
           </Link>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <YouTubeIcon color="primary" fontSize="large" />
           <Link 
-            href="https://t.me/yourofficialchannel" 
+            href="https://youtube.com/@light_script?si=IemX5-uRMqp7g4gL" 
             target="_blank"
             rel="noopener noreferrer"
-            variant="h5"
+            variant={isMobile ? "h6" : "h5"}
           >
-           YouTube канал разработчика
+           канал разработчика
           </Link>
         </Box>
       </div>

@@ -6,11 +6,8 @@ import { VerdictIntervalTaskCard } from "../entities/task/components/VerdictInte
 import { Test } from "../entities/test/Test";
 import { useEffect } from "react";
 import { UpdateTaskStatisticDto } from "../entities/taskStatistic/api/UpdateTaskStatisticDto";
-import { toast } from "react-toastify";
 import { useUpdateTasksStatisticsMutation } from "../features/tests/api";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
-import { getErrorMessages } from "../shared/utils/getErrorMessages";
+import { HandleError } from "../shared/helpers/HandleError";
 
 export function VerdictIntervalPage() {
     const navigate = useNavigate();
@@ -40,11 +37,7 @@ export function VerdictIntervalPage() {
                 await updateTasksStatistics({ tasks: tasks }).unwrap();
             } 
             catch (error: unknown) {
-                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-                getErrorMessages(rtkError).map(error => {
-                    toast.error(error);
-                });
+                HandleError(error);
             }
         };
 

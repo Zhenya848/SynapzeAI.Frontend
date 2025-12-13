@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button, TextField, Typography } from "@mui/material";
 import { toast } from "react-toastify";
 import { useLoginMutation, useRegisterMutation, useVerifyUserMutation } from "../../features/accounts/api";
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
-import { getErrorMessages } from "../../shared/utils/getErrorMessages";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
+import { HandleError } from "../../shared/helpers/HandleError";
 
 export function RegistrationPage() {
     const [userName, setUserName] = useState("");
@@ -42,13 +40,8 @@ export function RegistrationPage() {
                 }
             }
             catch (error: unknown) {
-                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
                 setCodeError(true);
-
-                getErrorMessages(rtkError).map(error => {
-                    toast.error(error);
-                });
+                HandleError(error);
             }
         }
 
@@ -95,11 +88,7 @@ export function RegistrationPage() {
                 toast.info("Мы отправили код подтверждения на указанный telegram");
             }
             catch (error: unknown) {
-                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-                getErrorMessages(rtkError).map(error => {
-                    toast.error(error);
-                });
+                HandleError(error);
             }
             finally {
                 setIsLoading(false);
@@ -115,11 +104,7 @@ export function RegistrationPage() {
             navigate("/accountInfo");
         }
         catch (error: unknown) {
-            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-            getErrorMessages(rtkError).map(error => {
-                toast.error(error);
-            });
+            HandleError(error);
         }
         finally {
             setIsLoading(false);

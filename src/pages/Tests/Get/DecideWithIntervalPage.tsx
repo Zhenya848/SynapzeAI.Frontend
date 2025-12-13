@@ -20,6 +20,7 @@ import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../../features/accounts/auth.slice";
 import { toast } from "react-toastify";
+import { useScreenSize } from "../../../shared/helpers/useScreenSize";
 
 export function DecideWithIntervalPage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -45,6 +46,8 @@ export function DecideWithIntervalPage() {
   const setUser = useSetUser();
 
   const user = useSelector(selectUser);
+
+  const isMobile = useScreenSize();
 
   useEffect(() => {
     if (!test) {
@@ -196,7 +199,11 @@ export function DecideWithIntervalPage() {
           width: 'calc(100% - 40px)'
       },
     }}>
-        <ProgressBoxes totalQuestions={test.tasks.length} progressValues={priorityTasks.map(p => 1 - p.priorityNumber)}></ProgressBoxes>
+        <ProgressBoxes 
+          totalQuestions={test.tasks.length} 
+          progressValues={priorityTasks.map(p => 1 - p.priorityNumber)} 
+          brightness={1.8}>
+        </ProgressBoxes>
 
         <Box component="section" sx={{ 
             borderRadius: 3, 
@@ -240,6 +247,7 @@ export function DecideWithIntervalPage() {
                       margin: "20px",
                       width: "calc(100% - 40px)",
                       display: "flex",
+                      flexDirection: isMobile ? "column" : "row",
                   }}>
                   {test.tasks[currentTaskIndex].answers.map((answer) => (
                     <motion.div
@@ -276,191 +284,97 @@ export function DecideWithIntervalPage() {
             }
 
             <Box
-                sx={{
-                gap: 3,
-                margin: "20px",
-                width: "calc(100% - 40px)",
-                display: "flex",
-                }}
+              sx={{
+              gap: 3,
+              margin: "20px",
+              width: "calc(100% - 40px)",
+              display: "flex",
+              }}
             >
-                <Button
-                    variant="contained" 
-                    color="success"
-                    onClick={handleNext}
-                    sx={{
-                    width: "100%",
-                    wordBreak: 'break-all',
-                    color: "white"
-                    }}
-                >
-                    Далее
-                </Button>
+              <Button
+                  variant="contained" 
+                  color="success"
+                  onClick={handleNext}
+                  sx={{
+                  width: "100%",
+                  wordBreak: 'break-all',
+                  color: "white"
+                  }}
+              >
+                  Далее
+              </Button>
             </Box>
         </Box>
-
+        
         <Box component="section" sx={{ 
           p: 1,
           borderRadius: 3, 
           minWidth: "320px",
-          maxWidth: "360px",
+          maxWidth: isMobile ? '900px' : '360px',
           bgcolor: "#555555",
           marginTop: "20px",
-          height: '86vh',
+          height: isMobile ? "100%" : "86vh",
           display: 'flex',
           flexDirection: "column",
-          '@media (max-width: 900px)': {
-              width: '100%',
-              margin: "20px",
-              maxWidth: '900px',
-              height: "120px",
-              overflowY: "auto",
-          },
-        }}>
-          <div style={{ display: "flex", width: "100%" }}>
-            <div style={{ 
-                width: "100%", 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center' 
-            }}>
-              <Button 
-                  variant="contained" 
-                  color="success" 
-                  onClick={handleFinish} 
-                  sx={{ 
-                      width: "145px", 
-                      color: 'white' 
-                  }} 
-                  startIcon={<PlayArrowIcon />}
-              >
-                Завершить
-              </Button>
-                  
-              <Button 
-                  variant="contained" 
-                  color="inherit" 
-                  onClick={handleReset} 
-                  sx={{ 
-                      width: "145px", 
-                      marginTop: "20px" 
-                  }} 
-                  startIcon={<RestartAltIcon />}
-              >
-                Сброс
-              </Button>
-                  
-              <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={handleChangeMode} 
-                sx={{ 
-                    width: "145px", 
-                    marginTop: "20px", 
-                    color: "white" 
-                }} 
-                startIcon={<ChangeCircleIcon />}
-              >
-                Сменить режим
-              </Button>
-            </div>
+          width: '100%',
+          margin: "20px",
+          overflowY: "auto"
+        }}> 
+          {
+            isMobile
+            ?
+            <div style={{width: "100%"}}>
+              <div style={{gap: "20px", display: "flex", flexDirection: "column"}}>
+                <Button variant="contained" color="success" onClick={handleFinish} sx={{ width: "100%", color: 'white' }} startIcon={<PlayArrowIcon />}>Завершить</Button>
+                <Button variant="contained" color="inherit" onClick={handleReset} sx={{ width: "100%" }} startIcon={<RestartAltIcon />}>Сброс</Button>
+                <Button variant="contained" color="primary" onClick={handleChangeMode} sx={{ width: "100%", color: "white" }} startIcon={<ChangeCircleIcon />}>Сменить режим</Button>
+                <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "100%", color: 'white' }} startIcon={<ClearIcon />}>Выйти</Button>
+                <Button variant="contained" onClick={handlePause} color="warning" sx={{ width: "100%", color: "white" }} startIcon={<PauseIcon />}>Пауза</Button>
+                <Button variant="outlined" onClick={handleUpdateTest} startIcon={<BuildIcon />} sx={{ width: "100%" }}>Изменить задачи</Button>
+              </div>
 
-            <div style={{ 
-              width: "100%", 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center' 
-            }}>
-              <Button 
-                variant="contained" 
-                color="error" 
-                onClick={handleCancel} 
-                sx={{ 
-                    width: "145px", 
-                    color: 'white' 
-                }} 
-                startIcon={<ClearIcon />}
-              >
-                Выйти
-              </Button>
-                  
-              <Button 
-                variant="contained" 
-                onClick={handlePause} 
-                color="warning"
-                sx={{ 
-                    width: "145px", 
-                    marginTop: "20px", 
-                    color: "white" 
-                }} 
-                startIcon={<PauseIcon />}
-              >
-                Пауза
-              </Button>
-                  
-              <Button  
-                variant="outlined" 
-                onClick={handleUpdateTest} 
-                startIcon={<BuildIcon />} 
-                sx={{ 
-                    width: "145px", 
-                    marginTop: "20px" 
-                }}
-              >
-                  Изменить задачи
-              </Button>
+              <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: "20px"}}>
+                <FormControlLabel control={<Checkbox checked={isWrongAnswerAnimationActive} onChange={(e) => setIsWrongAnswerAnimationActive(e.target.checked)} />} label="Показывать ответ после решения"/>
+                <FormControlLabel control={<Checkbox checked={isHideAnswers} onChange={(e) => setIsHideAnswers(e.target.checked)} />} label="Скрывать варианты ответа"/>
+                <FormControlLabel control={<Checkbox checked={isHideSolvingTime} onChange={(e) => setIsHideSolvingTime(e.target.checked)} />} label="Скрывать время решения"/>
+              </div>
             </div>
-          </div>
+            :
+            <div>
+              <div style={{display: "flex", width: "100%"}}> 
+                <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                  <Button variant="contained" color="success" onClick={handleFinish} sx={{ width: "145px", color: 'white' }} startIcon={<PlayArrowIcon />}>Завершить</Button>
+                  <Button variant="contained" color="inherit" onClick={handleReset} sx={{ width: "145px", marginTop: "20px" }} startIcon={<RestartAltIcon />}>Сброс</Button>
+                  <Button variant="contained" color="primary" onClick={handleChangeMode} sx={{ width: "145px", color: "white", marginTop: "20px" }} startIcon={<ChangeCircleIcon />}>Сменить режим</Button>
+                </div>
 
-          <div style={{ 
-              width: "100%", 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              marginTop: "20px" 
-          }}>
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={isWrongAnswerAnimationActive} 
-                  onChange={(e) => setIsWrongAnswerAnimationActive(e.target.checked)} 
-                />
-              }
-              label="Показывать ответ после решения"
-            />
-              
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={isHideAnswers} 
-                  onChange={(e) => setIsHideAnswers(e.target.checked)} 
-                />
-              } 
-              label="Скрывать варианты ответа"
-            />
-              
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  checked={isHideSolvingTime} 
-                  onChange={(e) => setIsHideSolvingTime(e.target.checked)} 
-                />
-              } 
-              label="Скрывать время решения"
-            />
-          </div>
+                <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                  <Button variant="contained" color="error" onClick={handleCancel} sx={{ width: "145px", color: 'white' }} startIcon={<ClearIcon />}>Выйти</Button>
+                  <Button variant="contained" onClick={handlePause} color="warning" sx={{ width: "145px", color: "white", marginTop: "20px" }} startIcon={<PauseIcon />}>Пауза</Button>
+                  <Button variant="outlined" onClick={handleUpdateTest} startIcon={<BuildIcon />} sx={{ width: "145px", marginTop: "20px" }}>Изменить задачи</Button>
+                </div>
+              </div>
+
+              <div style={{width: "100%", display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: "20px"}}>
+                <FormControlLabel control={<Checkbox checked={isWrongAnswerAnimationActive} onChange={(e) => setIsWrongAnswerAnimationActive(e.target.checked)} />} label="Показывать ответ после решения"/>
+                <FormControlLabel control={<Checkbox checked={isHideAnswers} onChange={(e) => setIsHideAnswers(e.target.checked)} />} label="Скрывать варианты ответа"/>
+                <FormControlLabel control={<Checkbox checked={isHideSolvingTime} onChange={(e) => setIsHideSolvingTime(e.target.checked)} />} label="Скрывать время решения"/>
+              </div>
+            </div>
+          }
+          
+          <PauseDialog open={isPauseDialogOpen} onClose={handlePauseDialogClose}></PauseDialog>
 
           <div style={{
-            width: "100%", 
+            height: "100%",
             display: 'flex', 
             flexDirection: 'column', 
-            alignItems: 'center', 
-            height: '100vh', 
-            justifyContent: 'flex-end', 
+            alignItems: 'center',
+            justifyContent: "end",
+            marginTop: "20px", 
             visibility: isHideSolvingTime ? 'hidden' : 'visible'}}>
               <Stopwatch ref={stopwatchRef} />
           </div>
         </Box>
-
-        <PauseDialog open={isPauseDialogOpen} onClose={handlePauseDialogClose}></PauseDialog>
     </Box>)
 }

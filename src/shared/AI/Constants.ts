@@ -1,0 +1,1 @@
+export const MAX_TASKS_TO_GENERATE = 20;

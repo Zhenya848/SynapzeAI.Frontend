@@ -4,18 +4,15 @@ import { useNavigate } from "react-router-dom";
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
 import { toast } from "react-toastify";
-import { FileExtensions } from "../../../shared/extensions/FileExtensions";
-import { generateTestWithAI } from "../../../features/AI/GenerateTestWithAI";
-import { useCreateTestMutation } from "../../../features/tests/api";
+import { useCreateTestWithAiMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
-import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
+import { HandleError } from "../../../shared/helpers/HandleError";
+import { MAX_TASKS_TO_GENERATE } from "../../../shared/AI/Constants";
+import { selectUser } from "../../../features/accounts/auth.slice";
+import { useSelector } from "react-redux";
 
 export function CreateTestWithAI() {
     const navigate = useNavigate();
-
-    const [preview, setPreview] = useState<string>('');
 
     const [testTheme, setTestTheme] = useState<string>("");
     const [testThemeError, setTestThemeError] = useState(false);
@@ -32,9 +29,13 @@ export function CreateTestWithAI() {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const [createTest] = useCreateTestMutation();
+    const [createTestWithAI] = useCreateTestWithAiMutation();
+    
+    const [file, setFile] = useState<File | undefined>();
 
     const setUser = useSetUser();
+
+    const user = useSelector(selectUser);
 
     useEffect(() => {
         setUser();
@@ -106,39 +107,39 @@ export function CreateTestWithAI() {
         const tasksCountNum = tasksCount ? Number.parseInt(tasksCount) : 5;
         const difficultyNum = difficulty ? Number.parseInt(difficulty) : 50;
 
+        if (tasksCountNum > MAX_TASKS_TO_GENERATE) {
+            toast.warning(`Максимальное количество задач для генерации: ${MAX_TASKS_TO_GENERATE}`);
+
+            return;
+        }
+
+        if (!user) {
+            navigate("/login");
+            return;
+        }
+
+        if ((file != undefined && user.balance < 1) || user.trialBalance + user.balance < 1) {
+            toast.warning(`Пополните баланс, чтобы создать викторину`);
+            return;
+        }
+
         try {
             setIsLoading(true);
 
-            const test = await generateTestWithAI(
-                testTheme, 
-                isTimeLimited, 
-                percentOfOpenTasksNum, 
-                tasksCountNum, 
-                difficultyNum, 
-                seconds, 
-                minutes, 
-                preview);
-            
-            if (!test)
-                return;
-
-            await createTest({ 
-                testName: test.testName, 
-                theme: test.theme, 
-                isPublished: false, 
-                tasks: test.tasks,
-                seconds: test.limitTime?.seconds,
-                minutes: test.limitTime?.minutes
+            await createTestWithAI({
+                testTheme: testTheme,
+                percentOfOpenTasks: percentOfOpenTasksNum,
+                difficulty: difficultyNum,
+                tasksCount: tasksCountNum,
+                seconds: seconds,
+                minutes: minutes,
+                file
             }).unwrap();
             
             navigate("/tests");
         } 
         catch (error: unknown) {
-            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-            getErrorMessages(rtkError).map(error => {
-                toast.error(error);
-            });
+            HandleError(error);
         } 
         finally {
             setIsLoading(false);
@@ -155,19 +156,7 @@ export function CreateTestWithAI() {
         if (!file) 
             return;
 
-        setIsLoading(true);
-        
-        try {
-            const base64 = await FileExtensions.encodeImageToBase64(file);
-            setPreview(base64);
-        } 
-        catch (error) {
-            console.error('Ошибка:', error);
-            alert('Ошибка обработки изображения');
-        } 
-        finally {
-            setIsLoading(false);
-        }
+        setFile(file);
     }, []);
 
     return (
@@ -177,15 +166,17 @@ export function CreateTestWithAI() {
                     <CardMedia
                         component="img"
                         height="140"
-                        image={preview ?? "https://i.pinimg.com/originals/0b/ae/97/0bae97a138f2cd95c739ef87685cfc92.jpg"}
+                        image={""}
                     />
 
                     <Input
                         type="file"
                         style={{ width: "100%" }}
                         onChange={handleFileSelect}
-                        disabled={isLoading} />
+                        disabled={isLoading || (user && user.balance < 1)} />
                 </Card>
+
+                <Typography>{user && user.balance < 1 ? "Недоступно в пробной версии. Пополните баланс, чтобы прикреплять файлы!" : ""}</Typography>
 
                 <TextField 
                     id="outlined-basic"

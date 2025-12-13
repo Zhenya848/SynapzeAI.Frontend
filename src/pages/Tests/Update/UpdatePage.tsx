@@ -1,4 +1,4 @@
-import { Button, FormControlLabel, Switch, TextField, Typography} from "@mui/material";
+import { Box, Button, FormControlLabel, Switch, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import SaveIcon from '@mui/icons-material/Save';
@@ -15,11 +15,9 @@ import { LimitTime } from "../../../entities/valueObjects/LimitTime";
 import { Task } from "../../../entities/task/Task";
 import { useUpdateTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
-import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../../features/accounts/auth.slice";
+import { HandleError } from "../../../shared/helpers/HandleError";
 
 export function UpdateTest() {
     const [testName, setTestName] = useState<string>("");
@@ -176,11 +174,7 @@ export function UpdateTest() {
                 navigate("/tests");
             } 
             catch (error: unknown) {
-                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-                getErrorMessages(rtkError).map(error => {
-                    toast.error(error);
-                });
+                HandleError(error);
             }
         }
     }
@@ -259,18 +253,28 @@ export function UpdateTest() {
                 flexWrap: 'wrap', 
                 justifyContent: "left"
             }}>
-                {testTasks.map((task, index) => (
-                    <TaskCard 
-                        key={index}
-                        taskId={task.id}
-                        nameCardInfo={task.taskName}
-                        message={task.taskMessage}
-                        rightAnswer={task.rightAnswer ?? ""}
-                        answers={task.answers}
-                        onDelete={handleDeleteTask}
-                        onUpdate={handleUpdateTask}>
-                    </TaskCard >
-                ))}
+                <Box sx={{ 
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 600px), 1fr))",
+                    gap: 2,
+                    width: "100%",
+                    padding: 2,
+                    marginTop: "10px",
+                    boxSizing: "border-box" 
+                }}>
+                    {testTasks.map((task, index) => (
+                        <TaskCard 
+                            key={index}
+                            taskId={task.id}
+                            nameCardInfo={task.taskName}
+                            message={task.taskMessage}
+                            rightAnswer={task.rightAnswer ?? ""}
+                            answers={task.answers}
+                            onDelete={handleDeleteTask}
+                            onUpdate={handleUpdateTask}>
+                        </TaskCard >
+                    ))}
+                </Box>
             </div>
 
             <div style={{ display: "flex", margin: "40px", justifyContent: "center"}}>

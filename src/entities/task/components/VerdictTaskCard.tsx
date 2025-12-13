@@ -21,7 +21,7 @@ function getBgColor(isRightAnswer: boolean | string | undefined, points: number 
 }
 
 export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer, answers, comment, points}: IVerdictTaskCardInfo) {
-    const isRightAnswer = rightAnswer && userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase();
+    const isRightAnswer = rightAnswer ? userAnswer.toLocaleLowerCase() === rightAnswer.toLowerCase() : undefined;
 
     return (
         <Box sx={{
@@ -56,7 +56,6 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                 flex: 1,
                 minWidth: 0
             }}>
-                {/* Название */}
                 <Box sx={{ maxWidth: '97%' }}>
                     <Typography sx={{ 
                         color: "lightgrey", 
@@ -82,7 +81,6 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                     </Typography>
                 </Box>
 
-                {/* Сообщение */}
                 <Box sx={{ maxWidth: '97%' }}>
                     <Typography sx={{ 
                         color: "lightgrey", 
@@ -108,7 +106,6 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                     </Typography>
                 </Box>
 
-                {/* Варианты ответов */}
                 {answers && answers.length > 0 && (
                     <Box sx={{ maxWidth: '97%' }}>
                         <Typography sx={{ 
@@ -136,7 +133,6 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                     </Box>
                 )}
 
-                {/* Правильный ответ */}
                 {rightAnswer && (
                     <Box sx={{ maxWidth: '97%' }}>
                         <Typography sx={{ 
@@ -164,7 +160,6 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                     </Box>
                 )}
 
-                {/* Ответ пользователя */}
                 <Box sx={{ maxWidth: '97%' }}>
                     <Typography sx={{ 
                         color: "lightgrey", 
@@ -190,7 +185,6 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                     </Typography>
                 </Box>
 
-                {/* Комментарий */}
                 {comment && (
                     <Box sx={{ maxWidth: '97%' }}>
                         <Typography sx={{ 
@@ -218,7 +212,6 @@ export function VerdictTaskCard({nameCardInfo, message, userAnswer, rightAnswer,
                     </Box>
                 )}
 
-                {/* Правильность ответа */}
                 {points != null && (
                     <Box sx={{ maxWidth: '97%' }}>
                         <Typography sx={{ 

@@ -36,7 +36,6 @@ export function TaskCard({taskId, nameCardInfo, message, rightAnswer, answers, o
             bgcolor: "#616161",
             margin: '20px',
             minWidth: "280px",
-            maxWidth: '520px',
             boxSizing: 'border-box'
         }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px', margin: '15px', height: "90%" }}>

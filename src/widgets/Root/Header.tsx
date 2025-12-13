@@ -23,7 +23,7 @@ export function Header() {
                     </div>
                     :
                     <div className='flex flex-row gap-5 items-center justify-center'>
-                        <NavLink to="/" className="text-2xl pr-5">Synapze AI</NavLink>
+                        <NavLink to="/" className="text-2xl pr-5">Synapze AI Beta</NavLink>
                         <NavLink to="/tests">Мои викторины</NavLink>
                         <NavLink to="/global">Глобальные</NavLink>
                         <NavLink to="/tests/saved">Сохраненные</NavLink>
@@ -34,14 +34,26 @@ export function Header() {
                 <div className='flex flex-row gap-5 items-center justify-center'>
                     {
                         user && 
-                        <Chip
-                            label={`Баланс: ${user.balance}`}
-                            onDelete={() => navigate("/prices")}
-                            deleteIcon={<ControlPointIcon />}
-                            color = "primary"
-                            variant='outlined'
-                            style={{color: "white"}}
-                        />
+                        <div style={{display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center"}}>
+                            {
+                                user.trialBalance > 0 &&
+                                <Chip
+                                    label={`Пробные: ${user.trialBalance}`}
+                                    color = "warning"
+                                    variant='outlined'
+                                    style={{color: "white"}}
+                                />
+                            }
+
+                            <Chip
+                                label={`Баланс: ${user.balance}`}
+                                onDelete={() => navigate("/prices")}
+                                deleteIcon={<ControlPointIcon />}
+                                color = "primary"
+                                variant='outlined'
+                                style={{color: "white"}}
+                            />
+                        </div>
                     }
 
                     {user ? <NavLink to="/accountInfo">Аккаунт</NavLink> : <NavLink to="/login">Войти</NavLink>}

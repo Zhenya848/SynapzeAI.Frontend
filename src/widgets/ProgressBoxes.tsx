@@ -7,10 +7,11 @@ interface IProgressBoxesInfo {
     errorBoxes?: number[]
     onChoose?: (index: number) => void,
     progressValues?: number[]
-    currentIndex?: number
+    currentIndex?: number,
+    brightness?: number,
 }
 
-const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose, progressValues, currentIndex}: IProgressBoxesInfo) => {
+const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose, progressValues, currentIndex, brightness}: IProgressBoxesInfo) => {
     const progress = (progressValues ?? Array(totalQuestions).fill(0));
 
     const isErrorBox = (index: number) => {
@@ -67,7 +68,7 @@ const ProgressBoxes = ({totalQuestions = 4, errorBoxes, onChoose, progressValues
             {progress.map((value, index) => (
                 <button onClick={() => {if (onChoose) onChoose(index)}} key={index} style={{...boxStyle(index), flexShrink: 0}}>
                     <span style={textStyle}>{index + 1}</span>
-                    <div style={fillStyle(value)} />
+                    <div style={fillStyle(value, brightness)} />
                 </button>
             ))}
         </Box>
