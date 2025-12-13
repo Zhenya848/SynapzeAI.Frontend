@@ -15,9 +15,7 @@ import { TestCard } from "../../../entities/test/components/TestCard";
 import { useAddSavedTestMutation, useDeleteSavedTestMutation, useDeleteTestMutation, useGetTestsQuery } from "../../../features/tests/api";
 import { TestCardSkeleton } from "../../../entities/test/components/TestCardSkeleton";
 import { GetCookies } from "../../../shared/helpers/api/GetCookies";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
-import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
+import { HandleError } from "../../../shared/helpers/HandleError";
 
 export function GetTests() {
     const navigate = useNavigate();
@@ -109,11 +107,7 @@ export function GetTests() {
                     await deleteTest({ testId: testId }).unwrap();
             }
             catch (error: unknown) {
-                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-                getErrorMessages(rtkError).map(error => {
-                    toast.error(error);
-                });
+                HandleError(error);
             } 
         }
 

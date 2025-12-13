@@ -1,3 +1,4 @@
+import { UpdateTaskHistoryDto } from "../../entities/solvingHistory/api/UpdateTaskHistoryDto";
 import { CreateTaskDto } from "../../entities/task/api/CreateTaskDto";
 import { UpdateTaskDto } from "../../entities/task/api/UpdateTaskDto";
 import { UpdateTaskStatisticDto } from "../../entities/taskStatistic/api/UpdateTaskStatisticDto";
@@ -59,6 +60,46 @@ export const testsApi = baseApi.injectEndpoints({
             invalidatesTags: ["Tests"]
         }),
 
+        createTestWithAi: builder.mutation<string, {testTheme: string, percentOfOpenTasks: number, difficulty: number, tasksCount?: number, seconds?: number, minutes?: number, file?: File}>({
+            query: ({ testTheme, percentOfOpenTasks, difficulty, tasksCount, seconds, minutes, file }) => {
+                const formData = new FormData();
+
+                formData.append('TestTheme', testTheme);
+                formData.append('PercentOfOpenTasks', percentOfOpenTasks.toString());
+                formData.append('Difficulty', difficulty.toString());
+                
+                if (tasksCount !== undefined && tasksCount !== null) {
+                    formData.append('TasksCount', tasksCount.toString());
+                }
+                
+                if (seconds !== undefined && seconds !== null) {
+                    formData.append('Seconds', seconds.toString());
+                }
+                
+                if (minutes !== undefined && minutes !== null) {
+                    formData.append('Minutes', minutes.toString());
+                }
+                
+                if (file) {
+                    formData.append('File', file);
+                }
+
+                return {
+                    url: TESTS_SERVICE_API_URL + "withAi",
+                    method: 'POST',
+                    body: formData,
+                };
+            }
+        }),
+
+        explainTasks: builder.mutation<Envelope<UpdateTaskHistoryDto[]>, { solvingHistoryId: string }>({
+            query: ({ solvingHistoryId }) => ({
+                url: TESTS_SERVICE_API_URL + `${solvingHistoryId}/explain`,
+                method: "PUT"
+            }),
+            invalidatesTags: ["Tests"]
+        }),
+
         updateTasksStatistics: builder.mutation<void, { tasks: UpdateTaskStatisticDto[] }>({
             query: ({ tasks }) => ({
                 url: TESTS_SERVICE_API_URL + "tasksStatistic",
@@ -103,6 +144,8 @@ export const {
     useDeleteTestMutation, 
     useUpdateTestMutation,
     useCreateTestMutation,
+    useCreateTestWithAiMutation,
+    useExplainTasksMutation,
     useUpdateTasksStatisticsMutation,
     useAddSavedTestMutation,
     useGetSavedTestsWithPaginationQuery,

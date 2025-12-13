@@ -1,7 +1,6 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import EmailIcon from '@mui/icons-material/Email';
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import BadgeIcon from '@mui/icons-material/Badge';
 import { useNavigate } from "react-router-dom";
 import { DialogWindow } from "../../widgets/DialogWindow";
@@ -11,9 +10,7 @@ import { logout, selectUser, setCredentials } from "../../features/accounts/auth
 import { useAppDispatch } from "../../app/store";
 import { useLogoutMutation, useRefreshMutation, useUpdateUserMutation } from "../../features/accounts/api";
 import { GetCookies } from "../../shared/helpers/api/GetCookies";
-import { getErrorMessages } from "../../shared/utils/getErrorMessages";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
+import { HandleError } from "../../shared/helpers/HandleError";
 
 export function AccountPage() {
     const dispatch = useAppDispatch();
@@ -71,12 +68,7 @@ export function AccountPage() {
             await refreshUser();
         } 
         catch (error: unknown) {
-            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-            const errorMessages = getErrorMessages(rtkError);
-
-            errorMessages.forEach((errorMessage: string) => {
-                toast.error(errorMessage);
-            });
+            HandleError(error);
         }
     };
 

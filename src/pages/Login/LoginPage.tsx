@@ -5,9 +5,7 @@ import { toast } from "react-toastify";
 import { useLoginMutation } from "../../features/accounts/api";
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
-import { getErrorMessages } from "../../shared/utils/getErrorMessages";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
+import { HandleError } from "../../shared/helpers/HandleError";
 
 export function LoginPage() {
     const [login, {isLoading}] = useLoginMutation();
@@ -46,11 +44,7 @@ export function LoginPage() {
                 navigate("/accountInfo");
             }
             catch (error: unknown) {
-                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-                getErrorMessages(rtkError).map(error => {
-                    toast.error(error);
-                });
+                HandleError(error);
             }
         }
     }

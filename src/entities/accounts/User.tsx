@@ -4,4 +4,5 @@ export type User = {
     userName: string;
     uniqueUserName: string;
     balance: number;
+    trialBalance: number;
 }

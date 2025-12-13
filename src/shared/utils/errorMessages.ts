@@ -7,5 +7,6 @@ export const ErrorMessages: Record<string, string> = {
     "DuplicateUserName": "Пользователь с таким именем уже существует",
     "user.notfound": "Пользователь не найден",
     "user.wrong.credentials": "Неверные пользовательские данные",
-    "server.internal": "Ошибка на стороне сервера"
+    "server.internal": "Ошибка на стороне сервера",
+    "find.chat.failure": "Не удалось найти telegram чат"
 }

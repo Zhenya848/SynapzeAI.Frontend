@@ -5,18 +5,15 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { useEffect, useState } from "react";
 import { TaskHistory } from "../entities/taskHistory/TaskHistory";
-import { toast } from "react-toastify";
 import { Test } from "../entities/test/Test";
 import PsychologyIcon from '@mui/icons-material/Psychology';
-import { explainTasks } from "../features/AI/ExplainTasks";
 import { VerdictTaskCard } from "../entities/task/components/VerdictTaskCard";
-import { useCreateSolvingHistoryMutation, useUpdateSolvingHistoryMutation } from "../features/solvingHistories/api";
+import { useCreateSolvingHistoryMutation } from "../features/solvingHistories/api";
 import { GetCookies } from "../shared/helpers/api/GetCookies";
 import { useSelector } from "react-redux";
 import { selectUser } from "../features/accounts/auth.slice";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
-import { getErrorMessages } from "../shared/utils/getErrorMessages";
+import { HandleError } from "../shared/helpers/HandleError";
+import { useExplainTasksMutation } from "../features/tests/api";
 
 export function VerdictPage() {
     const navigate = useNavigate();
@@ -35,7 +32,7 @@ export function VerdictPage() {
     const user = useSelector(selectUser);
 
     const [createSolvingHistory] = useCreateSolvingHistoryMutation();
-    const [updateSolvingHistory] = useUpdateSolvingHistoryMutation();
+    const [explainTasks] = useExplainTasksMutation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -67,11 +64,7 @@ export function VerdictPage() {
                 setTaskHistories(taskHistories);
             } 
             catch (error: unknown) {
-                const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-                getErrorMessages(rtkError).map(error => {
-                    toast.error(error);
-                });
+                HandleError(error);
             }
             finally {
                 setIsLoading(false);
@@ -79,7 +72,7 @@ export function VerdictPage() {
         };
 
         fetchData();
-    }, [answerHistory, createSolvingHistory, expiredTime, isRefreshToken, navigate, test, user]);
+    }, []);
 
     if (isLoading) {
         return (
@@ -100,27 +93,15 @@ export function VerdictPage() {
         navigate("/tests/decide", { state: { testData } });
     }
 
-    const handleUpdate = async () => {
+    const handleExplainTasks = async () => {
         try {
             setIsLoading(true);
 
-            if (!test)
-                return;
-
-            const tasksToExplain = taskHistories.filter(t => !t.rightAnswer || t.userAnswer !== t.rightAnswer)
-            const tasks = await explainTasks(tasksToExplain);
-
-            if (!tasks)
-                return;
-
-            await updateSolvingHistory({
-                solvingHistoryId: solvingHistoryId, 
-                tasks: tasks
-            });
+            const tasks = await explainTasks({solvingHistoryId: solvingHistoryId}).unwrap();
 
             setTaskHistories(prev => 
                 prev.map(item => {
-                    const task = tasks.find(v => v.serialNumber === item.serialNumber);
+                    const task = tasks.result!.find(v => v.serialNumber === item.serialNumber);
 
                     return task ? {
                         ...item, 
@@ -131,11 +112,7 @@ export function VerdictPage() {
             );
         }
         catch (error: unknown) {
-            const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-            getErrorMessages(rtkError).map(error => {
-                toast.error(error);
-            });
+            HandleError(error);
         } 
         finally {
             setIsLoading(false);
@@ -191,7 +168,7 @@ export function VerdictPage() {
                 <Button 
                     variant="contained" 
                     color="secondary" 
-                    onClick={handleUpdate} 
+                    onClick={handleExplainTasks} 
                     sx={{ 
                         width: "100%", 
                         color: 'white'

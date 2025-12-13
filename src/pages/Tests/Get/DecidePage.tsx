@@ -17,11 +17,9 @@ import { PauseDialog } from "../../../entities/task/components/Timer/PauseDialog
 import { useGetTestMutation } from "../../../features/tests/api";
 import { useSetUser } from "../../../shared/helpers/api/useSetUser";
 import { useScreenSize } from "../../../shared/helpers/useScreenSize";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { SerializedError } from "@reduxjs/toolkit";
-import { getErrorMessages } from "../../../shared/utils/getErrorMessages";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../../features/accounts/auth.slice";
+import { HandleError } from "../../../shared/helpers/HandleError";
 
 export function DecidePage() {
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -61,11 +59,7 @@ export function DecidePage() {
           setTest(response.result!);
         }
         catch (error: unknown) {
-          const rtkError = error as FetchBaseQueryError | SerializedError | undefined;
-
-          getErrorMessages(rtkError).map(error => {
-              toast.error(error);
-          });
+          HandleError(error);
         }
       }
       else {
@@ -155,8 +149,6 @@ export function DecidePage() {
     const notFixedAnswersIndexes = answersHistory
       .map((a) => a.isFixed == false ? a.taskIndex : null)
       .filter(index => index !== null)
-
-    console.log(notFixedAnswersIndexes)
 
     setNotFixedAnswersIndexes(notFixedAnswersIndexes);
 

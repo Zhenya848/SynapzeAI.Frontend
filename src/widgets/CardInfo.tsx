@@ -15,7 +15,7 @@ export function CardInfo({title, value}: ICardInfo) {
                 sx={{ 
                     color: "lightgrey", 
                     whiteSpace: 'nowrap',
-                    fontSize: { xs: "15px", lg: "0.875rem" } // body2 по умолчанию, 11px на маленьких
+                    fontSize: { xs: "15px", lg: "0.875rem" }
                 }}
             >
                 {title}
@@ -27,7 +27,7 @@ export function CardInfo({title, value}: ICardInfo) {
                     wordBreak: 'break-word',
                     overflowWrap: 'anywhere',
                     maxWidth: '100%',
-                    fontSize: { xs: "15px", lg: "1.25rem" } // h6 по умолчанию (1.25rem), 11px на маленьких
+                    fontSize: { xs: "15px", lg: "1.25rem" }
                 }}
                 variant="h6"
             >
