@@ -40,10 +40,12 @@ export function MenuList() {
                 aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
                 color="inherit"
+                startIcon={<MenuIcon />}
                 style={{marginTop: "4px"}}
             >
-                <MenuIcon />
+                Меню
             </Button>
+
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}

@@ -8,7 +8,6 @@ import video4 from "../../assets/videos/video4.mp4";
 import video5 from "../../assets/videos/video5.mp4";
 import { OptimizedVideoPlayer } from "../../shared/helpers/OptimizedVideoPlayer";
 import TelegramIcon from '@mui/icons-material/Telegram';
-import YouTubeIcon from '@mui/icons-material/YouTube';
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useScreenSize } from "../../shared/helpers/useScreenSize";
@@ -225,18 +224,6 @@ export function MainPage() {
             variant={isMobile ? "h6" : "h5"}
           >
             канал разработчика
-          </Link>
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <YouTubeIcon color="primary" fontSize="large" />
-          <Link 
-            href="https://youtube.com/@light_script?si=IemX5-uRMqp7g4gL" 
-            target="_blank"
-            rel="noopener noreferrer"
-            variant={isMobile ? "h6" : "h5"}
-          >
-           канал разработчика
           </Link>
         </Box>
       </div>
