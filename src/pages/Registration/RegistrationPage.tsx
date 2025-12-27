@@ -114,7 +114,7 @@ export function RegistrationPage() {
     return (
         <div className="flex flex-col h-full w-full py-6 justify-center items-start gap-4">
             <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-5">
-                <form className="flex flex-col w-full items-center gap-5" onSubmit={(e) => handleRegister(e)}>
+                <form className="flex flex-col w-full items-center gap-7" onSubmit={(e) => handleRegister(e)}>
                     <TextField 
                     onChange={(e) => setUserName(e.target.value)}
                         variant="standard"
@@ -149,30 +149,28 @@ export function RegistrationPage() {
                     <Button type="submit" disabled = {isLoading}>Зарегистрироваться</Button>
                 </form>
 
-                <div style={{display: "flex", gap: 5, marginTop: "10px"}}>
-                    <Typography style={{ color: "grey" }}>Шаг1. Откройте </Typography>
+                <div style={{width: "auto", display: "flex", flexDirection: "column", gap: 20}}>
                     <a 
                         href="https://t.me/synapze_ai_bot" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        style={{ textDecoration: 'underline', color: "steelblue" }}
+                        style={{ textDecoration: 'underline', color: "steelblue", textAlign: "center" }}
                     >
-                        бота
+                        Шаг1. Откройте бота и введите любое сообщение
                     </a>
-                    <Typography style={{ color: "grey" }}>и введите любое сообщение</Typography>
+
+                    <Typography style={{ color: "grey", textAlign: "center" }}>Шаг 2. Нажмите зарегистрироваться и ждите код</Typography>
+                    <Typography style={{ color: "grey", textAlign: "center" }}>Шаг 3. Введите код подтверждения ниже: </Typography>
+
+                    <TextField 
+                    onChange={(e) => setCode(e.target.value)}
+                        variant="standard"
+                        label="Код подтверждения"
+                        error={codeError}
+                        value={code}
+                        fullWidth 
+                    />
                 </div>
-
-                <Typography style={{ color: "grey" }}>Шаг 2. Нажмите зарегистрироваться и ждите код</Typography>
-                <Typography style={{ color: "grey" }}>Шаг 3. Введите код подтверждения ниже: </Typography>
-
-                <TextField 
-                onChange={(e) => setCode(e.target.value)}
-                    variant="standard"
-                    label="Код подтверждения"
-                    error={codeError}
-                    value={code}
-                    fullWidth 
-                />
             </div>
         </div>
     )

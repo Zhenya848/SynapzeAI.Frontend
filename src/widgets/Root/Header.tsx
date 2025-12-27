@@ -17,8 +17,8 @@ export function Header() {
                 {
                     isMobile
                     ?
-                    <div className='flex flex-row items-center justify-center'>
-                        <NavLink to="/" className="text-2xl">Synapze AI</NavLink>
+                    <div className='flex flex-row items-center justify-center' style={{gap: 25}}>
+                        <NavLink to="/" className="text-xl">Synapze AI Beta</NavLink>
                         <MenuList />
                     </div>
                     :
