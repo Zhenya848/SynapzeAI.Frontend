@@ -4,10 +4,10 @@ import { Envelope } from "../api/model/Envelope";
 
 export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        register: builder.mutation<Envelope<void>, { userName: string, telegram: string, password: string }>({
-            query: ({ userName, telegram, password }) => ({
+        register: builder.mutation<Envelope<void>, { userName: string, telegram: string, password: string, code: string }>({
+            query: ({ userName, telegram, password, code }) => ({
                 url: USER_SERVICE_API_URL + "registration",
-                body: { userName, telegram, password },
+                body: { userName, telegram, password, code },
                 method: "POST"
             })
         }),
@@ -41,14 +41,6 @@ export const authApi = baseApi.injectEndpoints({
                 body: { userName },
                 method: "PUT"
             })
-        }),
-
-        verifyUser: builder.mutation<void, { telegram: string, code: string }>({
-            query: ({ telegram, code }) => ({
-                url: USER_SERVICE_API_URL + "users/verify",
-                body: { telegram, code },
-                method: "POST"
-            })
         })
     })
 });
@@ -58,6 +50,5 @@ export const {
     useLoginMutation,
     useRefreshMutation,
     useLogoutMutation,
-    useUpdateUserMutation,
-    useVerifyUserMutation
+    useUpdateUserMutation
  } = authApi;

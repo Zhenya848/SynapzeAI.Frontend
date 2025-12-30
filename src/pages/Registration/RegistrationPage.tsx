@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, TextField, Typography } from "@mui/material";
+import { TextField } from "@mui/material";
 import { toast } from "react-toastify";
-import { useLoginMutation, useRegisterMutation, useVerifyUserMutation } from "../../features/accounts/api";
+import { useLoginMutation, useRegisterMutation } from "../../features/accounts/api";
 import { useAppDispatch } from "../../app/store";
 import { setCredentials } from "../../features/accounts/auth.slice";
 import { HandleError } from "../../shared/helpers/HandleError";
@@ -16,13 +16,11 @@ export function RegistrationPage() {
     const [repeatedPassword, setRepeatedPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
     const [code, setCode] = useState("");
-    const [codeError, setCodeError] = useState(false);
 
     const dispatch = useAppDispatch();
 
     const [register] = useRegisterMutation();
     const [login] = useLoginMutation();
-    const [verify] = useVerifyUserMutation();
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -30,26 +28,17 @@ export function RegistrationPage() {
 
     useEffect(() => {
         const fetch = async () => {
-            try {
-                if (code.length === 5) {
-                    setCodeError(false);
-                    setCode("");
+            if (code.length === 5) {
+                await handleRegister();
 
-                    await verify({ telegram: telegram, code: code }).unwrap();
-                    await handleLogin();
-                }
-            }
-            catch (error: unknown) {
-                setCodeError(true);
-                HandleError(error);
+                setCode("");
             }
         }
 
         fetch();
     }, [code])
 
-    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleRegister = async () => {
         let isValid = true;
 
         if (userName.length < 1) {
@@ -84,8 +73,12 @@ export function RegistrationPage() {
             try {
                 setIsLoading(true);
 
-                await register({ userName: userName, telegram: telegram, password: password }).unwrap();
-                toast.info("Мы отправили код подтверждения на указанный telegram");
+                await register({ userName: userName, telegram: telegram, password: password, code: code }).unwrap();
+                
+                const loginResponse = await login({ telegram: telegram, password: password }).unwrap();
+                dispatch(setCredentials({ accessToken: loginResponse.result!.accessToken, user: loginResponse.result!.user }));
+
+                navigate("/accountInfo");
             }
             catch (error: unknown) {
                 HandleError(error);
@@ -96,30 +89,16 @@ export function RegistrationPage() {
         }
     }
 
-    const handleLogin = async () => {
-        try {
-            const loginResponse = await login({ telegram: telegram, password: password }).unwrap();
-            dispatch(setCredentials({ accessToken: loginResponse.result!.accessToken, user: loginResponse.result!.user }));
-
-            navigate("/accountInfo");
-        }
-        catch (error: unknown) {
-            HandleError(error);
-        }
-        finally {
-            setIsLoading(false);
-        }
-    }
-
     return (
         <div className="flex flex-col h-full w-full py-6 justify-center items-start gap-4">
             <div className="flex flex-col flex-1 min-w-80 mx-auto items-center justify-center gap-5">
-                <form className="flex flex-col w-full items-center gap-7" onSubmit={(e) => handleRegister(e)}>
+                <form className="flex flex-col w-full items-center gap-7">
                     <TextField 
                     onChange={(e) => setUserName(e.target.value)}
                         variant="standard"
                         error={userNameError}
                         label="Имя пользователя"
+                        disabled={isLoading}
                         fullWidth 
                     />
 
@@ -127,7 +106,8 @@ export function RegistrationPage() {
                     onChange={(e) => setTelegram(e.target.value)}
                         variant="standard"
                         error={telegramError}
-                        label="Telegram"
+                        label="Имя пользователя в Telegram через @"
+                        disabled={isLoading}
                         fullWidth 
                     />
 
@@ -136,6 +116,7 @@ export function RegistrationPage() {
                         variant="standard"
                         error={passwordError}
                         label="Пароль"
+                        disabled={isLoading}
                         fullWidth 
                     />
 
@@ -143,10 +124,9 @@ export function RegistrationPage() {
                     onChange={(e) => setRepeatedPassword(e.target.value)}
                         variant="standard"
                         label="Повторите пароль"
+                        disabled={isLoading}
                         fullWidth 
                     />
-
-                    <Button type="submit" disabled = {isLoading}>Зарегистрироваться</Button>
                 </form>
 
                 <div style={{width: "auto", display: "flex", flexDirection: "column", gap: 20}}>
@@ -156,18 +136,15 @@ export function RegistrationPage() {
                         rel="noopener noreferrer"
                         style={{ textDecoration: 'underline', color: "steelblue", textAlign: "center" }}
                     >
-                        Шаг1. Откройте бота и введите любое сообщение
+                        Запустите бота и введите код ниже
                     </a>
-
-                    <Typography style={{ color: "grey", textAlign: "center" }}>Шаг 2. Нажмите зарегистрироваться и ждите код</Typography>
-                    <Typography style={{ color: "grey", textAlign: "center" }}>Шаг 3. Введите код подтверждения ниже: </Typography>
 
                     <TextField 
                     onChange={(e) => setCode(e.target.value)}
                         variant="standard"
                         label="Код подтверждения"
-                        error={codeError}
                         value={code}
+                        disabled={isLoading}
                         fullWidth 
                     />
                 </div>

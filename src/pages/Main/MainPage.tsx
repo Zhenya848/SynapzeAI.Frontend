@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardMedia, Link, Typography } from "@mui/material";
+import { Box, Button, Card, CardMedia, Link, Stack, Typography } from "@mui/material";
 import image from '../../assets/images/image.png';
 import image2 from '../../assets/images/image2.png';
 import video from "../../assets/videos/video.mp4"
@@ -8,10 +8,12 @@ import video4 from "../../assets/videos/video4.mp4";
 import video5 from "../../assets/videos/video5.mp4";
 import { OptimizedVideoPlayer } from "../../shared/helpers/OptimizedVideoPlayer";
 import TelegramIcon from '@mui/icons-material/Telegram';
+import EmailIcon from '@mui/icons-material/Email';
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useScreenSize } from "../../shared/helpers/useScreenSize";
 import { useSetUser } from "../../shared/helpers/api/useSetUser";
+import { toast } from "react-toastify";
 
 export function MainPage() {
   const isMobile = useScreenSize();
@@ -21,6 +23,19 @@ export function MainPage() {
   useEffect(() => {
     setUser();
   }, []);
+
+  const handleCopyEmail = async () => {
+      try {
+          await navigator.clipboard.writeText("BelovEA100207@yandex.ru");
+
+          toast.info("Почта скопирована!");
+      } 
+      catch (err) {
+          console.error('Failed to copy: ', err);
+          
+          toast.error("Произошла ошибка при копировании почты");
+      }
+  };
 
   return (
     <div style={{margin: "8px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 15}}>
@@ -195,40 +210,45 @@ export function MainPage() {
           </div>
       </Box>
 
-      <Typography 
-        variant="h3" 
-        textAlign={"center"}
-        sx={{width: "100%", display: "flex", justifyContent: "center", fontSize: { xs: "25px", lg: "3rem" }}}>
-          Соцсети
-      </Typography>
+      <Typography variant="h5">Контакты и реквизиты</Typography>
 
-      <div style={{display: "flex", flexWrap: "wrap", gap: isMobile ? 20 : 50, justifyContent: "center"}}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <TelegramIcon color="primary" fontSize="large" />
-          <Link 
-            href="https://t.me/EvgenijBe" 
-            target="_blank"
-            rel="noopener noreferrer"
-            variant={isMobile ? "h6" : "h5"}
-          >
-            Написать в ЛС
-          </Link>
-        </Box>
+      <div style={{padding: 20, display: "flex", width: "99vw", flexDirection: isMobile ? "column" : "row"}}>
+        <div style={{gap: 40, display: "flex", justifyContent: "center", width: isMobile ? "100%" : "50%"}}>
+          <Box sx={{ display: 'flex' }}>
+            <TelegramIcon color="primary" fontSize="large" />
+            <Link 
+              variant="h6"
+              href="https://t.me/zhenya848" 
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Telegram
+            </Link>
+          </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <TelegramIcon color="primary" fontSize="large" />
-          <Link 
-            href="https://t.me/+UewO81O-GeJmZGVi" 
-            target="_blank"
-            rel="noopener noreferrer"
-            variant={isMobile ? "h6" : "h5"}
-          >
-            канал разработчика
-          </Link>
-        </Box>
+          <Stack direction="row" spacing={0.5}>
+            <EmailIcon color="primary" fontSize="large"/>
+            <Typography 
+              component="button"
+              color="primary"
+              variant="h6"
+              onClick={handleCopyEmail}
+            >
+              Email
+            </Typography>
+          </Stack>
+        </div>
+
+        <div style={{
+          gap: isMobile ? 5 : 20, 
+          display: "flex", 
+          justifyContent: "center", 
+          width: isMobile ? "100%" : "50%",
+          flexDirection: isMobile ? "column" : "row"}}>
+            <Typography variant="h6" textAlign={"center"}>ИНН: 773773576827</Typography>
+            <Typography variant="h6" textAlign={"center"}>© 2025 Белов Е.А.</Typography>
+        </div>
       </div>
-
-      <div style={{height: "160px"}}></div>
     </div>
   )
 }

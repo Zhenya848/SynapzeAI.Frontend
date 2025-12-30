@@ -4,8 +4,8 @@ import { Envelope } from "../features/api/model/Envelope";
 import { LoginResponse } from "../entities/accounts/api/LoginResponse";
 import { setCredentials } from "../features/accounts/auth.slice";
 
-export const TESTS_SERVICE_API_URL = "http://localhost:5144/api/Test/"
-export const USER_SERVICE_API_URL = "http://localhost:5276/api/Account/";
+export const TESTS_SERVICE_API_URL = "/api/Test/"
+export const USER_SERVICE_API_URL = "/api/Account/";
 export const PAYMENT_SERVICE_API_URL = "/api/Payments/";
 
 const baseQuery = fetchBaseQuery({
