@@ -116,6 +116,7 @@ export function RegistrationPage() {
                         variant="standard"
                         error={passwordError}
                         label="Пароль"
+                        helperText="Не менее 8 символов, должен содержать цифры"
                         disabled={isLoading}
                         fullWidth 
                     />
